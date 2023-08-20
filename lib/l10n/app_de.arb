@@ -1,0 +1,41 @@
+{
+  "com_app_name": "DLNA Player",
+  "com_ok": "Ok",
+  "com_cancel": "Abbruch",
+  "com_yes": "Ja",
+  "com_no": "Nein",
+  "com_back": "Zurück",
+  "com_new": "Neu",
+  "com_article": "Artikel",
+  "com_shop": "Geschäft",
+  "com_change_theme": "Farbschema ändern",
+  "com_change_language": "Sprache ändern",
+  "com_search_server": "Nach DLNA Server suchen",
+  "com_search_term": "Suchbegriff (3 oder mehr Zeichen eingeben)",
+  "com_num_articles": "{count, plural, =0{keine Artikel} =1{ein Artikel} other{{count} Artikel}}",
+  "com_error": "Ein Fehler ist aufgetreten!",
+  "com_search": "Suchbegriff",
+  "com_new_playlist": "Angezeigte Titel werden als Playlist verwendet",
+  "com_drawer_version": "Version {v}",
+  "com_f3": "Strg + F",
+  "com_ctrl_x": "Strg + X",
+
+  "card_genre": "Genre: {val}",
+  "card_tracks": "Titel: {num}",
+  "card_duration": "Dauer: {duration}",
+  "card_tracknum": "Titel: {num} ",
+
+  "content_search_for": "Suchen nach",
+  "content_selected": "{sel} von {total} ausgewählt {additional}",
+
+  "server_search": "Suche nach DLNA Server...",
+  "server_not_found": "Es wurden keine DLNA Server gefunden. Stellen Sie sicher, dass das UPNP Protokoll aktiviert ist und das Multicast funktioniert.",
+  "server_found": "Gefundene Server: {num}",
+  "server_visited": "Besuchte Server: {num}",
+
+  "content_class": "{cl, select, other{---} album{Album} albums{Alben} genre{Genre} artist{Interpret} artists{Interpreten} track{Titel} folder{Ordner} playlist{Playlist}}",
+
+  "player_shuffle_mode": "Zufallsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
+  "player_repeat_mode": "Wiederholungsmodus {bool, select, other{} false{aus} true{ein}}geschaltet"
+
+}

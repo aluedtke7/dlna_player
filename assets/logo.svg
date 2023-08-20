@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="186mm"
+   height="120mm"
+   viewBox="0 0 186 120"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   sodipodi:docname="logo.svg"
+   inkscape:export-filename="images/error_album.png"
+   inkscape:export-xdpi="13.745262"
+   inkscape:export-ydpi="13.745262"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="1.1826652"
+     inkscape:cx="351.7479"
+     inkscape:cy="229.98901"
+     inkscape:window-width="1455"
+     inkscape:window-height="925"
+     inkscape:window-x="365"
+     inkscape:window-y="86"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer4" />
+  <defs
+     id="defs2">
+    <rect
+       x="11.775994"
+       y="15.350374"
+       width="427.23145"
+       height="326.83621"
+       id="rect15549" />
+    <linearGradient
+       inkscape:collect="always"
+       id="linearGradient13234">
+      <stop
+         style="stop-color:#515151;stop-opacity:1;"
+         offset="0.22957119"
+         id="stop13230" />
+      <stop
+         style="stop-color:#9f9f9f;stop-opacity:0;"
+         offset="1"
+         id="stop13232" />
+    </linearGradient>
+    <rect
+       x="104.92192"
+       y="79.962868"
+       width="258.60309"
+       height="243.5334"
+       id="rect11553" />
+    <rect
+       x="85.387192"
+       y="96.894173"
+       width="256.86139"
+       height="235.53345"
+       id="rect11547" />
+    <rect
+       x="108.07809"
+       y="87.064621"
+       width="223.41287"
+       height="251.01418"
+       id="rect11491" />
+    <linearGradient
+       id="linearGradient2726"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#00ff00;stop-opacity:1;"
+         offset="0"
+         id="stop2724" />
+    </linearGradient>
+    <radialGradient
+       inkscape:collect="always"
+       xlink:href="#linearGradient13234"
+       id="radialGradient13236"
+       cx="100.17225"
+       cy="96.949944"
+       fx="100.17225"
+       fy="96.949944"
+       r="78.161827"
+       gradientTransform="matrix(1.1821048,0,0,0.05978645,-25.352098,105.44064)"
+       gradientUnits="userSpaceOnUse" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     id="layer3"
+     inkscape:label="Ebene 3">
+    <ellipse
+       style="fill:url(#radialGradient13236);fill-opacity:1;stroke:none;stroke-width:0.761073;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       id="path12373"
+       cx="93.062004"
+       cy="111.23693"
+       rx="92.395477"
+       ry="4.673018"
+       inkscape:label="Bodenschatten" />
+  </g>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g15158">
+      <circle
+         style="fill:#000000;stroke-width:0.264583"
+         id="path1887"
+         cx="130.1055"
+         cy="58.266277"
+         r="48"
+         inkscape:label="Platte" />
+      <circle
+         style="fill:#c4ddec;fill-opacity:1;stroke:none;stroke-width:1.14278;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="path13316"
+         cx="130.1055"
+         cy="58.266277"
+         r="20"
+         inkscape:label="Plattentext" />
+      <ellipse
+         style="fill:#f7f7f7;fill-opacity:1;stroke:#151515;stroke-width:0.392523;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+         id="path13385"
+         cx="130.1055"
+         cy="58.266277"
+         inkscape:label="Loch"
+         rx="2.8037388"
+         ry="2.8037386" />
+    </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="Ebene 2">
+    <rect
+       style="mix-blend-mode:normal;fill:#efefef;fill-opacity:1;stroke:#aeaeaf;stroke-width:4.59;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       id="rect945"
+       width="100"
+       height="100"
+       x="11.020934"
+       y="7.8744845"
+       inkscape:label="Cover" />
+    <text
+       xml:space="preserve"
+       transform="matrix(1.010477,0,0,0.78605454,-94.80101,-51.174064)"
+       id="text11551"
+       style="font-style:normal;font-variant:normal;font-weight:200;font-stretch:normal;font-size:96px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Ultra-Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect11553);display:inline;fill:#6a6a6a;fill-opacity:1;stroke:none;stroke-width:0.974407;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"><tspan
+         x="104.92188"
+         y="164.90039"
+         id="tspan15713">♫</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="Ebene 4"
+     style="fill:#ff0000">
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,10.059207,73.005205)"
+       id="text15547"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:113.333px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;shape-inside:url(#rect15549);display:inline;fill:#ff0000;fill-opacity:1;stroke:none;stroke-width:2.64567;stroke-dasharray:none;stroke-opacity:1;paint-order:markers fill stroke"
+       inkscape:label="404"><tspan
+         x="11.775391"
+         y="115.62275"
+         id="tspan15715">404</tspan></text>
+  </g>
+</svg>

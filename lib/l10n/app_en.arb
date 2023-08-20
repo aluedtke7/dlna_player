@@ -1,0 +1,109 @@
+{
+  "com_app_name": "DLNA Player",
+  "com_ok": "Ok",
+  "com_cancel": "Cancel",
+  "com_yes": "Yes",
+  "com_no": "No",
+  "com_back": "Back",
+  "com_new": "New",
+  "com_article": "article",
+  "com_shop": "shop",
+  "com_change_theme": "change theme",
+  "com_change_language": "change language",
+  "com_search_server": "search for DLNA server",
+  "com_search_term": "search term (enter 3 or more character)",
+  "com_error": "An Error Occurred!",
+  "com_search": "Search term",
+  "com_new_playlist": "Displayed tracks will be used as playlist",
+  "com_drawer_version": "Version {v}",
+  "com_f3": "Ctrl + F",
+  "com_ctrl_x": "Ctrl + X",
+
+  "card_genre": "Genre: {val}",
+  "@card_genre": {
+    "placeholders": {
+      "val": {
+        "type": "String"
+      }
+    }
+  },
+  "card_tracks": "Tracks: {num}",
+  "@card_tracks": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "card_duration": "Duration: {duration}",
+  "@card_duration": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "card_tracknum": "Track: {num} ",
+  "@card_tracknum": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+
+  "content_search_for": "Search for",
+  "content_selected": "Selected {sel} of {total} {additional}",
+  "@content_selected": {
+    "placeholders": {
+      "sel": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      },
+      "additional": {
+        "type": "String"
+      }
+    }
+  },
+
+  "server_search": "Searching for DLNA server...",
+  "server_not_found": "No DLNA server found. Make sure the UPNP protocol is enabled in your network. Does Multicast work?",
+  "server_found": "Server found: {num}",
+  "@server_found": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "server_visited": "Server visited: {num}",
+  "@server_visited": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+
+  "content_class": "{cl, select, other{---} album{Album} albums{Albums} genre{Genre} artist{Artist} artists{Artists} track{Track} folder{Folder} playlist{Playlist}}",
+  "@content_class": {
+    "placeholders": {
+      "cl": {}
+    }
+  },
+  "player_shuffle_mode": "Shuffle mode switched {bool, select, other{} false{off} true{on}}",
+  "@player_shuffle_mode": {
+    "placeholders": {
+      "bool": {}
+    }
+  },
+  "player_repeat_mode": "Repeat mode switched {bool, select, other{} false{off} true{on}}",
+  "@player_repeat_mode": {
+    "placeholders": {
+      "bool": {}
+    }
+  }
+
+}
