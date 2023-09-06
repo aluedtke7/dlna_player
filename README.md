@@ -24,8 +24,7 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
 - several themes
 - two player widget sizes (click on player title to change)
 - localization (English and German)
-- works on Android, iOS, Linux, MacOS and Windows (the MacOS version is not catching the right media key events, see
-  [Github issue tracker hid_listener](https://github.com/localcc/hid_listener/issues/7))
+- works on Android, iOS, Linux, MacOS and Windows
 
 ## Screenshots
 ### MacOS

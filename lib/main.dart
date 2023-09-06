@@ -65,7 +65,10 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     super.initState();
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
-      registerKeyboardListener(listener);
+      if (!getListenerBackend()!.initialize()) {
+        debugPrint("Failed to initialize HID listener backend");
+      }
+      getListenerBackend()!.addKeyboardListener(listener);
     }
     final String initialLanguage;
     if (kIsWeb) {
@@ -123,14 +126,16 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
 
   void listener(RawKeyEvent event) {
     if (event is RawKeyUpEvent) {
-      var data = event.data as RawKeyEventDataWindows;
-      if (data.keyCode == HidListenerKeycodes.VK_MEDIA_NEXT_TRACK) {
+      // debugPrint('logicalKey ${event.data.logicalKey}');
+      if (event.data.logicalKey == LogicalKeyboardKey.mediaFastForward ||
+          event.data.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
         debugPrint('HID next track');
         ref.read(playingProvider.notifier).playNextTrack();
-      } else if (data.keyCode == HidListenerKeycodes.VK_MEDIA_PREV_TRACK) {
+      } else if (event.data.logicalKey == LogicalKeyboardKey.mediaRewind ||
+          event.data.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
         debugPrint('HID prev track');
         ref.read(playingProvider.notifier).playPreviousTrack();
-      } else if (data.keyCode == HidListenerKeycodes.VK_MEDIA_PLAY_PAUSE) {
+      } else if (event.data.logicalKey == LogicalKeyboardKey.mediaPlayPause) {
         debugPrint('HID play pause');
         ref.read(playingProvider.notifier).playPauseTrack();
       }
