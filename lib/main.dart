@@ -126,16 +126,17 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
 
   void listener(RawKeyEvent event) {
     if (event is RawKeyUpEvent) {
-      // debugPrint('logicalKey ${event.data.logicalKey}');
-      if (event.data.logicalKey == LogicalKeyboardKey.mediaFastForward ||
-          event.data.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
+      // debugPrint('logicalKey ${event.logicalKey}');
+      if (event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
+          event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
         debugPrint('HID next track');
         ref.read(playingProvider.notifier).playNextTrack();
-      } else if (event.data.logicalKey == LogicalKeyboardKey.mediaRewind ||
-          event.data.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaRewind ||
+          event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
         debugPrint('HID prev track');
         ref.read(playingProvider.notifier).playPreviousTrack();
-      } else if (event.data.logicalKey == LogicalKeyboardKey.mediaPlayPause) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaPlayPause ||
+          event.logicalKey == LogicalKeyboardKey.mediaPlay) {
         debugPrint('HID play pause');
         ref.read(playingProvider.notifier).playPauseTrack();
       }
