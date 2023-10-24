@@ -1,7 +1,7 @@
 import 'package:dlna_player/component/app_drawer.dart';
+import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -123,7 +123,7 @@ class _MainPageState extends ConsumerState<MainPage> {
         searching = false;
       });
       if (devices.isEmpty) {
-        Statics.showErrorSnackbar(context, AppLocalizations.of(context)?.server_not_found);
+        Statics.showErrorSnackbar(context, i18n(context).server_not_found);
       }
     });
   }
@@ -146,7 +146,7 @@ class _MainPageState extends ConsumerState<MainPage> {
           IconButton(
             onPressed: _searchForServer,
             icon: const Icon(Icons.refresh),
-            tooltip: AppLocalizations.of(context)?.com_search_server,
+            tooltip: i18n(context).com_search_server,
           )
         ],
       ),
@@ -158,7 +158,7 @@ class _MainPageState extends ConsumerState<MainPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                AppLocalizations.of(context)?.server_visited(lastDevices.length) ?? '',
+                i18n(context).server_visited(lastDevices.length),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
@@ -170,7 +170,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                   itemBuilder: (ctx, idx) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, ServerPage.routeName, arguments: lastDevices[idx]);
+                        Navigator.pushNamed(context, ServerPage.routeName,
+                            arguments: lastDevices[idx]);
                       },
                       child: DeviceCard(device: lastDevices[idx]),
                     );
@@ -185,7 +186,7 @@ class _MainPageState extends ConsumerState<MainPage> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                AppLocalizations.of(context)?.server_found(devices.length) ?? '',
+                i18n(context).server_found(devices.length),
                 style: Theme.of(context).textTheme.headlineMedium,
               ),
             ),
@@ -212,7 +213,7 @@ class _MainPageState extends ConsumerState<MainPage> {
                 child: SizedBox(height: 30, width: 30, child: CircularProgressIndicator()),
               ),
               Text(
-                AppLocalizations.of(context)?.server_search ?? '',
+                i18n(context).server_search,
               ),
               const SizedBox(
                 height: 50,

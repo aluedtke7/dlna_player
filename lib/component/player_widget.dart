@@ -1,19 +1,19 @@
 import 'dart:io';
 import 'dart:math';
-
-import 'package:dlna_player/component/theme_options.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'dart:async';
 
-import 'package:dlna_player/component/extensions.dart';
-import 'package:dlna_player/component/statics.dart';
-import 'package:dlna_player/model/pref_keys.dart';
-import 'package:dlna_player/provider/player_provider.dart';
-import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
+
+import 'package:dlna_player/component/extensions.dart';
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/theme_options.dart';
+import 'package:dlna_player/model/pref_keys.dart';
+import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/provider/prefs_provider.dart';
 
 const double iconSize = 32;
 
@@ -143,7 +143,8 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              crossFadeState: showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                              crossFadeState:
+                                  showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                               duration: const Duration(milliseconds: 500),
                               sizeCurve: Curves.bounceInOut,
                             ),
@@ -181,7 +182,8 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             });
                           },
                           onChangeEnd: (value) {
-                            final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
+                            final newCurrent =
+                                Duration(seconds: (value * endTimeRef.inSeconds).toInt());
                             ref.read(playerProvider).seek(newCurrent).then((_) {
                               setState(() {
                                 sliderIsMoving = false;
@@ -208,9 +210,10 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             ref.read(shuffleModeProvider.notifier).state = isShuffle;
                             _savePrefs();
                             Statics.showInfoSnackbar(
-                                context, AppLocalizations.of(context)?.player_shuffle_mode(isShuffle.toString()) ?? '');
+                                context, i18n(context).player_shuffle_mode(isShuffle.toString()));
                           },
-                          icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
+                          icon: Icon(Icons.shuffle,
+                              size: iconSize, color: !isShuffle ? Colors.grey : null),
                         ),
                         IconButton(
                           onPressed: playlistRef.length > 1
@@ -232,9 +235,10 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             ref.read(repeatModeProvider.notifier).state = isRepeat;
                             _savePrefs();
                             Statics.showInfoSnackbar(
-                                context, AppLocalizations.of(context)?.player_repeat_mode(isRepeat.toString()) ?? '');
+                                context, i18n(context).player_repeat_mode(isRepeat.toString()));
                           },
-                          icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
+                          icon: Icon(Icons.repeat,
+                              size: iconSize, color: !isRepeat ? Colors.grey : null),
                         ),
                       ],
                     ),

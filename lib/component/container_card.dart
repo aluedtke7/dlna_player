@@ -1,6 +1,7 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:dlna_player/model/raw_content.dart';
 import 'package:flutter/material.dart';
+
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/model/raw_content.dart';
 
 class ContainerCard extends StatelessWidget {
   const ContainerCard({
@@ -46,8 +47,8 @@ class ContainerCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  if (container.genre.isNotEmpty) Text(AppLocalizations.of(context)?.card_genre(container.genre) ?? ''),
-                  if (container.numTracks > 0) Text(AppLocalizations.of(context)?.card_tracks(container.numTracks) ?? ''),
+                  if (container.genre.isNotEmpty) Text(i18n(context).card_genre(container.genre)),
+                  if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
                 ],
               ),
             ),

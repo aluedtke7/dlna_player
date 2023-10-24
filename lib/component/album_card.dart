@@ -1,6 +1,7 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:dlna_player/model/raw_content.dart';
 import 'package:flutter/material.dart';
+
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/model/raw_content.dart';
 
 class AlbumCard extends StatelessWidget {
   const AlbumCard({
@@ -46,7 +47,7 @@ class AlbumCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  if (container.numTracks > 0) Text(AppLocalizations.of(context)?.card_tracks(container.numTracks) ?? ''),
+                  if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
                 ],
               ),
             ),

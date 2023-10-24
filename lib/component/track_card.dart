@@ -1,6 +1,7 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 
@@ -25,9 +26,9 @@ class TrackCard extends ConsumerWidget {
       }
     }
     var trNum = '';
-    if (track.trackNum > 0) trNum = AppLocalizations.of(context)?.card_tracknum(track.trackNum) ?? '';
+    if (track.trackNum > 0) trNum = i18n(context).card_tracknum(track.trackNum);
     var trDuration = '';
-    if (duration.isNotEmpty) trDuration = AppLocalizations.of(context)?.card_duration(duration) ?? '';
+    if (duration.isNotEmpty) trDuration = i18n(context).card_duration(duration);
 
     return Card(
       elevation: 5,

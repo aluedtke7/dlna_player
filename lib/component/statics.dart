@@ -1,8 +1,8 @@
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:theme_provider/theme_provider.dart';
+
+import 'package:dlna_player/component/i18n_util.dart';
 
 class Statics {
   static Future<void> showErrorSnackbar(BuildContext ctx, dynamic e) async {
@@ -28,7 +28,8 @@ class Statics {
     ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
         backgroundColor: Theme.of(ctx).colorScheme.primary,
-        content: Text(msg, textAlign: TextAlign.center, style: TextStyle(color: Theme.of(ctx).cardTheme.color)),
+        content: Text(msg,
+            textAlign: TextAlign.center, style: TextStyle(color: Theme.of(ctx).cardTheme.color)),
         duration: const Duration(milliseconds: 2500),
         padding: const EdgeInsets.all(8.0),
         behavior: SnackBarBehavior.floating,
@@ -107,7 +108,8 @@ class Statics {
     );
   }
 
-  static Future<String?> showSearchDialog(BuildContext context, String title, String initValue) async {
+  static Future<String?> showSearchDialog(
+      BuildContext context, String title, String initValue) async {
     final controller = TextEditingController();
     controller.text = initValue;
 
@@ -118,7 +120,7 @@ class Statics {
             controller: controller,
             autofocus: true,
             decoration: InputDecoration(
-              labelText: AppLocalizations.of(context)?.com_search,
+              labelText: i18n(context).com_search,
               suffixIcon: IconButton(
                 onPressed: () => controller.clear(),
                 icon: const Icon(Icons.clear),
@@ -134,11 +136,11 @@ class Statics {
             actions: <Widget>[
               ElevatedButton(
                 onPressed: () => Navigator.of(ctx).pop(null),
-                child: Text(AppLocalizations.of(context)?.com_cancel ?? ''),
+                child: Text(i18n(context).com_cancel),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.of(ctx).pop(controller.text),
-                child: Text(AppLocalizations.of(context)?.com_ok ?? ''),
+                child: Text(i18n(context).com_ok),
               ),
             ],
           );

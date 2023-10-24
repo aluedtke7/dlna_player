@@ -1,11 +1,11 @@
-import 'package:flutter/services.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:dlna_player/component/album_card.dart';
 import 'package:dlna_player/component/container_card.dart';
+import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
 import 'package:dlna_player/component/statics.dart';
@@ -56,30 +56,36 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         type = argument.content[1].classType;
       }
     }
-    final typeName = AppLocalizations.of(context)?.content_class(type.toString()) ?? '';
+    final typeName = i18n(context).content_class(type.toString());
     // build filtered list based on search term
     final List<RawContent> selItems;
     final double mainAxisExtend;
     switch (type) {
       case ContentClass.album:
         selItems = argument.content
-            .where((el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm))
+            .where((el) =>
+                el.title.toLowerCase().contains(searchTerm) ||
+                el.artist.toLowerCase().contains(searchTerm))
             .toList();
         mainAxisExtend = 100;
         break;
       case ContentClass.artist:
         selItems = argument.content
-            .where((el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm))
+            .where((el) =>
+                el.title.toLowerCase().contains(searchTerm) ||
+                el.genre.toLowerCase().contains(searchTerm))
             .toList();
         mainAxisExtend = 90;
         break;
       case ContentClass.genre:
       case ContentClass.playlist:
-        selItems = argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
+        selItems =
+            argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
         mainAxisExtend = 70;
         break;
       case ContentClass.folder:
-        selItems = argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
+        selItems =
+            argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
         mainAxisExtend = 85;
         break;
       case ContentClass.track:
@@ -97,7 +103,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     }
 
     void openSearchDialog() {
-      Statics.showSearchDialog(context, AppLocalizations.of(context)?.content_search_for ?? '', searchTerm).then((value) {
+      Statics.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {
         if (value != null) {
           setState(() {
             searchTerm = value.toLowerCase();
@@ -116,8 +122,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
 
     return Shortcuts(
       shortcuts: <ShortcutActivator, Intent>{
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF): const OpenSearchIntent(),
-        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyX): const ClearSearchIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF):
+            const OpenSearchIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyX):
+            const ClearSearchIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
@@ -138,12 +146,12 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 IconButton(
                   onPressed: openSearchDialog,
                   icon: const Icon(Icons.search),
-                  tooltip: AppLocalizations.of(context)?.com_f3,
+                  tooltip: i18n(context).com_f3,
                 ),
                 IconButton(
                   onPressed: searchTerm.isEmpty ? null : clearSearch,
                   icon: const Icon(Icons.clear),
-                  tooltip: AppLocalizations.of(context)?.com_ctrl_x,
+                  tooltip: i18n(context).com_ctrl_x,
                 ),
               ],
             ),
@@ -152,8 +160,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 const SizedBox(
                   height: 4,
                 ),
-                Text(AppLocalizations.of(context)?.content_selected(
-                    selItems.length, argument.content.length, searchTerm.isNotEmpty ? " - $searchTerm" : "") ?? ''),
+                Text(i18n(context).content_selected(selItems.length, argument.content.length,
+                    searchTerm.isNotEmpty ? " - $searchTerm" : "")),
                 const SizedBox(
                   height: 4,
                 ),
@@ -176,8 +184,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                               // open another page with content
                               DlnaService.browseAll(selItems[idx].id).then((value) {
                                 if (value.isNotEmpty) {
-                                  final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                                  Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
+                                  final args =
+                                      ContentArguments(buildTitle(argument.title, typeName), value);
+                                  Navigator.pushNamed(context, ContentPage.routeName,
+                                      arguments: args);
                                 }
                                 // debugPrint('Content_page: end Loading... $idx');
                                 setState(() {
@@ -191,12 +201,13 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                                 ref.read(trackProvider.notifier).setTrack(selItems[idx]);
                                 var player = ref.read(playerProvider);
                                 // make current visible list the playlist and set index
-                                ref.read(playlistProvider.notifier).setPlaylist(
-                                    selItems.where((element) => element.classType == ContentClass.track).toList());
+                                ref.read(playlistProvider.notifier).setPlaylist(selItems
+                                    .where((element) => element.classType == ContentClass.track)
+                                    .toList());
                                 ref.read(playlistIndexProvider.notifier).setIndex(idx);
                                 player.play(UrlSource(selItems[idx].trackUrl!));
                                 ref.read(lruListProvider).add(selItems[idx].id);
-                                Statics.showInfoSnackbar(context, AppLocalizations.of(context)?.com_new_playlist ?? '');
+                                Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
                               }
                             }
                           },

@@ -1,10 +1,11 @@
-import 'package:dlna_player/application.dart';
-import 'package:dlna_player/component/theme_options.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:theme_provider/theme_provider.dart';
+
+import 'package:dlna_player/application.dart';
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/theme_options.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({Key? key}) : super(key: key);
@@ -18,11 +19,13 @@ class AppDrawer extends StatelessWidget {
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: ThemeProvider.optionsOf<ThemeOptions>(context).drawerHeaderDecoration(context),
+              decoration:
+                  ThemeProvider.optionsOf<ThemeOptions>(context).drawerHeaderDecoration(context),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('DLNA Player', textScaleFactor: 1.6, style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text('DLNA Player',
+                      textScaleFactor: 1.6, style: TextStyle(fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder<PackageInfo>(
@@ -32,14 +35,14 @@ class AppDrawer extends StatelessWidget {
                           if (snapshot.hasData) {
                             defText = '${snapshot.data!.version}+${snapshot.data!.buildNumber}';
                           }
-                          return Text(AppLocalizations.of(context)?.com_drawer_version(defText) ?? '');
+                          return Text(i18n(context).com_drawer_version(defText));
                         }),
                   ),
                 ],
               ),
             ),
             ListTile(
-              title: Text(AppLocalizations.of(context)?.com_change_theme ?? ''),
+              title: Text(i18n(context).com_change_theme),
               onTap: () {
                 ThemeProvider.controllerOf(context).nextTheme();
               },
@@ -48,7 +51,7 @@ class AppDrawer extends StatelessWidget {
               ),
             ),
             ListTile(
-              title: Text(AppLocalizations.of(context)?.com_change_language ?? ''),
+              title: Text(i18n(context).com_change_language),
               onTap: () {
                 if ((Intl.defaultLocale ?? '').contains('de')) {
                   Intl.defaultLocale = 'en';
