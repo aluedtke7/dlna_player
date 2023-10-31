@@ -7,9 +7,9 @@ import 'package:dlna_player/provider/player_provider.dart';
 
 class TrackCard extends ConsumerWidget {
   const TrackCard({
-    Key? key,
+    super.key,
     required this.track,
-  }) : super(key: key);
+  });
   final RawContent track;
 
   @override

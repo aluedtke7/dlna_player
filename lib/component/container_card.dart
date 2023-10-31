@@ -5,9 +5,9 @@ import 'package:dlna_player/model/raw_content.dart';
 
 class ContainerCard extends StatelessWidget {
   const ContainerCard({
-    Key? key,
+    super.key,
     required this.container,
-  }) : super(key: key);
+  });
   final RawContent container;
 
   @override

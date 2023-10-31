@@ -18,7 +18,7 @@ import 'package:dlna_player/provider/prefs_provider.dart';
 const double iconSize = 32;
 
 class PlayerWidget extends ConsumerStatefulWidget {
-  const PlayerWidget(String trackTitle, {Key? key}) : super(key: key);
+  const PlayerWidget(String trackTitle, {super.key});
 
   @override
   ConsumerState<PlayerWidget> createState() => _PlayerWidgetState();

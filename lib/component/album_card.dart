@@ -5,9 +5,9 @@ import 'package:dlna_player/model/raw_content.dart';
 
 class AlbumCard extends StatelessWidget {
   const AlbumCard({
-    Key? key,
+    super.key,
     required this.container,
-  }) : super(key: key);
+  });
   final RawContent container;
 
   @override

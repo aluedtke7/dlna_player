@@ -3,9 +3,9 @@ import 'package:upnp2/upnp.dart';
 
 class DeviceCard extends StatelessWidget {
   const DeviceCard({
-    Key? key,
+    super.key,
     required this.device,
-  }) : super(key: key);
+  });
   final Device device;
 
   @override

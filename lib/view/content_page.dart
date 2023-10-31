@@ -17,7 +17,7 @@ import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
 
 class ContentPage extends ConsumerStatefulWidget {
-  const ContentPage({Key? key}) : super(key: key);
+  const ContentPage({super.key});
   static const routeName = '/container';
 
   @override

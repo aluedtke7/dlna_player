@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:upnp2/upnp.dart';
 
 class ServerPage extends ConsumerStatefulWidget {
-  const ServerPage({Key? key}) : super(key: key);
+  const ServerPage({super.key});
   static const routeName = '/server';
 
   @override
