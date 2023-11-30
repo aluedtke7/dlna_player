@@ -5,6 +5,7 @@ class ProgressCard extends StatelessWidget {
     super.key,
     required this.title,
   });
+
   final String title;
 
   @override
@@ -18,7 +19,10 @@ class ProgressCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(title),
+              Text(
+                title,
+                textScaler: const TextScaler.linear(1.4),
+              ),
               const LinearProgressIndicator(),
             ],
           ),

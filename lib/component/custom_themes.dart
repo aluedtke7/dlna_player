@@ -8,10 +8,11 @@ var customThemes = [
     id: 'light',
     description: 'Light',
     data: ThemeData(
+      useMaterial3: true,
       dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
     ),
     options: ThemeOptions(
-      Colors.grey.shade300,
+      const Color(0xFFC8BFD2),
       Statics.getSlideBtnBackgroundLight,
       1.4,
       FontWeight.bold,
@@ -24,6 +25,7 @@ var customThemes = [
     id: 'dark',
     description: 'Dark',
     data: ThemeData(
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
         primarySwatch: Colors.cyan,
@@ -32,7 +34,7 @@ var customThemes = [
       dialogBackgroundColor: const Color.fromARGB(255, 50, 50, 50),
     ),
     options: ThemeOptions(
-      Colors.grey.shade900,
+      const Color(0xFF0B535E),
       Statics.getSlideBtnBackgroundDark,
       1.4,
       FontWeight.bold,
@@ -45,6 +47,7 @@ var customThemes = [
     id: 'orange',
     description: 'Orange',
     data: ThemeData(
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.deepOrange,
         accentColor: Colors.deepOrange.shade700,
@@ -52,7 +55,7 @@ var customThemes = [
       dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
     ),
     options: ThemeOptions(
-      Colors.grey.shade300,
+      const Color(0xFFFADFD0),
       Statics.getSlideBtnBackgroundLight,
       1.4,
       FontWeight.bold,
@@ -65,6 +68,7 @@ var customThemes = [
     id: 'light-orange',
     description: 'Light orange',
     data: ThemeData(
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
         primarySwatch: Colors.orange,
         accentColor: Colors.orange,
@@ -72,7 +76,7 @@ var customThemes = [
       dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
     ),
     options: ThemeOptions(
-      Colors.grey.shade200,
+      const Color(0xFFFFF0E0),
       Statics.getSlideBtnBackgroundLight,
       1.1,
       FontWeight.normal,
@@ -85,6 +89,7 @@ var customThemes = [
     id: 'dark-orange',
     description: 'Dark orange',
     data: ThemeData(
+      useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
         primarySwatch: Colors.orange,
@@ -92,7 +97,7 @@ var customThemes = [
       ),
     ),
     options: ThemeOptions(
-      Colors.grey.shade900,
+      const Color(0xFF473321),
       Statics.getSlideBtnBackgroundDark,
       1.4,
       FontWeight.bold,

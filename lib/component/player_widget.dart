@@ -150,7 +150,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             ),
                           ),
                           SizedBox(
-                              width: 40,
+                              width: 45,
                               child: Text(
                                 endTimeRef.showMS(),
                                 textAlign: TextAlign.end,

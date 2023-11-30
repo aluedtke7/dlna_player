@@ -8,6 +8,7 @@ class AlbumCard extends StatelessWidget {
     super.key,
     required this.container,
   });
+
   final RawContent container;
 
   @override
@@ -30,7 +31,7 @@ class AlbumCard extends StatelessWidget {
                   if (container.title.isNotEmpty)
                     Text(
                       container.title,
-                      textScaleFactor: 1.1,
+                      textScaler: const TextScaler.linear(1.1),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -47,7 +48,8 @@ class AlbumCard extends StatelessWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
+                  if (container.numTracks > 0)
+                    Text(i18n(context).card_tracks(container.numTracks)),
                 ],
               ),
             ),

@@ -1,29 +1,31 @@
-import 'package:dlna_player/component/app_drawer.dart';
-import 'package:dlna_player/component/i18n_util.dart';
-import 'package:dlna_player/model/pref_keys.dart';
-import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:dlna_player/component/device_card.dart';
-import 'package:dlna_player/component/player_widget.dart';
-import 'package:dlna_player/provider/player_provider.dart';
-import 'package:dlna_player/view/server_page.dart';
-import 'package:dlna_player/component/statics.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'package:dlna_player/component/app_drawer.dart';
+import 'package:dlna_player/component/device_card.dart';
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/player_widget.dart';
+import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/model/pref_keys.dart';
+import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/provider/prefs_provider.dart';
+import 'package:dlna_player/view/server_page.dart';
 
 import 'package:upnp2/upnp.dart' as upnp;
 
-class MainPage extends ConsumerStatefulWidget {
-  const MainPage({super.key, required this.title});
+class StartPage extends ConsumerStatefulWidget {
+  const StartPage({super.key, required this.title});
+
   final String title;
 
   @override
-  ConsumerState<MainPage> createState() => _MainPageState();
+  ConsumerState<StartPage> createState() => _StartPageState();
 }
 
-class _MainPageState extends ConsumerState<MainPage> {
+class _StartPageState extends ConsumerState<StartPage> {
   List<upnp.Device> devices = [];
   List<upnp.Device> lastDevices = [];
   var searching = false;
@@ -33,7 +35,8 @@ class _MainPageState extends ConsumerState<MainPage> {
       lastDevices = [];
     });
     final prefs = await SharedPreferences.getInstance();
-    final lastServerList = prefs.getStringList(PrefKeys.lastUsedServerUrlPrefsKey) ?? [];
+    final lastServerList =
+        prefs.getStringList(PrefKeys.lastUsedServerUrlPrefsKey) ?? [];
     ref.read(lastServerListProvider).list.addAll(lastServerList);
 
     upnp.DiscoveredClient? dc;
@@ -50,7 +53,8 @@ class _MainPageState extends ConsumerState<MainPage> {
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
-          final deviceExists = lastDevices.any((dev) => dev.urlBase == device.urlBase);
+          final deviceExists =
+              lastDevices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
             debugPrint("Found ${device.friendlyName} on IP ${location.host}");
             setState(() {
@@ -95,7 +99,8 @@ class _MainPageState extends ConsumerState<MainPage> {
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
-          final deviceExists = devices.any((dev) => dev.urlBase == device.urlBase);
+          final deviceExists =
+              devices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
             debugPrint("Found ${device.friendlyName} on IP ${location.host}");
             setState(() {
@@ -141,7 +146,13 @@ class _MainPageState extends ConsumerState<MainPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        iconTheme:
+            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: Text(
+          widget.title,
+          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        ),
         actions: [
           IconButton(
             onPressed: _searchForServer,
@@ -198,7 +209,8 @@ class _MainPageState extends ConsumerState<MainPage> {
                   itemBuilder: (ctx, idx) {
                     return GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, ServerPage.routeName, arguments: devices[idx]);
+                        Navigator.pushNamed(context, ServerPage.routeName,
+                            arguments: devices[idx]);
                       },
                       child: DeviceCard(device: devices[idx]),
                     );
@@ -210,7 +222,8 @@ class _MainPageState extends ConsumerState<MainPage> {
             if (searching) ...[
               const Padding(
                 padding: EdgeInsets.all(8.0),
-                child: SizedBox(height: 30, width: 30, child: CircularProgressIndicator()),
+                child: SizedBox(
+                    height: 30, width: 30, child: CircularProgressIndicator()),
               ),
               Text(
                 i18n(context).server_search,

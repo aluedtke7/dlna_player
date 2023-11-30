@@ -1,18 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:upnp2/upnp.dart';
 
-class DeviceCard extends StatelessWidget {
-  const DeviceCard({
+import 'package:dlna_player/model/content_container.dart';
+
+class TopicCard extends StatelessWidget {
+  const TopicCard({
     super.key,
-    required this.device,
+    required this.topic,
   });
 
-  final Device device;
+  final ContentContainer topic;
 
   @override
   Widget build(BuildContext context) {
-    final Uri location = Uri.parse(device.urlBase ?? '');
-
     return Card(
       elevation: 5,
       child: Container(
@@ -22,16 +21,17 @@ class DeviceCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              device.friendlyName ?? '',
-              textScaler: const TextScaler.linear(1.5),
+              topic.title,
+              textScaler: const TextScaler.linear(1.4),
               style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 5),
             Text(
-              location.origin,
-              textScaler: const TextScaler.linear(1.2),
+              '${topic.count}',
+              textScaler: const TextScaler.linear(1.3),
             ),
           ],
         ),

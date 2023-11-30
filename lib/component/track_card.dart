@@ -10,6 +10,7 @@ class TrackCard extends ConsumerWidget {
     super.key,
     required this.track,
   });
+
   final RawContent track;
 
   @override
@@ -25,8 +26,6 @@ class TrackCard extends ConsumerWidget {
         duration = duration.substring(1);
       }
     }
-    var trNum = '';
-    if (track.trackNum > 0) trNum = i18n(context).card_tracknum(track.trackNum);
     var trDuration = '';
     if (duration.isNotEmpty) trDuration = i18n(context).card_duration(duration);
 
@@ -34,7 +33,7 @@ class TrackCard extends ConsumerWidget {
       elevation: 5,
       child: Container(
         width: double.maxFinite,
-        margin: const EdgeInsets.all(8),
+        margin: const EdgeInsets.all(4),
         decoration: ref.read(trackProvider).id == track.id
             ? BoxDecoration(
                 image: DecorationImage(
@@ -53,7 +52,7 @@ class TrackCard extends ConsumerWidget {
                 children: [
                   Text(
                     track.title,
-                    textScaleFactor: 1.1,
+                    textScaler: const TextScaler.linear(1.1),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
@@ -70,16 +69,8 @@ class TrackCard extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  // if (track.album.isNotEmpty)
-                  //   Text(
-                  //     'Album: ${track.album}',
-                  //   ),
-                  if (track.trackNum > 0 || track.duration.isNotEmpty) Text(trNum + trDuration),
-
-                  // if (track.genre.isNotEmpty)
-                  //   Text(
-                  //     'Genre: ${track.genre}',
-                  //   ),
+                  if (track.duration.isNotEmpty)
+                    Text(trDuration),
                 ],
               ),
             ),

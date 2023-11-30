@@ -18,6 +18,7 @@ import 'package:dlna_player/service/dlna_service.dart';
 
 class ContentPage extends ConsumerStatefulWidget {
   const ContentPage({super.key});
+
   static const routeName = '/container';
 
   @override
@@ -47,7 +48,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   Widget build(BuildContext context) {
     ContentClass type;
     final trackRef = ref.watch(trackProvider);
-    final argument = ModalRoute.of(context)!.settings.arguments as ContentArguments;
+    final argument =
+        ModalRoute.of(context)!.settings.arguments as ContentArguments;
     if (argument.content.isEmpty) {
       type = ContentClass.none;
     } else {
@@ -75,17 +77,19 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 el.title.toLowerCase().contains(searchTerm) ||
                 el.genre.toLowerCase().contains(searchTerm))
             .toList();
-        mainAxisExtend = 90;
+        mainAxisExtend = 95;
         break;
       case ContentClass.genre:
       case ContentClass.playlist:
-        selItems =
-            argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
-        mainAxisExtend = 70;
+        selItems = argument.content
+            .where((el) => el.title.toLowerCase().contains(searchTerm))
+            .toList();
+        mainAxisExtend = 75;
         break;
       case ContentClass.folder:
-        selItems =
-            argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
+        selItems = argument.content
+            .where((el) => el.title.toLowerCase().contains(searchTerm))
+            .toList();
         mainAxisExtend = 85;
         break;
       case ContentClass.track:
@@ -103,7 +107,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     }
 
     void openSearchDialog() {
-      Statics.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {
+      Statics.showSearchDialog(
+              context, i18n(context).content_search_for, searchTerm)
+          .then((value) {
         if (value != null) {
           setState(() {
             searchTerm = value.toLowerCase();
@@ -140,8 +146,18 @@ class _ContentPageState extends ConsumerState<ContentPage> {
           autofocus: true,
           child: Scaffold(
             appBar: AppBar(
-              title: Text(buildTitle(argument.title, typeName)),
-              titleTextStyle: const TextStyle(overflow: TextOverflow.fade, fontSize: 16),
+              iconTheme:
+                  IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              title: Text(
+                buildTitle(argument.title, typeName),
+                style:
+                    TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              titleTextStyle: const TextStyle(
+                overflow: TextOverflow.fade,
+                fontSize: 16,
+              ),
               actions: [
                 IconButton(
                   onPressed: openSearchDialog,
@@ -160,7 +176,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 const SizedBox(
                   height: 4,
                 ),
-                Text(i18n(context).content_selected(selItems.length, argument.content.length,
+                Text(i18n(context).content_selected(
+                    selItems.length,
+                    argument.content.length,
                     searchTerm.isNotEmpty ? " - $searchTerm" : "")),
                 const SizedBox(
                   height: 4,
@@ -182,11 +200,14 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                                 searchIdx = idx;
                               });
                               // open another page with content
-                              DlnaService.browseAll(selItems[idx].id).then((value) {
+                              DlnaService.browseAll(selItems[idx].id)
+                                  .then((value) {
                                 if (value.isNotEmpty) {
-                                  final args =
-                                      ContentArguments(buildTitle(argument.title, typeName), value);
-                                  Navigator.pushNamed(context, ContentPage.routeName,
+                                  final args = ContentArguments(
+                                      buildTitle(argument.title, typeName),
+                                      value);
+                                  Navigator.pushNamed(
+                                      context, ContentPage.routeName,
                                       arguments: args);
                                 }
                                 // debugPrint('Content_page: end Loading... $idx');
@@ -198,16 +219,24 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                             } else {
                               // play track
                               if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                                ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                                ref
+                                    .read(trackProvider.notifier)
+                                    .setTrack(selItems[idx]);
                                 var player = ref.read(playerProvider);
                                 // make current visible list the playlist and set index
-                                ref.read(playlistProvider.notifier).setPlaylist(selItems
-                                    .where((element) => element.classType == ContentClass.track)
-                                    .toList());
-                                ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                                ref.read(playlistProvider.notifier).setPlaylist(
+                                    selItems
+                                        .where((element) =>
+                                            element.classType ==
+                                            ContentClass.track)
+                                        .toList());
+                                ref
+                                    .read(playlistIndexProvider.notifier)
+                                    .setIndex(idx);
                                 player.play(UrlSource(selItems[idx].trackUrl!));
                                 ref.read(lruListProvider).add(selItems[idx].id);
-                                Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                                Statics.showInfoSnackbar(
+                                    context, i18n(context).com_new_playlist);
                               }
                             }
                           },
@@ -215,9 +244,11 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                               ? ProgressCard(title: selItems[idx].title)
                               : selItems[idx].classType == ContentClass.album
                                   ? AlbumCard(container: selItems[idx])
-                                  : selItems[idx].classType == ContentClass.track
+                                  : selItems[idx].classType ==
+                                          ContentClass.track
                                       ? TrackCard(track: selItems[idx])
-                                      : ContainerCard(container: selItems[idx]));
+                                      : ContainerCard(
+                                          container: selItems[idx]));
                     },
                     itemCount: selItems.length,
                   ),

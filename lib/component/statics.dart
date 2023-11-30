@@ -11,7 +11,10 @@ class Statics {
     ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
         backgroundColor: Theme.of(ctx).colorScheme.error,
-        content: Text(msg, style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer)),
+        content: Text(
+          msg,
+          style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer),
+        ),
         duration: const Duration(milliseconds: 5000),
         padding: const EdgeInsets.all(8.0),
         behavior: SnackBarBehavior.floating,
@@ -28,8 +31,11 @@ class Statics {
     ScaffoldMessenger.of(ctx).showSnackBar(
       SnackBar(
         backgroundColor: Theme.of(ctx).colorScheme.primary,
-        content: Text(msg,
-            textAlign: TextAlign.center, style: TextStyle(color: Theme.of(ctx).cardTheme.color)),
+        content: Text(
+          msg,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Theme.of(ctx).cardTheme.color),
+        ),
         duration: const Duration(milliseconds: 2500),
         padding: const EdgeInsets.all(8.0),
         behavior: SnackBarBehavior.floating,
@@ -72,8 +78,18 @@ class Statics {
     return BoxDecoration(
       gradient: LinearGradient(
         colors: [
-          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.surface.withOpacity(.1),
-          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.onSurfaceVariant.withAlpha(100),
+          ThemeProvider.controllerOf(ctx)
+              .theme
+              .data
+              .colorScheme
+              .surface
+              .withOpacity(.1),
+          ThemeProvider.controllerOf(ctx)
+              .theme
+              .data
+              .colorScheme
+              .onSurfaceVariant
+              .withAlpha(100),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -84,7 +100,12 @@ class Statics {
 
   static BoxDecoration getSimpleDrawerDecoration(BuildContext ctx) {
     return BoxDecoration(
-      color: ThemeProvider.controllerOf(ctx).theme.data.colorScheme.surface.withOpacity(.1),
+      color: ThemeProvider.controllerOf(ctx)
+          .theme
+          .data
+          .colorScheme
+          .surface
+          .withOpacity(.1),
     );
   }
 
@@ -93,7 +114,12 @@ class Statics {
       gradient: LinearGradient(
         colors: [
           ThemeProvider.controllerOf(ctx).theme.data.colorScheme.primary,
-          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.primary.withAlpha(100),
+          ThemeProvider.controllerOf(ctx)
+              .theme
+              .data
+              .colorScheme
+              .primary
+              .withAlpha(100),
         ],
         begin: Alignment.bottomLeft,
         end: Alignment.topRight,

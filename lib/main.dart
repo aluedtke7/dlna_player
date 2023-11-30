@@ -1,28 +1,28 @@
 import 'dart:async';
 import 'dart:convert';
-
-import 'package:dlna_player/component/custom_themes.dart';
-import 'package:dlna_player/model/pref_keys.dart';
-import 'package:dlna_player/model/window_settings.dart';
-import 'package:dlna_player/provider/player_provider.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'dart:io';
 
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hid_listener/hid_listener.dart';
 import 'package:intl/intl.dart';
-
-import 'package:dlna_player/application.dart';
-import 'package:dlna_player/view/main_page.dart';
-import 'package:dlna_player/specific_localization_delegate.dart';
-import 'package:dlna_player/view/content_page.dart';
-import 'package:dlna_player/view/server_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
+
 import 'package:window_manager/window_manager.dart';
+
+import 'package:dlna_player/application.dart';
+import 'package:dlna_player/component/custom_themes.dart';
+import 'package:dlna_player/model/pref_keys.dart';
+import 'package:dlna_player/model/window_settings.dart';
+import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/specific_localization_delegate.dart';
+import 'package:dlna_player/view/content_page.dart';
+import 'package:dlna_player/view/start_page.dart';
+import 'package:dlna_player/view/server_page.dart';
 
 const appName = 'DLNA Player';
 Timer? saveSettingsTimer;
@@ -168,7 +168,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
               GlobalCupertinoLocalizations.delegate,
             ],
             supportedLocales: APPLIC().supportedLocales(),
-            home: const MainPage(title: appName),
+            home: const StartPage(title: appName),
             routes: {
               ServerPage.routeName: (context) => const ServerPage(),
               ContentPage.routeName: (context) => const ContentPage(),
