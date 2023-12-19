@@ -100,7 +100,7 @@ class PlayingNotifier extends StateNotifier<bool> {
       if (listSize > 1) {
         // Check list of recently played tracks (LRU) and select other random value if found in list.
         // If all tracks have been played, remove playlist entries from LRU list if repeat mode is on, otherwise stop.
-        // In order to check the whole playlist, it's neccessary to have a LRU list of the same size,
+        // In order to check the whole playlist, it's necessary to have a LRU list of the same size,
         // otherwise we can't determine that all tracks have been played and we stay in repeat mode
         // even if this is disabled. With other words: when the playlist is larger than the LRU list,
         // the playing will never stop.
