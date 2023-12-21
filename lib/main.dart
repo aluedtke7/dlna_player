@@ -66,7 +66,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
       if (!getListenerBackend()!.initialize()) {
-        debugPrint("Failed to initialize HID listener backend");
+        debugPrint('Failed to initialize HID listener backend');
       }
       getListenerBackend()!.addKeyboardListener(listener);
     }

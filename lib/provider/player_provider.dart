@@ -10,13 +10,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final _player = AudioPlayer();
 final _lruList = LRUList<String>([], prefsKey: PrefKeys.lruListPrefsKey);
-final List<StreamSubscription> _subsciptions = [];
+final List<StreamSubscription> _subscriptions = [];
+bool playerInitialized = false;
 
 // ---------------------------------------------------------------------
 // provider to access AudioPlayer
 // ---------------------------------------------------------------------
 final playerProvider = Provider(
   (ref) {
+    if (!playerInitialized) {
+      playerInitialized = true;
+      _player.setAudioContext(const AudioContext(android: AudioContextAndroid(stayAwake: true)));
+    }
     return _player;
   },
 );
@@ -185,7 +190,7 @@ class PlayingNotifier extends StateNotifier<bool> {
   }
 
   PlayingNotifier(this.ref) : super(false) {
-    _subsciptions.add(_player.onPlayerStateChanged.listen((event) {
+    _subscriptions.add(_player.onPlayerStateChanged.listen((event) {
       switch (event) {
         case PlayerState.playing:
           // debugPrint('Provider - Player playing.');
@@ -218,7 +223,7 @@ final playingProvider = StateNotifierProvider<PlayingNotifier, bool>((ref) => Pl
 // ---------------------------------------------------------------------
 class PlayTimeNotifier extends StateNotifier<Duration> {
   PlayTimeNotifier() : super(Duration.zero) {
-    _subsciptions.add(_player.onPositionChanged.listen((event) {
+    _subscriptions.add(_player.onPositionChanged.listen((event) {
       state = event;
     }));
   }
@@ -231,7 +236,7 @@ final playTimeProvider = StateNotifierProvider<PlayTimeNotifier, Duration>((ref)
 // ---------------------------------------------------------------------
 class EndTimeNotifier extends StateNotifier<Duration> {
   EndTimeNotifier() : super(Duration.zero) {
-    _subsciptions.add(_player.onDurationChanged.listen((event) {
+    _subscriptions.add(_player.onDurationChanged.listen((event) {
       // debugPrint('Provider - new duration: ${event.showMS()}');
       state = event;
     }));

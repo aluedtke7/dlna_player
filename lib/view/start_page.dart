@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:theme_provider/theme_provider.dart';
+import 'package:upnp2/upnp.dart' as upnp;
 
 import 'package:dlna_player/component/app_drawer.dart';
 import 'package:dlna_player/component/device_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/view/server_page.dart';
-
-import 'package:upnp2/upnp.dart' as upnp;
 
 class StartPage extends ConsumerStatefulWidget {
   const StartPage({super.key, required this.title});
@@ -56,7 +57,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           final deviceExists =
               lastDevices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
-            debugPrint("Found ${device.friendlyName} on IP ${location.host}");
+            debugPrint('Found ${device.friendlyName} on IP ${location.host}');
             setState(() {
               lastDevices.add(device);
             });
@@ -71,7 +72,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       }
     } catch (e, stack) {
       if (kDebugMode) {
-        print("ERROR: $e - ${dc?.location}");
+        print('ERROR: $e - ${dc?.location}');
         print(stack);
       }
       if (context.mounted) {
@@ -102,7 +103,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           final deviceExists =
               devices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
-            debugPrint("Found ${device.friendlyName} on IP ${location.host}");
+            debugPrint('Found ${device.friendlyName} on IP ${location.host}');
             setState(() {
               devices.add(device);
             });
@@ -116,7 +117,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         }
       } catch (e, stack) {
         if (kDebugMode) {
-          print("ERROR: $e - ${client.location}");
+          print('ERROR: $e - ${client.location}');
           print(stack);
         }
         if (e is! FormatException && context.mounted) {
@@ -162,81 +163,84 @@ class _StartPageState extends ConsumerState<StartPage> {
         ],
       ),
       drawer: const AppDrawer(),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                i18n(context).server_visited(lastDevices.length),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-            Expanded(
-              flex: 3,
-              child: SizedBox(
-                width: 600,
-                child: ListView.builder(
-                  itemBuilder: (ctx, idx) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, ServerPage.routeName,
-                            arguments: lastDevices[idx]);
-                      },
-                      child: DeviceCard(device: lastDevices[idx]),
-                    );
-                  },
-                  itemCount: lastDevices.length,
+      body: Container(
+        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  i18n(context).server_visited(lastDevices.length),
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
-            ),
-            const SizedBox(
-              height: 16,
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                i18n(context).server_found(devices.length),
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-            ),
-            Expanded(
-              flex: 4,
-              child: SizedBox(
-                width: 600,
-                child: ListView.builder(
-                  itemBuilder: (ctx, idx) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, ServerPage.routeName,
-                            arguments: devices[idx]);
-                      },
-                      child: DeviceCard(device: devices[idx]),
-                    );
-                  },
-                  itemCount: devices.length,
-                ),
-              ),
-            ),
-            if (searching) ...[
-              const Padding(
-                padding: EdgeInsets.all(8.0),
+              Expanded(
+                flex: 3,
                 child: SizedBox(
-                    height: 30, width: 30, child: CircularProgressIndicator()),
-              ),
-              Text(
-                i18n(context).server_search,
+                  width: 600,
+                  child: ListView.builder(
+                    itemBuilder: (ctx, idx) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, ServerPage.routeName,
+                              arguments: lastDevices[idx]);
+                        },
+                        child: DeviceCard(device: lastDevices[idx]),
+                      );
+                    },
+                    itemCount: lastDevices.length,
+                  ),
+                ),
               ),
               const SizedBox(
-                height: 50,
-              )
-            ],
-            if (trackRef.title.isNotEmpty)
-              PlayerWidget(
-                trackRef.title,
+                height: 16,
               ),
-          ],
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  i18n(context).server_found(devices.length),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: SizedBox(
+                  width: 600,
+                  child: ListView.builder(
+                    itemBuilder: (ctx, idx) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, ServerPage.routeName,
+                              arguments: devices[idx]);
+                        },
+                        child: DeviceCard(device: devices[idx]),
+                      );
+                    },
+                    itemCount: devices.length,
+                  ),
+                ),
+              ),
+              if (searching) ...[
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(
+                      height: 30, width: 30, child: CircularProgressIndicator()),
+                ),
+                Text(
+                  i18n(context).server_search,
+                ),
+                const SizedBox(
+                  height: 50,
+                )
+              ],
+              if (trackRef.title.isNotEmpty)
+                PlayerWidget(
+                  trackRef.title,
+                ),
+            ],
+          ),
         ),
       ),
     );

@@ -1,6 +1,8 @@
+import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/component/topic_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 import 'package:upnp2/upnp.dart';
 
@@ -128,56 +130,59 @@ class _ServerPageState extends ConsumerState<ServerPage> {
           style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 350,
-                  mainAxisExtent: 120,
-                  childAspectRatio: 3,
-                ),
-                itemBuilder: (context, idx) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      onTap: () {
-                        // debugPrint('Server_page: Loading... $idx');
-                        setState(() {
-                          loading = true;
-                          index = idx;
-                        });
-                        DlnaService.browseAll(cdcs[idx].id).then((value) {
-                          final args = ContentArguments("", value);
-                          Navigator.pushNamed(context, ContentPage.routeName,
-                              arguments: args);
-                          // debugPrint('Server_page: end Loading... $idx');
+      body: Container(
+        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 350,
+                    mainAxisExtent: 120,
+                    childAspectRatio: 3,
+                  ),
+                  itemBuilder: (context, idx) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // debugPrint('Server_page: Loading... $idx');
                           setState(() {
-                            loading = false;
-                            index = -1;
+                            loading = true;
+                            index = idx;
                           });
-                        });
-                      },
-                      child: loading && index == idx
-                          ? ProgressCard(title: cdcs[idx].title)
-                          : SizedBox(
-                              width: 300,
-                              child: TopicCard(topic: cdcs[idx]),
-                            ),
-                    ),
-                  );
-                },
-                itemCount: cdcs.length,
+                          DlnaService.browseAll(cdcs[idx].id).then((value) {
+                            final args = ContentArguments('', value);
+                            Navigator.pushNamed(context, ContentPage.routeName,
+                                arguments: args);
+                            // debugPrint('Server_page: end Loading... $idx');
+                            setState(() {
+                              loading = false;
+                              index = -1;
+                            });
+                          });
+                        },
+                        child: loading && index == idx
+                            ? ProgressCard(title: cdcs[idx].title)
+                            : SizedBox(
+                                width: 300,
+                                child: TopicCard(topic: cdcs[idx]),
+                              ),
+                      ),
+                    );
+                  },
+                  itemCount: cdcs.length,
+                ),
               ),
             ),
-          ),
-          if (trackRef.title.isNotEmpty)
-            PlayerWidget(
-              trackRef.title,
-            ),
-        ],
+            if (trackRef.title.isNotEmpty)
+              PlayerWidget(
+                trackRef.title,
+              ),
+          ],
+        ),
       ),
     );
   }

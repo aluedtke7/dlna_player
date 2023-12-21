@@ -5,8 +5,50 @@ import 'package:theme_provider/theme_provider.dart';
 
 var customThemes = [
   AppTheme(
-    id: 'light',
-    description: 'Light',
+    id: 'light-green',
+    description: 'Light green',
+    data: ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.green,
+        brightness: Brightness.light,
+      ),
+      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+    ),
+    options: ThemeOptions(
+      const Color(0xFFCDE1C8),
+      Statics.getSlideBtnBackgroundLight,
+      1.4,
+      FontWeight.bold,
+      Statics.getGradientPageDecoration(),
+      Statics.getGradientDrawerDecoration,
+      Statics.getGradientDrawerHeaderDecoration,
+    ),
+  ),
+  AppTheme(
+    id: 'light-blue',
+    description: 'Light blue',
+    data: ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: Colors.blue,
+        brightness: Brightness.light,
+      ),
+      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+    ),
+    options: ThemeOptions(
+      const Color(0xFFAEC2EC),
+      Statics.getSlideBtnBackgroundLight,
+      1.4,
+      FontWeight.bold,
+      Statics.getGradientPageDecoration(),
+      Statics.getGradientDrawerDecoration,
+      Statics.getGradientDrawerHeaderDecoration,
+    ),
+  ),
+  AppTheme(
+    id: 'light-purple',
+    description: 'Light purple',
     data: ThemeData(
       useMaterial3: true,
       dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
@@ -22,30 +64,8 @@ var customThemes = [
     ),
   ),
   AppTheme(
-    id: 'dark',
-    description: 'Dark',
-    data: ThemeData(
-      useMaterial3: true,
-      colorScheme: ColorScheme.fromSwatch(
-        brightness: Brightness.dark,
-        primarySwatch: Colors.cyan,
-        accentColor: Colors.cyan.shade700,
-      ),
-      dialogBackgroundColor: const Color.fromARGB(255, 50, 50, 50),
-    ),
-    options: ThemeOptions(
-      const Color(0xFF0B535E),
-      Statics.getSlideBtnBackgroundDark,
-      1.4,
-      FontWeight.bold,
-      Statics.getGradientPageDecoration(),
-      Statics.getGradientDrawerDecoration,
-      Statics.getGradientDrawerHeaderDecoration,
-    ),
-  ),
-  AppTheme(
-    id: 'orange',
-    description: 'Orange',
+    id: 'light-deep-orange',
+    description: 'Light deep orange',
     data: ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSwatch(
@@ -98,6 +118,28 @@ var customThemes = [
     ),
     options: ThemeOptions(
       const Color(0xFF473321),
+      Statics.getSlideBtnBackgroundDark,
+      1.4,
+      FontWeight.bold,
+      Statics.getGradientPageDecoration(),
+      Statics.getGradientDrawerDecoration,
+      Statics.getGradientDrawerHeaderDecoration,
+    ),
+  ),
+  AppTheme(
+    id: 'dark-cyan',
+    description: 'Dark cyan',
+    data: ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.fromSwatch(
+        brightness: Brightness.dark,
+        primarySwatch: Colors.cyan,
+        accentColor: Colors.cyan.shade700,
+      ),
+      dialogBackgroundColor: const Color.fromARGB(255, 50, 50, 50),
+    ),
+    options: ThemeOptions(
+      const Color(0xFF0B535E),
       Statics.getSlideBtnBackgroundDark,
       1.4,
       FontWeight.bold,
