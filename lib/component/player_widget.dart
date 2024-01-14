@@ -31,6 +31,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   var isExpanded = false;
   var isShuffle = false;
   var isRepeat = false;
+  var isLyrics = false;
   late Timer toggleTimer;
 
   @override
@@ -58,6 +59,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
     ref.read(shuffleModeProvider.notifier).state = shuffle;
     final repeat = prefs.getBool(PrefKeys.playerWidgetRepeatStatePrefsKey) ?? false;
     ref.read(repeatModeProvider.notifier).state = repeat;
+    ref.read(showLyricsProvider.notifier).state = false;
   }
 
   Future<void> _savePrefs() async {
@@ -143,8 +145,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                   textAlign: TextAlign.center,
                                 ),
                               ),
-                              crossFadeState:
-                                  showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                              crossFadeState: showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
                               duration: const Duration(milliseconds: 500),
                               sizeCurve: Curves.bounceInOut,
                             ),
@@ -167,6 +168,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             ? () => ref.read(playingProvider.notifier).playPauseTrack()
                             : null,
                         icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
+                        tooltip: i18n(context).pw_hint_play_pause,
                       ),
                       Expanded(
                         child: Slider(
@@ -182,8 +184,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             });
                           },
                           onChangeEnd: (value) {
-                            final newCurrent =
-                                Duration(seconds: (value * endTimeRef.inSeconds).toInt());
+                            final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
                             ref.read(playerProvider).seek(newCurrent).then((_) {
                               setState(() {
                                 sliderIsMoving = false;
@@ -209,17 +210,17 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             isShuffle = !isShuffle;
                             ref.read(shuffleModeProvider.notifier).state = isShuffle;
                             _savePrefs();
-                            Statics.showInfoSnackbar(
-                                context, i18n(context).player_shuffle_mode(isShuffle.toString()));
+                            Statics.showInfoSnackbar(context, i18n(context).player_shuffle_mode(isShuffle.toString()));
                           },
-                          icon: Icon(Icons.shuffle,
-                              size: iconSize, color: !isShuffle ? Colors.grey : null),
+                          icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
+                          tooltip: i18n(context).pw_hint_shuffle,
                         ),
                         IconButton(
                           onPressed: playlistRef.length > 1
                               ? () => ref.read(playingProvider.notifier).playPreviousTrack()
                               : null,
                           icon: const Icon(Icons.skip_previous, size: iconSize),
+                          tooltip: i18n(context).pw_hint_previous,
                         ),
                         IconButton(
                           onPressed: playlistRef.length > 1
@@ -228,17 +229,33 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 }
                               : null,
                           icon: const Icon(Icons.skip_next, size: iconSize),
+                          tooltip: i18n(context).pw_hint_next,
                         ),
                         IconButton(
                           onPressed: () {
                             isRepeat = !isRepeat;
                             ref.read(repeatModeProvider.notifier).state = isRepeat;
                             _savePrefs();
-                            Statics.showInfoSnackbar(
-                                context, i18n(context).player_repeat_mode(isRepeat.toString()));
+                            Statics.showInfoSnackbar(context, i18n(context).player_repeat_mode(isRepeat.toString()));
                           },
-                          icon: Icon(Icons.repeat,
-                              size: iconSize, color: !isRepeat ? Colors.grey : null),
+                          icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
+                          tooltip: i18n(context).pw_hint_repeat,
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            isLyrics = !isLyrics;
+                            ref.read(showLyricsProvider.notifier).state = isLyrics;
+                            if (isLyrics && ref.read(lyricsProvider).lyrics.isEmpty) {
+                              ref.read(playingProvider.notifier).getLyrics();
+                            }
+                            _savePrefs();
+                          },
+                          icon: Icon(
+                            Icons.text_snippet_outlined,
+                            size: iconSize,
+                            color: !isLyrics ? Colors.grey : null,
+                          ),
+                          tooltip: i18n(context).pw_hint_lyrics,
                         ),
                       ],
                     ),

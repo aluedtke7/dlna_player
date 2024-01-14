@@ -1,16 +1,20 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dlna_player/model/lru_list.dart';
+import 'package:dlna_player/model/lyrics.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:genius_lyrics/genius_lyrics.dart';
 
 final _player = AudioPlayer();
 final _lruList = LRUList<String>([], prefsKey: PrefKeys.lruListPrefsKey);
 final List<StreamSubscription> _subscriptions = [];
+final Genius genius = Genius(accessToken: const String.fromEnvironment('GENIUS_TOKEN', defaultValue: ''));
 bool playerInitialized = false;
 
 // ---------------------------------------------------------------------
@@ -20,7 +24,9 @@ final playerProvider = Provider(
   (ref) {
     if (!playerInitialized) {
       playerInitialized = true;
-      _player.setAudioContext(const AudioContext(android: AudioContextAndroid(stayAwake: true)));
+      if (Platform.isAndroid) {
+        _player.setAudioContext(const AudioContext(android: AudioContextAndroid(stayAwake: true)));
+      }
     }
     return _player;
   },
@@ -51,6 +57,19 @@ class PlaylistNotifier extends StateNotifier<List<RawContent>> {
 }
 
 final playlistProvider = StateNotifierProvider<PlaylistNotifier, List<RawContent>>((ref) => PlaylistNotifier());
+
+// ---------------------------------------------------------------------
+// provider for handling the playlist index (current track index)
+// ---------------------------------------------------------------------
+class LyricsNotifier extends StateNotifier<Lyrics> {
+  LyricsNotifier() : super(const Lyrics(LyricsState.unknown, ''));
+
+  void setLyrics(Lyrics newLyrics) {
+    state = newLyrics;
+  }
+}
+
+final lyricsProvider = StateNotifierProvider<LyricsNotifier, Lyrics>((ref) => LyricsNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling the playlist index (current track index)
@@ -147,6 +166,7 @@ class PlayingNotifier extends StateNotifier<bool> {
       ref.read(trackProvider.notifier).setTrack(playlist[currentIdx]);
       ref.read(playerProvider).play(UrlSource(playlist[currentIdx].trackUrl!));
       lruList.add(playlist[currentIdx].id);
+      getLyrics();
     }
   }
 
@@ -185,6 +205,28 @@ class PlayingNotifier extends StateNotifier<bool> {
         ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
         ref.read(trackProvider.notifier).setTrack(playlistRef[currentIdx]);
         ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!));
+      }
+    }
+    getLyrics();
+  }
+
+  Future<void> getLyrics() async {
+    // clear previous lyrics
+    ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.unknown));
+    if (ref.read(showLyricsProvider)) {
+      ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.loading));
+      final track = ref.read(trackProvider);
+      final song = await genius.searchSong(artist: track.artist, title: track.title);
+      if (song != null) {
+        if (song.lyrics != null) {
+          if (song.lyrics!.isEmpty) {
+            ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.empty));
+          } else {
+            ref.read(lyricsProvider.notifier).setLyrics(Lyrics(LyricsState.success, song.lyrics ?? ''));
+          }
+        }
+      } else {
+        ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.notFound));
       }
     }
   }

@@ -20,6 +20,11 @@ final shuffleModeProvider = StateProvider<bool>((ref) => false);
 final repeatModeProvider = StateProvider<bool>((ref) => false);
 
 // ---------------------------------------------------------------------
+// provider for handling show lyrics state
+// ---------------------------------------------------------------------
+final showLyricsProvider = StateProvider<bool>((ref) => false);
+
+// ---------------------------------------------------------------------
 // provider to access Last Server List
 // ---------------------------------------------------------------------
 final lastServerListProvider = Provider(

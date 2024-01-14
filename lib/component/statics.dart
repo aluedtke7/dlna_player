@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:theme_provider/theme_provider.dart';
 
@@ -78,18 +79,8 @@ class Statics {
     return BoxDecoration(
       gradient: LinearGradient(
         colors: [
-          ThemeProvider.controllerOf(ctx)
-              .theme
-              .data
-              .colorScheme
-              .surface
-              .withOpacity(.1),
-          ThemeProvider.controllerOf(ctx)
-              .theme
-              .data
-              .colorScheme
-              .onSurfaceVariant
-              .withAlpha(100),
+          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.surface.withOpacity(.1),
+          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.onSurfaceVariant.withAlpha(100),
         ],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
@@ -100,12 +91,7 @@ class Statics {
 
   static BoxDecoration getSimpleDrawerDecoration(BuildContext ctx) {
     return BoxDecoration(
-      color: ThemeProvider.controllerOf(ctx)
-          .theme
-          .data
-          .colorScheme
-          .surface
-          .withOpacity(.1),
+      color: ThemeProvider.controllerOf(ctx).theme.data.colorScheme.surface.withOpacity(.1),
     );
   }
 
@@ -114,12 +100,7 @@ class Statics {
       gradient: LinearGradient(
         colors: [
           ThemeProvider.controllerOf(ctx).theme.data.colorScheme.primary,
-          ThemeProvider.controllerOf(ctx)
-              .theme
-              .data
-              .colorScheme
-              .primary
-              .withAlpha(100),
+          ThemeProvider.controllerOf(ctx).theme.data.colorScheme.primary.withAlpha(100),
         ],
         begin: Alignment.bottomLeft,
         end: Alignment.topRight,
@@ -134,8 +115,7 @@ class Statics {
     );
   }
 
-  static Future<String?> showSearchDialog(
-      BuildContext context, String title, String initValue) async {
+  static Future<String?> showSearchDialog(BuildContext context, String title, String initValue) async {
     final controller = TextEditingController();
     controller.text = initValue;
 
@@ -172,4 +152,14 @@ class Statics {
           );
         });
   }
+
+  static int tintValue(int value, double factor) => max(0, min((value + ((255 - value) * factor)).round(), 255));
+
+  static Color tintColor(Color color, double factor) =>
+      Color.fromRGBO(tintValue(color.red, factor), tintValue(color.green, factor), tintValue(color.blue, factor), 1);
+
+  static int shadeValue(int value, double factor) => max(0, min(value - (value * factor).round(), 255));
+
+  static Color shadeColor(Color color, double factor) =>
+      Color.fromRGBO(shadeValue(color.red, factor), shadeValue(color.green, factor), shadeValue(color.blue, factor), 1);
 }

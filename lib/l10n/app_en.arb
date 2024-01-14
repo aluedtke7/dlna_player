@@ -16,8 +16,8 @@
   "com_search": "Search term",
   "com_new_playlist": "Displayed tracks will be used as playlist",
   "com_drawer_version": "Version {v}",
-  "com_f3": "Ctrl + F",
-  "com_ctrl_x": "Ctrl + X",
+  "com_f3": "Ctrl + F\nSearch in list",
+  "com_ctrl_x": "Ctrl + X\nClear search term",
 
   "card_genre": "Genre: {val}",
   "@card_genre": {
@@ -104,6 +104,17 @@
     "placeholders": {
       "bool": {}
     }
-  }
-
+  },
+  "lyrics_state": "{ls, select, other{---} unknown{} loading{Loading...} notFound{Track not found} empty{No Lyrics found} error{Error loading lyrics} success{}}",
+  "@lyrics_state": {
+    "placeholders": {
+      "ls": {}
+    }
+  },
+  "pw_hint_play_pause": "Play / pause track",
+  "pw_hint_shuffle": "Set shuffle mode",
+  "pw_hint_previous": "Skip to previous track",
+  "pw_hint_next": "Skip to next track",
+  "pw_hint_repeat": "Set repeat mode",
+  "pw_hint_lyrics": "Show / hide lyrics (genius.com)"
 }

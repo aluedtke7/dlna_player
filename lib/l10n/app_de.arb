@@ -17,8 +17,8 @@
   "com_search": "Suchbegriff",
   "com_new_playlist": "Angezeigte Titel werden als Playlist verwendet",
   "com_drawer_version": "Version {v}",
-  "com_f3": "Strg + F",
-  "com_ctrl_x": "Strg + X",
+  "com_f3": "Strg + F\nSuchen in der angezeigten Liste",
+  "com_ctrl_x": "Strg + X\nLöscht den Suchbegriff",
 
   "card_genre": "Genre: {val}",
   "card_tracks": "Titel: {num}",
@@ -36,6 +36,13 @@
   "content_class": "{cl, select, other{---} album{Album} albums{Alben} genre{Genre} artist{Interpret} artists{Interpreten} track{Titel} folder{Ordner} playlist{Playlist}}",
 
   "player_shuffle_mode": "Zufallsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
-  "player_repeat_mode": "Wiederholungsmodus {bool, select, other{} false{aus} true{ein}}geschaltet"
+  "player_repeat_mode": "Wiederholungsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
 
+  "lyrics_state": "{ls, select, other{---} unknown{} loading{Lade...} notFound{Lied nicht gefunden} empty{Kein Liedtext vorhanden} error{Fehler beim Laden des Liedtextes} success{}}",
+  "pw_hint_shuffle": "Setzt den Shuffle Modus",
+  "pw_hint_play_pause": "Play / Pause Track",
+  "pw_hint_previous": "Springt zum vorigen Track",
+  "pw_hint_next": "Springt zum nächsten Track",
+  "pw_hint_repeat": "Setzt den Wiederholungsmodus",
+  "pw_hint_lyrics": "Zeigt / versteckt Liedtext (genius.com)"
 }
