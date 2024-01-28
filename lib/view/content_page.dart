@@ -1,6 +1,4 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:dlna_player/component/lyrics_card.dart';
-import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +7,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'package:dlna_player/component/album_card.dart';
 import 'package:dlna_player/component/container_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/lyrics_card.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
 import 'package:dlna_player/component/statics.dart';
@@ -18,6 +17,7 @@ import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_class.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
 
 class ContentPage extends ConsumerStatefulWidget {
@@ -51,6 +51,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   @override
   Widget build(BuildContext context) {
     ContentClass type;
+    final mq = MediaQuery.of(context);
+
     final trackRef = ref.watch(trackProvider);
     final argument = ModalRoute.of(context)!.settings.arguments as ContentArguments;
     if (argument.content.isEmpty) {
@@ -172,65 +174,37 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                   const SizedBox(
                     height: 4,
                   ),
-                  Expanded(
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                        maxCrossAxisExtent: 400,
-                        mainAxisExtent: mainAxisExtend,
-                        childAspectRatio: 3,
+                  if (mq.size.width < 600)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
+                          ),
+                          if (ref.watch(showLyricsProvider))
+                            LyricsCard(
+                              lyrics: ref.watch(lyricsProvider),
+                              height: mq.size.height / 4,
+                              width: double.maxFinite,
+                            ),
+                        ],
                       ),
-                      itemBuilder: (ctx, idx) {
-                        return GestureDetector(
-                            onTap: () {
-                              if (selItems[idx].classType != ContentClass.track) {
-                                // debugPrint('Content_page: Loading... $idx');
-                                setState(() {
-                                  searching = true;
-                                  searchIdx = idx;
-                                });
-                                // open another page with content
-                                DlnaService.browseAll(selItems[idx].id).then((value) {
-                                  if (value.isNotEmpty) {
-                                    final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                                    Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
-                                  }
-                                  // debugPrint('Content_page: end Loading... $idx');
-                                  setState(() {
-                                    searching = false;
-                                    searchIdx = -1;
-                                  });
-                                });
-                              } else {
-                                // play track
-                                if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                                  ref.read(trackProvider.notifier).setTrack(selItems[idx]);
-                                  var player = ref.read(playerProvider);
-                                  // make current visible list the playlist and set index
-                                  ref.read(playlistProvider.notifier).setPlaylist(
-                                      selItems.where((element) => element.classType == ContentClass.track).toList());
-                                  ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                                  player.play(UrlSource(selItems[idx].trackUrl!));
-                                  ref.read(lruListProvider).add(selItems[idx].id);
-                                  ref.read(playingProvider.notifier).getLyrics();
-                                  Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
-                                }
-                              }
-                            },
-                            child: searching && searchIdx == idx
-                                ? ProgressCard(title: selItems[idx].title)
-                                : selItems[idx].classType == ContentClass.album
-                                    ? AlbumCard(container: selItems[idx])
-                                    : selItems[idx].classType == ContentClass.track
-                                        ? TrackCard(track: selItems[idx])
-                                        : ContainerCard(container: selItems[idx]));
-                      },
-                      itemCount: selItems.length,
-                    ),
-                  ),
-                  if (ref.watch(showLyricsProvider))
-                    LyricsCard(
-                      lyrics: ref.watch(lyricsProvider),
-                      height: 200,
+                    )
+                  else
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
+                          ),
+                          if (ref.watch(showLyricsProvider))
+                            LyricsCard(
+                              lyrics: ref.watch(lyricsProvider),
+                              height: double.maxFinite,
+                              width: mq.size.width / 3,
+                            ),
+                        ],
+                      ),
                     ),
                   PlayerWidget(
                     trackRef.title,
@@ -241,6 +215,66 @@ class _ContentPageState extends ConsumerState<ContentPage> {
           ),
         ),
       ),
+    );
+  }
+
+  GridView buildTrackGrid(
+    double mainAxisExtend,
+    List<RawContent> selItems,
+    ContentArguments argument,
+    String typeName,
+    BuildContext context,
+  ) {
+    return GridView.builder(
+      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+        maxCrossAxisExtent: 400,
+        mainAxisExtent: mainAxisExtend,
+        childAspectRatio: 3,
+      ),
+      itemBuilder: (ctx, idx) {
+        return GestureDetector(
+            onTap: () {
+              if (selItems[idx].classType != ContentClass.track) {
+                setState(() {
+                  searching = true;
+                  searchIdx = idx;
+                });
+                // open another page with content
+                DlnaService.browseAll(selItems[idx].id).then((value) {
+                  if (value.isNotEmpty) {
+                    final args = ContentArguments(buildTitle(argument.title, typeName), value);
+                    Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
+                  }
+                  setState(() {
+                    searching = false;
+                    searchIdx = -1;
+                  });
+                });
+              } else {
+                // play track
+                if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
+                  ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                  var player = ref.read(playerProvider);
+                  // make current visible list the playlist and set index
+                  ref.read(playlistProvider.notifier)
+                      .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
+                  ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                  player.play(UrlSource(selItems[idx].trackUrl!));
+                  ref.read(lruListProvider).add(selItems[idx].id);
+                  ref.read(playingProvider.notifier).getLyrics();
+                  Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                }
+              }
+            },
+            child: searching && searchIdx == idx
+                ? ProgressCard(title: selItems[idx].title)
+                : selItems[idx].classType == ContentClass.album
+                    ? AlbumCard(container: selItems[idx])
+                    : selItems[idx].classType == ContentClass.track
+                        ? TrackCard(track: selItems[idx])
+                        : ContainerCard(container: selItems[idx]));
+      },
+      itemCount: selItems.length,
     );
   }
 }
