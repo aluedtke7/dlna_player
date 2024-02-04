@@ -11,9 +11,9 @@ This app been tested so far with MiniDLNA and Jellyfin. Both DLNA server were in
 on an OpenMediaVault NAS server. MiniDLNA was installed direct while Jellyfin was running in a
 Docker container.
 
-The displayed categories are depending on the used server. That's why the categories are
+The displayed categories are depending on the used DLNA server. That's why the categories are
 different on the screenshots. The installed DLNA server were using German, so some texts are
-in German even though the app language is set to English.
+in German even though the app language was set to English.
 
 The implemented search functionality is not searching on the server. Instead, the
 received lists (tracks, artists, albums etc.) are searched/filtered on the client.
@@ -21,10 +21,11 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
 ## Features
 
 - Dart 3 and Flutter 3.10 compatible
-- several themes
+- several themes (Material 3)
 - two player widget sizes (click on player title to change)
 - localization (English and German)
 - works on Android, iOS, Linux, MacOS and Windows
+- lyrics (via genius.com - see also below: Build release version)
 
 ## Screenshots
 ### MacOS
@@ -36,6 +37,7 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
     <img src="./screenshots/macos_minidlna.png" title="MiniDLNA categories" width="45%">
     <img src="./screenshots/macos_search_track.png" title="Search track" width="45%">
     <img src="./screenshots/macos_filtered_tracks.png" title="Filtered tracks" width="45%">
+    <img src="./screenshots/macos_lyrics.png" title="Lyrics" width="45%">
     <img src="./screenshots/macos_filtered_albums.png" title="Filtered albums" width="45%">
     <img src="./screenshots/macos_minimal_player.png" title="Minimal player" width="45%">
 </p>
@@ -44,16 +46,20 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
 
 <p float="left">
     <img src="./screenshots/android_1.png" title="Start page" width="30%">
+    <img src="./screenshots/android_a_dark_theme.png" title="Start page" width="30%">
     <img src="./screenshots/android_jellyfin.png" title="Jellyfin categories" width="30%">
-    <img src="./screenshots/android_minidlna.png" title="MiniDLNA categories" width="30%">
 </p>
 
 <p float="left">
+    <img src="./screenshots/android_minidlna.png" title="MiniDLNA categories" width="30%">
     <img src="./screenshots/android_search_track.png" title="Search track" width="30%">
     <img src="./screenshots/android_filtered_tracks.png" title="Filtered tracks" width="30%">
-    <img src="./screenshots/android_filtered_artists.png" title="Filtered artists" width="30%">
 </p>
 
+<p float="left">
+    <img src="./screenshots/android_lyrics.png" title="Lyrics" width="30%">
+    <img src="./screenshots/android_filtered_artists.png" title="Filtered artists" width="30%">
+</p>
 
 ## Acknowledgements
 This project would be impossible without the following packages:
@@ -83,3 +89,11 @@ This will update the files in `.dart_tool/flutter_gen/gen_l10n`.
 > **Info**
 >
 > This command is also necessary, when the app is built for the first time.
+ 
+### Build release version
+The access of the genius api at api.genius.com needs a token. Therefore, you have to supply
+this token when you compile your own version:
+
+    > flutter build macos --dart-define="GENIUS_TOKEN=YOUR-OWN-TOKEN"
+
+
