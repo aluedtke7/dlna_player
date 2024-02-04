@@ -1,7 +1,8 @@
+import 'package:flutter/material.dart';
+
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/model/lyrics.dart';
-import 'package:flutter/material.dart';
 
 class LyricsCard extends StatelessWidget {
   const LyricsCard({
@@ -30,7 +31,7 @@ class LyricsCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
-                      lyrics.lyrics,
+                      lyrics.text,
                       textAlign: TextAlign.center,
                       overflow: TextOverflow.ellipsis,
                       maxLines: 500,
@@ -39,12 +40,15 @@ class LyricsCard extends StatelessWidget {
                 ),
               )
             : Center(
-                // heightFactor: 10,
-                child: Text(
-                  i18n(context).lyrics_state(lyrics.state.toString()),
-                  textScaler: const TextScaler.linear(1.3),
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
+                child: TweenAnimationBuilder<double>(
+                  duration: const Duration(seconds: 4),
+                  tween: Tween<double>(begin: 0.7, end: 1.5),
+                  builder: (_, size, __) => Text(
+                    i18n(context).lyrics_state(lyrics.state.toString()),
+                    textScaler: TextScaler.linear(size),
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ),
       ),

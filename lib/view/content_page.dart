@@ -72,7 +72,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         selItems = argument.content
             .where((el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm))
             .toList();
-        mainAxisExtend = 100;
+        mainAxisExtend = 120;
         break;
       case ContentClass.artist:
         selItems = argument.content

@@ -245,7 +245,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                           onPressed: () {
                             isLyrics = !isLyrics;
                             ref.read(showLyricsProvider.notifier).state = isLyrics;
-                            if (isLyrics && ref.read(lyricsProvider).lyrics.isEmpty) {
+                            if (isLyrics && ref.read(lyricsProvider).text.isEmpty) {
                               ref.read(playingProvider.notifier).getLyrics();
                             }
                             _savePrefs();

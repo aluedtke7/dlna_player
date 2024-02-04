@@ -9,7 +9,7 @@ enum LyricsState {
 
 class Lyrics {
   final LyricsState state;
-  final String lyrics;
+  final String text;
 
-  const Lyrics(this.state, [this.lyrics = '']);
+  const Lyrics(this.state, [this.text = '']);
 }

@@ -115,10 +115,9 @@ class _StartPageState extends ConsumerState<StartPage> {
             // }
           }
         }
-      } catch (e, stack) {
+      } catch (e) {
         if (kDebugMode) {
           print('ERROR: $e - ${client.location}');
-          print(stack);
         }
         if (e is! FormatException && context.mounted) {
           Statics.showErrorSnackbar(context, e);

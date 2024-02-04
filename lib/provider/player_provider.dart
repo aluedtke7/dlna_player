@@ -3,18 +3,19 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'package:dlna_player/component/genius_helper.dart';
 import 'package:dlna_player/model/lru_list.dart';
 import 'package:dlna_player/model/lyrics.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:genius_lyrics/genius_lyrics.dart';
 
 final _player = AudioPlayer();
 final _lruList = LRUList<String>([], prefsKey: PrefKeys.lruListPrefsKey);
 final List<StreamSubscription> _subscriptions = [];
-final Genius genius = Genius(accessToken: const String.fromEnvironment('GENIUS_TOKEN', defaultValue: ''));
+final GeniusHelper geniusHelper = GeniusHelper();
 bool playerInitialized = false;
 
 // ---------------------------------------------------------------------
@@ -62,7 +63,7 @@ final playlistProvider = StateNotifierProvider<PlaylistNotifier, List<RawContent
 // provider for handling the playlist index (current track index)
 // ---------------------------------------------------------------------
 class LyricsNotifier extends StateNotifier<Lyrics> {
-  LyricsNotifier() : super(const Lyrics(LyricsState.unknown, ''));
+  LyricsNotifier() : super(const Lyrics(LyricsState.unknown));
 
   void setLyrics(Lyrics newLyrics) {
     state = newLyrics;
@@ -216,17 +217,11 @@ class PlayingNotifier extends StateNotifier<bool> {
     if (ref.read(showLyricsProvider)) {
       ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.loading));
       final track = ref.read(trackProvider);
-      final song = await genius.searchSong(artist: track.artist, title: track.title);
-      if (song != null) {
-        if (song.lyrics != null) {
-          if (song.lyrics!.isEmpty) {
-            ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.empty));
-          } else {
-            ref.read(lyricsProvider.notifier).setLyrics(Lyrics(LyricsState.success, song.lyrics ?? ''));
-          }
-        }
+      final lyrics = await geniusHelper.searchLyrics(track.artist, track.title);
+      if (lyrics.text.isEmpty) {
+        ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.empty));
       } else {
-        ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.notFound));
+        ref.read(lyricsProvider.notifier).setLyrics(Lyrics(LyricsState.success, lyrics.text));
       }
     }
   }
@@ -235,19 +230,15 @@ class PlayingNotifier extends StateNotifier<bool> {
     _subscriptions.add(_player.onPlayerStateChanged.listen((event) {
       switch (event) {
         case PlayerState.playing:
-          // debugPrint('Provider - Player playing.');
           state = true;
           break;
         case PlayerState.paused:
-          // debugPrint('Provider - Player paused.');
           state = false;
           break;
         case PlayerState.stopped:
-          // debugPrint('Provider - Player stopped.');
           state = false;
           break;
         case PlayerState.completed:
-          // debugPrint('Provider - Player completed.');
           state = false;
           playNextTrack();
           break;
@@ -260,9 +251,9 @@ class PlayingNotifier extends StateNotifier<bool> {
 
 final playingProvider = StateNotifierProvider<PlayingNotifier, bool>((ref) => PlayingNotifier(ref));
 
-// ---------------------------------------------------------------------
+// ----------------------------------------------------------------------
 // provider for handling changes in play time (current position in track)
-// ---------------------------------------------------------------------
+// ----------------------------------------------------------------------
 class PlayTimeNotifier extends StateNotifier<Duration> {
   PlayTimeNotifier() : super(Duration.zero) {
     _subscriptions.add(_player.onPositionChanged.listen((event) {
@@ -279,7 +270,6 @@ final playTimeProvider = StateNotifierProvider<PlayTimeNotifier, Duration>((ref)
 class EndTimeNotifier extends StateNotifier<Duration> {
   EndTimeNotifier() : super(Duration.zero) {
     _subscriptions.add(_player.onDurationChanged.listen((event) {
-      // debugPrint('Provider - new duration: ${event.showMS()}');
       state = event;
     }));
   }
