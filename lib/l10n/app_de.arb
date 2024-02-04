@@ -38,11 +38,11 @@
   "player_shuffle_mode": "Zufallsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
   "player_repeat_mode": "Wiederholungsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
 
-  "lyrics_state": "{ls, select, other{---} unknown{} loading{Lade...} notFound{Lied nicht gefunden} empty{Kein Liedtext vorhanden} error{Fehler beim Laden des Liedtextes} success{}}",
+  "lyrics_state": "{ls, select, other{---} unknown{} loading{Lade den Liedtext...} notFound{Lied nicht gefunden} empty{Kein Liedtext vorhanden} error{Fehler beim Laden des Liedtextes} success{}}",
   "pw_hint_shuffle": "Setzt den Shuffle Modus",
-  "pw_hint_play_pause": "Play / Pause Track",
-  "pw_hint_previous": "Springt zum vorigen Track",
-  "pw_hint_next": "Springt zum nächsten Track",
+  "pw_hint_play_pause": "Play / Pause Lied",
+  "pw_hint_previous": "Springt zum vorigen Lied",
+  "pw_hint_next": "Springt zum nächsten Lied",
   "pw_hint_repeat": "Setzt den Wiederholungsmodus",
   "pw_hint_lyrics": "Zeigt / versteckt Liedtext (genius.com)"
 }
