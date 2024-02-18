@@ -28,7 +28,7 @@ class TrackCard extends ConsumerWidget {
     }
     var trDuration = '';
     if (duration.isNotEmpty) trDuration = i18n(context).card_duration(duration);
-
+    bool playing = ref.watch(playingProvider);
     return Card(
       elevation: 5,
       child: Container(
@@ -38,7 +38,7 @@ class TrackCard extends ConsumerWidget {
             ? BoxDecoration(
                 image: DecorationImage(
                   image: Image.asset('assets/images/play_bg.png').image,
-                  opacity: 0.5,
+                  opacity: playing ? 0.8 : 0.5,
                 ),
               )
             : null,
@@ -69,8 +69,7 @@ class TrackCard extends ConsumerWidget {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                  if (track.duration.isNotEmpty)
-                    Text(trDuration),
+                  if (track.duration.isNotEmpty) Text(trDuration),
                 ],
               ),
             ),
