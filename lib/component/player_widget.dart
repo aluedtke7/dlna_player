@@ -99,6 +99,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
       curve: Curves.decelerate,
       duration: const Duration(milliseconds: 500),
       child: Container(
+        padding: Platform.isIOS ? const EdgeInsets.only(bottom: 8) : null,
         decoration: BoxDecoration(
           color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor,
         ),
