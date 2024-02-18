@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:upnp2/upnp.dart';
 
+import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
 import 'package:dlna_player/component/theme_options.dart';
@@ -112,77 +112,59 @@ class _ServerPageState extends ConsumerState<ServerPage> {
       });
     }
 
-    return RawKeyboardListener(
-      autofocus: true,
+    return KeyboardScaffold(
       focusNode: textNode,
-      onKey: (k) {
-        if (k.isKeyPressed(LogicalKeyboardKey.space)) {
-          if (trackRef.title.isNotEmpty) {
-            ref.read(playingProvider.notifier).playPauseTrack();
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          title: Text(
-            device.friendlyName ?? '',
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
-        ),
-        body: Container(
-          decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
-          child: Column(
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 350,
-                      mainAxisExtent: 120,
-                      childAspectRatio: 3,
-                    ),
-                    itemBuilder: (context, idx) {
-                      return Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: GestureDetector(
-                          onTap: () {
-                            // debugPrint('Server_page: Loading... $idx');
-                            setState(() {
-                              loading = true;
-                              index = idx;
-                            });
-                            DlnaService.browseAll(cdcs[idx].id).then((value) {
-                              final args = ContentArguments('', value);
-                              Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
-                              // debugPrint('Server_page: end Loading... $idx');
-                              setState(() {
-                                loading = false;
-                                index = -1;
-                              });
-                            });
-                          },
-                          child: loading && index == idx
-                              ? ProgressCard(title: cdcs[idx].title)
-                              : SizedBox(
-                                  width: 300,
-                                  child: TopicCard(topic: cdcs[idx]),
-                                ),
-                        ),
-                      );
-                    },
-                    itemCount: cdcs.length,
+      trackRef: trackRef,
+      playingNotifier: ref.read(playingProvider.notifier),
+      title: device.friendlyName ?? '',
+      child: Container(
+        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 350,
+                    mainAxisExtent: 120,
+                    childAspectRatio: 3,
                   ),
+                  itemBuilder: (context, idx) {
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: GestureDetector(
+                        onTap: () {
+                          // debugPrint('Server_page: Loading... $idx');
+                          setState(() {
+                            loading = true;
+                            index = idx;
+                          });
+                          DlnaService.browseAll(cdcs[idx].id).then((value) {
+                            final args = ContentArguments('', value);
+                            Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
+                            // debugPrint('Server_page: end Loading... $idx');
+                            setState(() {
+                              loading = false;
+                              index = -1;
+                            });
+                          });
+                        },
+                        child: loading && index == idx
+                            ? ProgressCard(title: cdcs[idx].title)
+                            : SizedBox(
+                                width: 300,
+                                child: TopicCard(topic: cdcs[idx]),
+                              ),
+                      ),
+                    );
+                  },
+                  itemCount: cdcs.length,
                 ),
               ),
-              if (trackRef.title.isNotEmpty)
-                PlayerWidget(
-                  trackRef.title,
-                ),
-            ],
-          ),
+            ),
+            if (trackRef.title.isNotEmpty) PlayerWidget(trackRef.title),
+          ],
         ),
       ),
     );

@@ -1,15 +1,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:upnp2/upnp.dart' as upnp;
 
-import 'package:dlna_player/component/app_drawer.dart';
 import 'package:dlna_player/component/device_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/component/theme_options.dart';
@@ -37,8 +35,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       lastDevices = [];
     });
     final prefs = await SharedPreferences.getInstance();
-    final lastServerList =
-        prefs.getStringList(PrefKeys.lastUsedServerUrlPrefsKey) ?? [];
+    final lastServerList = prefs.getStringList(PrefKeys.lastUsedServerUrlPrefsKey) ?? [];
     ref.read(lastServerListProvider).list.addAll(lastServerList);
 
     upnp.DiscoveredClient? dc;
@@ -55,8 +52,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
-          final deviceExists =
-              lastDevices.any((dev) => dev.urlBase == device.urlBase);
+          final deviceExists = lastDevices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
             debugPrint('Found ${device.friendlyName} on IP ${location.host}');
             setState(() {
@@ -101,8 +97,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
-          final deviceExists =
-              devices.any((dev) => dev.urlBase == device.urlBase);
+          final deviceExists = devices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
             debugPrint('Found ${device.friendlyName} on IP ${location.host}');
             setState(() {
@@ -146,112 +141,92 @@ class _StartPageState extends ConsumerState<StartPage> {
     final trackRef = ref.watch(trackProvider);
     final textNode = FocusNode();
 
-    return RawKeyboardListener(
-      autofocus: true,
+    return KeyboardScaffold(
       focusNode: textNode,
-      onKey: (k) {
-        if (k.isKeyPressed(LogicalKeyboardKey.space)) {
-          if (trackRef.title.isNotEmpty) {
-            ref.read(playingProvider.notifier).playPauseTrack();
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          iconTheme:
-              IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          title: Text(
-            widget.title,
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
-          actions: [
-            IconButton(
-              onPressed: _searchForServer,
-              icon: const Icon(Icons.refresh),
-              tooltip: i18n(context).com_search_server,
-            )
-          ],
-        ),
-        drawer: const AppDrawer(),
-        body: Container(
-          decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    i18n(context).server_visited(lastDevices.length),
-                    style: Theme.of(context).textTheme.headlineMedium,
+      trackRef: trackRef,
+      playingNotifier: ref.read(playingProvider.notifier),
+      title: widget.title,
+      actions: [
+        IconButton(
+          onPressed: _searchForServer,
+          icon: const Icon(Icons.refresh),
+          tooltip: i18n(context).com_search_server,
+        )
+      ],
+      child: Container(
+        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  i18n(context).server_visited(lastDevices.length),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+              Expanded(
+                flex: 3,
+                child: SizedBox(
+                  width: 600,
+                  child: ListView.builder(
+                    itemBuilder: (ctx, idx) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, ServerPage.routeName, arguments: lastDevices[idx]);
+                        },
+                        child: DeviceCard(device: lastDevices[idx]),
+                      );
+                    },
+                    itemCount: lastDevices.length,
                   ),
                 ),
-                Expanded(
-                  flex: 3,
-                  child: SizedBox(
-                    width: 600,
-                    child: ListView.builder(
-                      itemBuilder: (ctx, idx) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, ServerPage.routeName,
-                                arguments: lastDevices[idx]);
-                          },
-                          child: DeviceCard(device: lastDevices[idx]),
-                        );
-                      },
-                      itemCount: lastDevices.length,
-                    ),
+              ),
+              const SizedBox(
+                height: 16,
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  i18n(context).server_found(devices.length),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: SizedBox(
+                  width: 600,
+                  child: ListView.builder(
+                    itemBuilder: (ctx, idx) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(context, ServerPage.routeName, arguments: devices[idx]);
+                        },
+                        child: DeviceCard(device: devices[idx]),
+                      );
+                    },
+                    itemCount: devices.length,
                   ),
+                ),
+              ),
+              if (searching) ...[
+                const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: SizedBox(height: 30, width: 30, child: CircularProgressIndicator()),
+                ),
+                Text(
+                  i18n(context).server_search,
                 ),
                 const SizedBox(
-                  height: 16,
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    i18n(context).server_found(devices.length),
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-                Expanded(
-                  flex: 4,
-                  child: SizedBox(
-                    width: 600,
-                    child: ListView.builder(
-                      itemBuilder: (ctx, idx) {
-                        return GestureDetector(
-                          onTap: () {
-                            Navigator.pushNamed(context, ServerPage.routeName,
-                                arguments: devices[idx]);
-                          },
-                          child: DeviceCard(device: devices[idx]),
-                        );
-                      },
-                      itemCount: devices.length,
-                    ),
-                  ),
-                ),
-                if (searching) ...[
-                  const Padding(
-                    padding: EdgeInsets.all(8.0),
-                    child: SizedBox(
-                        height: 30, width: 30, child: CircularProgressIndicator()),
-                  ),
-                  Text(
-                    i18n(context).server_search,
-                  ),
-                  const SizedBox(
-                    height: 50,
-                  )
-                ],
-                if (trackRef.title.isNotEmpty)
-                  PlayerWidget(
-                    trackRef.title,
-                  ),
+                  height: 50,
+                )
               ],
-            ),
+              if (trackRef.title.isNotEmpty)
+                PlayerWidget(
+                  trackRef.title,
+                ),
+            ],
           ),
         ),
       ),

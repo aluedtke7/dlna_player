@@ -7,6 +7,7 @@ import 'package:theme_provider/theme_provider.dart';
 import 'package:dlna_player/component/album_card.dart';
 import 'package:dlna_player/component/container_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/lyrics_card.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
@@ -121,106 +122,91 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       }
     }
 
-    return RawKeyboardListener(
-      autofocus: true,
-      focusNode: textNode,
-      onKey: (k) {
-        if (k.isKeyPressed(LogicalKeyboardKey.space)) {
-          if (trackRef.title.isNotEmpty) {
-            ref.read(playingProvider.notifier).playPauseTrack();
-          }
-        }
+    return Shortcuts(
+      shortcuts: <ShortcutActivator, Intent>{
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF): const OpenSearchIntent(),
+        LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyX): const ClearSearchIntent(),
       },
-      child: Shortcuts(
-        shortcuts: <ShortcutActivator, Intent>{
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyF): const OpenSearchIntent(),
-          LogicalKeySet(LogicalKeyboardKey.control, LogicalKeyboardKey.keyX): const ClearSearchIntent(),
+      child: Actions(
+        actions: <Type, Action<Intent>>{
+          OpenSearchIntent: CallbackAction<OpenSearchIntent>(
+            onInvoke: (intent) => openSearchDialog(),
+          ),
+          ClearSearchIntent: CallbackAction<ClearSearchIntent>(
+            onInvoke: (intent) => clearSearch(),
+          ),
         },
-        child: Actions(
-          actions: <Type, Action<Intent>>{
-            OpenSearchIntent: CallbackAction<OpenSearchIntent>(
-              onInvoke: (intent) => openSearchDialog(),
+        child: FocusScope(
+          autofocus: true,
+          child: KeyboardScaffold(
+            focusNode: textNode,
+            trackRef: trackRef,
+            playingNotifier: ref.read(playingProvider.notifier),
+            title: buildTitle(argument.title, typeName),
+            textStyle: const TextStyle(
+              overflow: TextOverflow.fade,
+              fontSize: 16,
             ),
-            ClearSearchIntent: CallbackAction<ClearSearchIntent>(
-              onInvoke: (intent) => clearSearch(),
-            ),
-          },
-          child: FocusScope(
-            autofocus: true,
-            child: Scaffold(
-              appBar: AppBar(
-                iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                title: Text(
-                  buildTitle(argument.title, typeName),
-                  style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-                ),
-                titleTextStyle: const TextStyle(
-                  overflow: TextOverflow.fade,
-                  fontSize: 16,
-                ),
-                actions: [
-                  IconButton(
-                    onPressed: openSearchDialog,
-                    icon: const Icon(Icons.search),
-                    tooltip: i18n(context).com_f3,
+            actions: [
+              IconButton(
+                onPressed: openSearchDialog,
+                icon: const Icon(Icons.search),
+                tooltip: i18n(context).com_f3,
+              ),
+              IconButton(
+                onPressed: searchTerm.isEmpty ? null : clearSearch,
+                icon: const Icon(Icons.clear),
+                tooltip: i18n(context).com_ctrl_x,
+              ),
+            ],
+            child: Container(
+              decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+              child: Column(
+                children: [
+                  const SizedBox(
+                    height: 4,
                   ),
-                  IconButton(
-                    onPressed: searchTerm.isEmpty ? null : clearSearch,
-                    icon: const Icon(Icons.clear),
-                    tooltip: i18n(context).com_ctrl_x,
+                  Text(i18n(context).content_selected(
+                      selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : '')),
+                  const SizedBox(
+                    height: 4,
+                  ),
+                  if (mq.size.width < 600)
+                    Expanded(
+                      child: Column(
+                        children: [
+                          Expanded(
+                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
+                          ),
+                          if (ref.watch(showLyricsProvider))
+                            LyricsCard(
+                              lyrics: ref.watch(lyricsProvider),
+                              height: mq.size.height / 4,
+                              width: double.maxFinite,
+                            ),
+                        ],
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
+                          ),
+                          if (ref.watch(showLyricsProvider))
+                            LyricsCard(
+                              lyrics: ref.watch(lyricsProvider),
+                              height: double.maxFinite,
+                              width: mq.size.width / 3,
+                            ),
+                        ],
+                      ),
+                    ),
+                  PlayerWidget(
+                    trackRef.title,
                   ),
                 ],
-              ),
-              body: Container(
-                decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
-                child: Column(
-                  children: [
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    Text(i18n(context).content_selected(
-                        selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : '')),
-                    const SizedBox(
-                      height: 4,
-                    ),
-                    if (mq.size.width < 600)
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Expanded(
-                              child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
-                            ),
-                            if (ref.watch(showLyricsProvider))
-                              LyricsCard(
-                                lyrics: ref.watch(lyricsProvider),
-                                height: mq.size.height / 4,
-                                width: double.maxFinite,
-                              ),
-                          ],
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
-                            ),
-                            if (ref.watch(showLyricsProvider))
-                              LyricsCard(
-                                lyrics: ref.watch(lyricsProvider),
-                                height: double.maxFinite,
-                                width: mq.size.width / 3,
-                              ),
-                          ],
-                        ),
-                      ),
-                    PlayerWidget(
-                      trackRef.title,
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
