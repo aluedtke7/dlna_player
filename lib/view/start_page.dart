@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -143,102 +144,114 @@ class _StartPageState extends ConsumerState<StartPage> {
   @override
   Widget build(BuildContext context) {
     final trackRef = ref.watch(trackProvider);
+    final textNode = FocusNode();
 
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme:
-            IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        title: Text(
-          widget.title,
-          style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+    return RawKeyboardListener(
+      autofocus: true,
+      focusNode: textNode,
+      onKey: (k) {
+        if (k.isKeyPressed(LogicalKeyboardKey.space)) {
+          if (trackRef.title.isNotEmpty) {
+            ref.read(playingProvider.notifier).playPauseTrack();
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme:
+              IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          title: Text(
+            widget.title,
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+          ),
+          actions: [
+            IconButton(
+              onPressed: _searchForServer,
+              icon: const Icon(Icons.refresh),
+              tooltip: i18n(context).com_search_server,
+            )
+          ],
         ),
-        actions: [
-          IconButton(
-            onPressed: _searchForServer,
-            icon: const Icon(Icons.refresh),
-            tooltip: i18n(context).com_search_server,
-          )
-        ],
-      ),
-      drawer: const AppDrawer(),
-      body: Container(
-        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  i18n(context).server_visited(lastDevices.length),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: SizedBox(
-                  width: 600,
-                  child: ListView.builder(
-                    itemBuilder: (ctx, idx) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, ServerPage.routeName,
-                              arguments: lastDevices[idx]);
-                        },
-                        child: DeviceCard(device: lastDevices[idx]),
-                      );
-                    },
-                    itemCount: lastDevices.length,
+        drawer: const AppDrawer(),
+        body: Container(
+          decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    i18n(context).server_visited(lastDevices.length),
+                    style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  i18n(context).server_found(devices.length),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                child: SizedBox(
-                  width: 600,
-                  child: ListView.builder(
-                    itemBuilder: (ctx, idx) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushNamed(context, ServerPage.routeName,
-                              arguments: devices[idx]);
-                        },
-                        child: DeviceCard(device: devices[idx]),
-                      );
-                    },
-                    itemCount: devices.length,
-                  ),
-                ),
-              ),
-              if (searching) ...[
-                const Padding(
-                  padding: EdgeInsets.all(8.0),
+                Expanded(
+                  flex: 3,
                   child: SizedBox(
-                      height: 30, width: 30, child: CircularProgressIndicator()),
-                ),
-                Text(
-                  i18n(context).server_search,
+                    width: 600,
+                    child: ListView.builder(
+                      itemBuilder: (ctx, idx) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, ServerPage.routeName,
+                                arguments: lastDevices[idx]);
+                          },
+                          child: DeviceCard(device: lastDevices[idx]),
+                        );
+                      },
+                      itemCount: lastDevices.length,
+                    ),
+                  ),
                 ),
                 const SizedBox(
-                  height: 50,
-                )
-              ],
-              if (trackRef.title.isNotEmpty)
-                PlayerWidget(
-                  trackRef.title,
+                  height: 16,
                 ),
-            ],
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    i18n(context).server_found(devices.length),
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                Expanded(
+                  flex: 4,
+                  child: SizedBox(
+                    width: 600,
+                    child: ListView.builder(
+                      itemBuilder: (ctx, idx) {
+                        return GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, ServerPage.routeName,
+                                arguments: devices[idx]);
+                          },
+                          child: DeviceCard(device: devices[idx]),
+                        );
+                      },
+                      itemCount: devices.length,
+                    ),
+                  ),
+                ),
+                if (searching) ...[
+                  const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: SizedBox(
+                        height: 30, width: 30, child: CircularProgressIndicator()),
+                  ),
+                  Text(
+                    i18n(context).server_search,
+                  ),
+                  const SizedBox(
+                    height: 50,
+                  )
+                ],
+                if (trackRef.title.isNotEmpty)
+                  PlayerWidget(
+                    trackRef.title,
+                  ),
+              ],
+            ),
           ),
         ),
       ),
