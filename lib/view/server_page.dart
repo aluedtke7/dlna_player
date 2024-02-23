@@ -28,6 +28,13 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   List<ContentContainer> cdcs = [];
   var loading = false;
   var index = -1;
+  final textNode = FocusNode();
+
+  @override
+  void dispose() {
+    textNode.dispose();
+    super.dispose();
+  }
 
   Future<List<ContentContainer>> findContentContainer(List<ServiceDescription> serviceList) async {
     List<ContentContainer> cdcs = [];
@@ -99,7 +106,6 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   Widget build(BuildContext context) {
     final device = ModalRoute.of(context)!.settings.arguments as Device;
     final trackRef = ref.watch(trackProvider);
-    final textNode = FocusNode();
 
     // debugPrint('Device url: ${device.url}');
 

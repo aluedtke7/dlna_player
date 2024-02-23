@@ -26,11 +26,11 @@ class KeyboardScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawKeyboardListener(
+    return KeyboardListener(
         autofocus: true,
         focusNode: focusNode,
-        onKey: (k) {
-          if (k.isKeyPressed(LogicalKeyboardKey.space)) {
+        onKeyEvent: (k) {
+          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.space)) {
             if (trackRef.title.isNotEmpty) {
               playingNotifier.playPauseTrack();
             }

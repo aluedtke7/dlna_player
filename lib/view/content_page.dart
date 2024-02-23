@@ -44,6 +44,13 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   var showPlayerWidget = true;
   var searching = false;
   var searchIdx = -1;
+  final textNode = FocusNode();
+
+  @override
+  void dispose() {
+    textNode.dispose();
+    super.dispose();
+  }
 
   String buildTitle(String parent, String title) {
     return (parent.isNotEmpty ? '$parent - ' : '') + title;
@@ -53,7 +60,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   Widget build(BuildContext context) {
     ContentClass type;
     final mq = MediaQuery.of(context);
-    final textNode = FocusNode();
     final trackRef = ref.watch(trackProvider);
     final argument = ModalRoute.of(context)!.settings.arguments as ContentArguments;
     if (argument.content.isEmpty) {

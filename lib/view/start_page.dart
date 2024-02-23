@@ -29,6 +29,13 @@ class _StartPageState extends ConsumerState<StartPage> {
   List<upnp.Device> devices = [];
   List<upnp.Device> lastDevices = [];
   var searching = false;
+  final textNode = FocusNode();
+
+  @override
+  void dispose() {
+    textNode.dispose();
+    super.dispose();
+  }
 
   Future<void> _loadPreviousServer() async {
     setState(() {
@@ -72,7 +79,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         print('ERROR: $e - ${dc?.location}');
         print(stack);
       }
-      if (context.mounted) {
+      if (mounted) {
         Statics.showErrorSnackbar(context, e);
       }
     }
@@ -115,7 +122,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         if (kDebugMode) {
           print('ERROR: $e - ${client.location}');
         }
-        if (e is! FormatException && context.mounted) {
+        if (e is! FormatException && mounted) {
           Statics.showErrorSnackbar(context, e);
         }
       }
@@ -139,7 +146,6 @@ class _StartPageState extends ConsumerState<StartPage> {
   @override
   Widget build(BuildContext context) {
     final trackRef = ref.watch(trackProvider);
-    final textNode = FocusNode();
 
     return KeyboardScaffold(
       focusNode: textNode,
