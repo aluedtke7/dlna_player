@@ -1,3 +1,4 @@
+import 'package:dlna_player/component/app_drawer.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -159,6 +160,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           tooltip: i18n(context).com_search_server,
         )
       ],
+      drawer: const AppDrawer(),
       child: Container(
         decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
         child: Center(

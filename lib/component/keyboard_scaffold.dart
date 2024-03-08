@@ -12,6 +12,7 @@ class KeyboardScaffold extends StatelessWidget {
     required this.playingNotifier,
     required this.title,
     required this.child,
+    this.drawer,
     this.actions,
     this.textStyle,
   });
@@ -20,6 +21,7 @@ class KeyboardScaffold extends StatelessWidget {
   final RawContent trackRef;
   final PlayingNotifier playingNotifier;
   final String title;
+  final Widget? drawer;
   final Widget child;
   final List<Widget>? actions;
   final TextStyle? textStyle;
@@ -47,6 +49,7 @@ class KeyboardScaffold extends StatelessWidget {
             titleTextStyle: textStyle,
             actions: actions,
           ),
+          drawer: drawer,
           body: child,
         ));
   }
