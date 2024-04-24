@@ -26,7 +26,7 @@ final playerProvider = Provider(
     if (!playerInitialized) {
       playerInitialized = true;
       if (Platform.isAndroid) {
-        _player.setAudioContext(const AudioContext(android: AudioContextAndroid(stayAwake: true)));
+        _player.setAudioContext(AudioContext(android: const AudioContextAndroid(stayAwake: true)));
       }
     }
     return _player;
