@@ -256,6 +256,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
               } else {
                 // play track
                 if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
+                  if (!ref.read(playlistProvider).contains(selItems[idx])){
+                    Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                  }
                   ref.read(trackProvider.notifier).setTrack(selItems[idx]);
                   var player = ref.read(playerProvider);
                   // make current visible list the playlist and set index
@@ -266,7 +269,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                   player.play(UrlSource(selItems[idx].trackUrl!));
                   ref.read(lruListProvider).add(selItems[idx].id);
                   ref.read(playingProvider.notifier).getLyrics();
-                  Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
                 }
               }
             },
