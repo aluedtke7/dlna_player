@@ -47,8 +47,8 @@ class _StartPageState extends ConsumerState<StartPage> {
     ref.read(lastServerListProvider).list.addAll(lastServerList);
 
     upnp.DiscoveredClient? dc;
-    try {
-      for (var serverUrl in lastServerList) {
+    for (var serverUrl in lastServerList) {
+      try {
         dc = upnp.DiscoveredClient();
         dc.location = serverUrl;
         final device = await dc.getDevice();
@@ -74,14 +74,14 @@ class _StartPageState extends ConsumerState<StartPage> {
             // }
           }
         }
-      }
-    } catch (e, stack) {
-      if (kDebugMode) {
-        print('ERROR: $e - ${dc?.location}');
-        print(stack);
-      }
-      if (mounted) {
-        Statics.showErrorSnackbar(context, e);
+      } catch (e, stack) {
+        if (kDebugMode) {
+          print('ERROR: $e - ${dc?.location}');
+          print(stack);
+        }
+        if (mounted) {
+          Statics.showErrorSnackbar(context, e);
+        }
       }
     }
   }
@@ -101,7 +101,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           return;
         }
         Uri location = Uri.parse(client.location!);
-        // debugPrint('Location: ${location.host}');
+        debugPrint('Location: ${location.host}');
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
