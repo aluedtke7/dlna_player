@@ -38,7 +38,7 @@ class TrackCard extends ConsumerWidget {
             ? BoxDecoration(
                 image: DecorationImage(
                   image: Image.asset('assets/images/play_bg.png').image,
-                  opacity: playing ? 0.8 : 0.5,
+                  opacity: playing ? 0.9 : 0.5,
                 ),
               )
             : null,
