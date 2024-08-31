@@ -132,7 +132,10 @@ class _StartPageState extends ConsumerState<StartPage> {
         searching = false;
       });
       if (devices.isEmpty) {
-        Statics.showErrorSnackbar(context, i18n(context).server_not_found);
+        var ctx = context;
+        if (ctx.mounted) {
+          Statics.showErrorSnackbar(ctx, i18n(ctx).server_not_found);
+        }
       }
     });
   }
@@ -182,7 +185,8 @@ class _StartPageState extends ConsumerState<StartPage> {
                     itemBuilder: (ctx, idx) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, ServerPage.routeName, arguments: lastDevices[idx]);
+                          Navigator.of(context)
+                              .push(Statics.createAnimPageRoute(const ServerPage(), argument: lastDevices[idx]));
                         },
                         child: DeviceCard(device: lastDevices[idx]),
                       );
@@ -209,7 +213,8 @@ class _StartPageState extends ConsumerState<StartPage> {
                     itemBuilder: (ctx, idx) {
                       return GestureDetector(
                         onTap: () {
-                          Navigator.pushNamed(context, ServerPage.routeName, arguments: devices[idx]);
+                          Navigator.of(context)
+                              .push(Statics.createAnimPageRoute(const ServerPage(), argument: devices[idx]));
                         },
                         child: DeviceCard(device: devices[idx]),
                       );

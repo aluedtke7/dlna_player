@@ -246,7 +246,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 DlnaService.browseAll(selItems[idx].id).then((value) {
                   if (value.isNotEmpty) {
                     final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                    Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
+                    if (context.mounted) {
+                      Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                    }
                   }
                   setState(() {
                     searching = false;
@@ -256,7 +258,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
               } else {
                 // play track
                 if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                  if (!ref.read(playlistProvider).contains(selItems[idx])){
+                  if (!ref.read(playlistProvider).contains(selItems[idx])) {
                     Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
                   }
                   ref.read(trackProvider.notifier).setTrack(selItems[idx]);
@@ -272,13 +274,20 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 }
               }
             },
-            child: searching && searchIdx == idx
-                ? ProgressCard(title: selItems[idx].title)
-                : selItems[idx].classType == ContentClass.album
-                    ? AlbumCard(container: selItems[idx])
-                    : selItems[idx].classType == ContentClass.track
-                        ? TrackCard(track: selItems[idx])
-                        : ContainerCard(container: selItems[idx]));
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              transitionBuilder: (child, animation) => ScaleTransition(
+                scale: animation,
+                child: child,
+              ),
+              child: searching && searchIdx == idx
+                  ? ProgressCard(title: selItems[idx].title)
+                  : selItems[idx].classType == ContentClass.album
+                      ? AlbumCard(container: selItems[idx])
+                      : selItems[idx].classType == ContentClass.track
+                          ? TrackCard(track: selItems[idx])
+                          : ContainerCard(container: selItems[idx]),
+            ));
       },
       itemCount: selItems.length,
     );

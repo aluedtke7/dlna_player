@@ -153,6 +153,27 @@ class Statics {
         });
   }
 
+  static Route createAnimPageRoute(Widget page,
+      {String? name, Object? argument, bool toRight = false}) {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => page,
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        // depending on the slide direction, we slide in from left or from right
+        var begin = toRight ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
+        const end = Offset.zero;
+        const curve = Curves.easeOutCubic;
+        final tween =
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final offsetAnim = animation.drive(tween);
+        return SlideTransition(
+          position: offsetAnim,
+          child: child,
+        );
+      },
+      settings: RouteSettings(arguments: argument, name: name),
+    );
+  }
+
   static int tintValue(int value, double factor) => max(0, min((value + ((255 - value) * factor)).round(), 255));
 
   static Color tintColor(Color color, double factor) =>

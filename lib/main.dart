@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -63,6 +64,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   @override
   void initState() {
     super.initState();
+    timeDilation = 1.5;
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
       if (!getListenerBackend()!.initialize()) {

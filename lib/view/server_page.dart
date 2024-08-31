@@ -6,6 +6,7 @@ import 'package:upnp2/upnp.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
+import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/component/topic_card.dart';
 import 'package:dlna_player/model/content_arguments.dart';
@@ -148,7 +149,10 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                           });
                           DlnaService.browseAll(cdcs[idx].id).then((value) {
                             final args = ContentArguments('', value);
-                            Navigator.pushNamed(context, ContentPage.routeName, arguments: args);
+                            if (context.mounted) {
+                              Navigator.of(context)
+                                  .push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                            }
                             // debugPrint('Server_page: end Loading... $idx');
                             setState(() {
                               loading = false;
@@ -156,12 +160,19 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                             });
                           });
                         },
-                        child: loading && index == idx
-                            ? ProgressCard(title: cdcs[idx].title)
-                            : SizedBox(
-                                width: 300,
-                                child: TopicCard(topic: cdcs[idx]),
-                              ),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          transitionBuilder: (child, animation) => ScaleTransition(
+                            scale: animation,
+                            child: child,
+                          ),
+                          child: loading && index == idx
+                              ? ProgressCard(title: cdcs[idx].title)
+                              : SizedBox(
+                                  width: 300,
+                                  child: TopicCard(topic: cdcs[idx]),
+                                ),
+                        ),
                       ),
                     );
                   },
