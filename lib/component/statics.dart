@@ -14,7 +14,8 @@ class Statics {
         backgroundColor: Theme.of(ctx).colorScheme.error,
         content: Text(
           msg,
-          style: TextStyle(color: Theme.of(ctx).colorScheme.onErrorContainer),
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: Colors.white),
         ),
         duration: const Duration(milliseconds: 5000),
         padding: const EdgeInsets.all(8.0),
@@ -132,7 +133,7 @@ class Statics {
                 icon: const Icon(Icons.clear),
               ),
             ),
-            keyboardType: TextInputType.emailAddress,
+            keyboardType: TextInputType.text,
             onEditingComplete: () => Navigator.of(ctx).pop(controller.text),
           );
 
@@ -153,8 +154,7 @@ class Statics {
         });
   }
 
-  static Route createAnimPageRoute(Widget page,
-      {String? name, Object? argument, bool toRight = false}) {
+  static Route createAnimPageRoute(Widget page, {String? name, Object? argument, bool toRight = false}) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -162,8 +162,7 @@ class Statics {
         var begin = toRight ? const Offset(-1.0, 0.0) : const Offset(1.0, 0.0);
         const end = Offset.zero;
         const curve = Curves.easeOutCubic;
-        final tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+        final tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
         final offsetAnim = animation.drive(tween);
         return SlideTransition(
           position: offsetAnim,

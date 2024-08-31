@@ -62,7 +62,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         if (devType.toLowerCase().contains('mediaserver')) {
           final deviceExists = lastDevices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
-            debugPrint('Found ${device.friendlyName} on IP ${location.host}');
+            debugPrint('Found visited ${device.friendlyName} on IP ${location.host}');
             setState(() {
               lastDevices.add(device);
             });
@@ -92,16 +92,23 @@ class _StartPageState extends ConsumerState<StartPage> {
       devices = [];
     });
     final deviceDiscoverer = upnp.DeviceDiscoverer();
-    await deviceDiscoverer.start(ipv6: false);
-
-    deviceDiscoverer.quickDiscoverClients().listen((client) async {
+    await deviceDiscoverer.start(
+      ipv6: false,
+      onError: (e) {
+        debugPrint('Error on discover: $e');
+        if (mounted) {
+          Statics.showErrorSnackbar(context, e);
+        }
+      },
+    );
+    deviceDiscoverer.quickDiscoverClients(timeout: const Duration(seconds: 15)).listen((client) async {
       try {
         final device = await client.getDevice();
         if (device == null) {
           return;
         }
-        Uri location = Uri.parse(client.location!);
-        debugPrint('Location: ${location.host}');
+        final Uri location = Uri.parse(client.location!);
+        // debugPrint('Location: ${location.host}');
         final devType = device.deviceType ?? '';
         // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {

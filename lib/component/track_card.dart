@@ -34,15 +34,15 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
       duration: const Duration(seconds: durationInS),
     );
     animation = Tween<double>(
-      begin: minOpacity,
-      end: maxOpacity,
+      begin: maxOpacity,
+      end: minOpacity,
     ).animate(CurvedAnimation(
       parent: animationController,
       curve: Curves.easeInOut,
     ));
 
     animation.addStatusListener((status) {
-      debugPrint('$status');
+      // debugPrint('$status');
       if (status == AnimationStatus.completed) {
         animationController.reverse();
       }
