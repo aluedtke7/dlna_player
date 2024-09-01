@@ -7,7 +7,7 @@ A DLNA ([Digital Living Network Alliance](https://en.wikipedia.org/wiki/Digital_
 The idea for this app came through the lack of a simple DLNA player for linux. Nevertheless, 
 this app works on Windows, MacOS, iOS and Android as well.
 
-This app been tested so far with MiniDLNA and Jellyfin. Both DLNA server were installed 
+This app has been tested so far with MiniDLNA and Jellyfin. Both DLNA server were installed 
 on an OpenMediaVault NAS server. MiniDLNA was installed direct while Jellyfin was running in a
 Docker container.
 
@@ -20,7 +20,7 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
 
 ## Features
 
-- Dart 3 and Flutter 3.10 compatible
+- Dart 3 and Flutter 3.24 compatible
 - several themes (Material 3)
 - two player widget sizes (click on player title to change)
 - localization (English and German)
