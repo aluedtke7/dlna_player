@@ -23,6 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
+    namespace 'de.luedtke.dlna_player'
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
