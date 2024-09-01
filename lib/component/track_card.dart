@@ -42,7 +42,6 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
     ));
 
     animation.addStatusListener((status) {
-      // debugPrint('$status');
       if (status == AnimationStatus.completed) {
         animationController.reverse();
       }
@@ -50,6 +49,12 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
         animationController.forward();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -90,55 +95,59 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
                   ),
                 )
               : null,
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Flexible(
-                fit: FlexFit.tight,
-                flex: 5,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      widget.track.title,
-                      textScaler: const TextScaler.linear(1.1),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    if (widget.track.artist.isNotEmpty)
-                      Text(
-                        widget.track.artist,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    if (widget.track.duration.isNotEmpty) Text(trDuration),
-                  ],
+              Text(
+                widget.track.title,
+                textScaler: const TextScaler.linear(1.1),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              if (albumUri.hasScheme)
-                SizedBox(
-                  width: 55,
-                  child: Image.network(
-                    albumUri.toString(),
-                    height: 50,
-                    width: 50,
-                    alignment: Alignment.centerRight,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/images/error_album.png',
-                      height: 50,
-                      width: 50,
-                      alignment: Alignment.centerRight,
-                      fit: BoxFit.contain,
+              Row(
+                children: [
+                  Flexible(
+                    fit: FlexFit.tight,
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (widget.track.artist.isNotEmpty)
+                          Text(
+                            widget.track.artist,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        if (widget.track.duration.isNotEmpty) Text(trDuration),
+                      ],
                     ),
                   ),
-                ),
+                  if (albumUri.hasScheme)
+                    SizedBox(
+                      width: 55,
+                      child: Image.network(
+                        albumUri.toString(),
+                        height: 50,
+                        width: 50,
+                        alignment: Alignment.centerRight,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          'assets/images/error_album.png',
+                          height: 50,
+                          width: 50,
+                          alignment: Alignment.centerRight,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ],
           ),
         ),

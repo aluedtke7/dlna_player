@@ -79,22 +79,22 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         selItems = argument.content
             .where((el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm))
             .toList();
-        mainAxisExtend = 120;
+        mainAxisExtend = 110;
         break;
       case ContentClass.artist:
         selItems = argument.content
             .where((el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm))
             .toList();
-        mainAxisExtend = 95;
+        mainAxisExtend = 110;
         break;
       case ContentClass.genre:
       case ContentClass.playlist:
         selItems = argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
-        mainAxisExtend = 75;
+        mainAxisExtend = 110;
         break;
       case ContentClass.folder:
         selItems = argument.content.where((el) => el.title.toLowerCase().contains(searchTerm)).toList();
-        mainAxisExtend = 85;
+        mainAxisExtend = 110;
         break;
       case ContentClass.track:
         selItems = argument.content

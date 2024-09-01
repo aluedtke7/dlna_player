@@ -20,63 +20,66 @@ class AlbumCard extends StatelessWidget {
       child: Container(
         width: double.maxFinite,
         margin: const EdgeInsets.all(8),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Flexible(
-              fit: FlexFit.tight,
-              flex: 10,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (container.title.isNotEmpty)
-                    Text(
-                      container.title,
-                      textScaler: const TextScaler.linear(1.1),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  const SizedBox(height: 5),
-                  if (container.artist.isNotEmpty)
-                    Text(
-                      container.artist,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  if (container.numTracks > 0)
-                    Text(i18n(context).card_tracks(container.numTracks)),
-                ],
+            if (container.title.isNotEmpty)
+              Text(
+                container.title,
+                textScaler: const TextScaler.linear(1.1),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            SizedBox(
-              width: 65,
-              child: albumUri.hasScheme
-                  ? Image.network(
-                      albumUri.toString(),
-                      height: 60,
-                      width: 60,
-                      alignment: Alignment.centerRight,
-                      fit: BoxFit.contain,
-                      errorBuilder: (context, error, stackTrace) => Image.asset(
-                        'assets/images/error_album.png',
-                        height: 60,
-                        width: 60,
-                        alignment: Alignment.centerRight,
-                        fit: BoxFit.contain,
-                      ),
-                    )
-                  : Image.asset(
-                      'assets/images/no_album.png',
-                      height: 60,
-                      width: 60,
-                      alignment: Alignment.centerRight,
-                      fit: BoxFit.contain,
-                    ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (container.artist.isNotEmpty)
+                        Text(
+                          container.artist,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 65,
+                  child: albumUri.hasScheme
+                      ? Image.network(
+                          albumUri.toString(),
+                          height: 60,
+                          width: 60,
+                          alignment: Alignment.centerRight,
+                          fit: BoxFit.contain,
+                          errorBuilder: (context, error, stackTrace) => Image.asset(
+                            'assets/images/error_album.png',
+                            height: 60,
+                            width: 60,
+                            alignment: Alignment.centerRight,
+                            fit: BoxFit.contain,
+                          ),
+                        )
+                      : Image.asset(
+                          'assets/images/no_album.png',
+                          height: 60,
+                          width: 60,
+                          alignment: Alignment.centerRight,
+                          fit: BoxFit.contain,
+                        ),
+                ),
+              ],
             ),
           ],
         ),
