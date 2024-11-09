@@ -5,7 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
   hid_listener
-  screen_retriever
+  screen_retriever_linux
   window_manager
 )
 
