@@ -1,9 +1,5 @@
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:theme_provider/theme_provider.dart';
-
+import 'package:dlna_player/application.dart';
 import 'package:dlna_player/component/album_card.dart';
 import 'package:dlna_player/component/container_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
@@ -16,10 +12,16 @@ import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/component/track_card.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_class.dart';
+import 'package:dlna_player/model/open_link.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 class ContentPage extends ConsumerStatefulWidget {
   const ContentPage({super.key});
@@ -163,6 +165,70 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 onPressed: searchTerm.isEmpty ? null : clearSearch,
                 icon: const Icon(Icons.clear),
                 tooltip: i18n(context).com_ctrl_x,
+              ),
+              PopupMenuButton(
+                itemBuilder: (BuildContext context) {
+                  return [
+                    PopupMenuItem<int>(
+                        value: 0,
+                        child: ListTile(
+                          leading: const Icon(Icons.color_lens),
+                          title: Text(i18n(context).com_change_theme),
+                        )),
+                    PopupMenuItem<int>(
+                        value: 1,
+                        child: ListTile(
+                          leading: const Icon(Icons.language),
+                          title: Text(i18n(context).com_change_language),
+                        )),
+                    PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 2,
+                        child: ListTile(
+                          leading: const Icon(Icons.search),
+                          title: Text('Discogs ${trackRef.artist}'),
+                        )),
+                    PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 3,
+                        child: ListTile(
+                          leading: const Icon(Icons.search),
+                          title: Text('Musicbrainz ${trackRef.artist}'),
+                        )),
+                    PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 4,
+                        child: ListTile(
+                          leading: const Icon(Icons.search),
+                          title: Text('Wikipedia ${trackRef.artist}'),
+                        )),
+                  ];
+                },
+                onSelected: (value) {
+                  switch (value) {
+                    case 0:
+                      ThemeProvider.controllerOf(context).nextTheme();
+                      break;
+                    case 1:
+                      if ((Intl.defaultLocale ?? '').contains('de')) {
+                        Intl.defaultLocale = 'en';
+                        APPLIC().onLocaleChanged(const Locale('en', ''));
+                      } else {
+                        Intl.defaultLocale = 'de';
+                        APPLIC().onLocaleChanged(const Locale('de', ''));
+                      }
+                      break;
+                    case 2:
+                      OpenLink.openSite(Website.discogs, trackRef.artist);
+                      break;
+                    case 3:
+                      OpenLink.openSite(Website.musicbrainz, trackRef.artist);
+                      break;
+                    case 4:
+                      OpenLink.openSite(Website.wikipedia, trackRef.artist);
+                      break;
+                  }
+                },
               ),
             ],
             child: Container(

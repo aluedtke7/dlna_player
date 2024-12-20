@@ -1,9 +1,8 @@
 import 'dart:convert';
 
-import 'package:http/http.dart' as http;
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
-
 import 'package:dlna_player/model/lyrics.dart';
+import 'package:http/http.dart' as http;
 
 class GeniusHelper {
   final String token = const String.fromEnvironment('GENIUS_TOKEN', defaultValue: '');
@@ -53,7 +52,8 @@ class GeniusHelper {
       }
       final String responseBody = (await http.get(Uri.parse(Uri.encodeFull(foundResult?['url'])))).body;
       final BeautifulSoup bs = BeautifulSoup(responseBody.replaceAll('<br/>', '\n'));
-      final lyrics = bs.findAll('div', class_: 'Lyrics__Container').map((e) => e.getText().trim()).join('\n');
+      final lyrics =
+          bs.findAll('div', attrs: {'data-lyrics-container': 'true'}).map((e) => e.getText().trim()).join('\n');
       if (lyrics.isEmpty) {
         return const Lyrics(LyricsState.empty);
       }

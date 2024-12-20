@@ -8,26 +8,28 @@ import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/theme_options.dart';
 
 class AppDrawer extends StatelessWidget {
-  const AppDrawer({super.key});
+  const AppDrawer({
+    super.key,
+    required this.discoverFunc,
+  });
+
+  final Function discoverFunc;
 
   @override
   Widget build(BuildContext context) {
     return Drawer(
       child: Container(
-        decoration: ThemeProvider.optionsOf<ThemeOptions>(context)
-            .drawerDecoration(context),
+        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).drawerDecoration(context),
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: ThemeProvider.optionsOf<ThemeOptions>(context)
-                  .drawerHeaderDecoration(context),
+              decoration: ThemeProvider.optionsOf<ThemeOptions>(context).drawerHeaderDecoration(context),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text('DLNA Player',
-                      textScaler: TextScaler.linear(1.6),
-                      style: TextStyle(fontWeight: FontWeight.bold)),
+                      textScaler: TextScaler.linear(1.6), style: TextStyle(fontWeight: FontWeight.bold)),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: FutureBuilder<PackageInfo>(
@@ -35,14 +37,22 @@ class AppDrawer extends StatelessWidget {
                         builder: (ctx, snapshot) {
                           var defText = '---';
                           if (snapshot.hasData) {
-                            defText =
-                                '${snapshot.data!.version}+${snapshot.data!.buildNumber}';
+                            defText = '${snapshot.data!.version}+${snapshot.data!.buildNumber}';
                           }
-                          return Text(
-                              i18n(context).com_drawer_version(defText));
+                          return Text(i18n(context).com_drawer_version(defText));
                         }),
                   ),
                 ],
+              ),
+            ),
+            ListTile(
+              title: Text(i18n(context).com_search_server),
+              onTap: () {
+                discoverFunc();
+                Scaffold.of(context).closeDrawer();
+              },
+              leading: const Icon(
+                Icons.refresh,
               ),
             ),
             ListTile(

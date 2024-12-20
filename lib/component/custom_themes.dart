@@ -37,7 +37,7 @@ var customThemes = [
       dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
     ),
     options: ThemeOptions(
-      const Color(0xFFAEC2EC),
+      const Color(0xFFACCAF1),
       Statics.getSlideBtnBackgroundLight,
       1.4,
       FontWeight.bold,

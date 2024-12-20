@@ -163,14 +163,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       trackRef: trackRef,
       playingNotifier: ref.read(playingProvider.notifier),
       title: widget.title,
-      actions: [
-        IconButton(
-          onPressed: _searchForServer,
-          icon: const Icon(Icons.refresh),
-          tooltip: i18n(context).com_search_server,
-        )
-      ],
-      drawer: const AppDrawer(),
+      drawer: AppDrawer(discoverFunc: _searchForServer),
       child: Container(
         decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
         child: Center(
