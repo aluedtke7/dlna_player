@@ -86,6 +86,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
     isExpanded = ref.watch(playerWidgetExpansionProvider);
     isShuffle = ref.watch(shuffleModeProvider);
     isRepeat = ref.watch(repeatModeProvider);
+    isLyrics = ref.read(showLyricsProvider);
 
     if (!sliderIsMoving) {
       if (endTimeRef.inSeconds == 0) {

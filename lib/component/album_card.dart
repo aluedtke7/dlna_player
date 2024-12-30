@@ -7,9 +7,11 @@ class AlbumCard extends StatelessWidget {
   const AlbumCard({
     super.key,
     required this.container,
+    required this.disabled,
   });
 
   final RawContent container;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +31,9 @@ class AlbumCard extends StatelessWidget {
                 textScaler: const TextScaler.linear(1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: disabled ? Theme.of(context).disabledColor : null,
                 ),
               ),
             Row(
@@ -46,11 +49,18 @@ class AlbumCard extends StatelessWidget {
                           container.artist,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
+                            color: disabled ? Theme.of(context).disabledColor : null,
                           ),
                         ),
-                      if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
+                      if (container.numTracks > 0)
+                        Text(
+                          i18n(context).card_tracks(container.numTracks),
+                          style: TextStyle(
+                            color: disabled ? Theme.of(context).disabledColor : null,
+                          ),
+                        ),
                     ],
                   ),
                 ),

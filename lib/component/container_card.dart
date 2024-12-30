@@ -7,9 +7,11 @@ class ContainerCard extends StatelessWidget {
   const ContainerCard({
     super.key,
     required this.container,
+    required this.disabled,
   });
 
   final RawContent container;
+  final bool disabled;
 
   @override
   Widget build(BuildContext context) {
@@ -29,8 +31,9 @@ class ContainerCard extends StatelessWidget {
                 textScaler: const TextScaler.linear(1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: disabled ? Theme.of(context).disabledColor : null,
                 ),
               ),
             Row(
@@ -46,16 +49,26 @@ class ContainerCard extends StatelessWidget {
                         container.artist,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
+                          color: disabled ? Theme.of(context).disabledColor : null,
                         ),
                       ),
                     if (container.genre.isNotEmpty)
                       Text(
                         i18n(context).card_genre(container.genre),
                         overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: disabled ? Theme.of(context).disabledColor : null,
+                        ),
                       ),
-                    if (container.numTracks > 0) Text(i18n(context).card_tracks(container.numTracks)),
+                    if (container.numTracks > 0)
+                      Text(
+                        i18n(context).card_tracks(container.numTracks),
+                        style: TextStyle(
+                          color: disabled ? Theme.of(context).disabledColor : null,
+                        ),
+                      ),
                   ],
                 ),
                 if (albumUri.hasScheme)

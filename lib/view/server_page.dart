@@ -1,8 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:theme_provider/theme_provider.dart';
-import 'package:upnp2/upnp.dart';
-
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/progress_card.dart';
@@ -15,6 +10,10 @@ import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
 import 'package:dlna_player/view/content_page.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:theme_provider/theme_provider.dart';
+import 'package:upnp2/upnp.dart';
 
 class ServerPage extends ConsumerStatefulWidget {
   const ServerPage({super.key});
@@ -143,22 +142,23 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                       child: GestureDetector(
                         onTap: () {
                           // debugPrint('Server_page: Loading... $idx');
-                          setState(() {
-                            loading = true;
-                            index = idx;
-                          });
-                          DlnaService.browseAll(cdcs[idx].id).then((value) {
-                            final args = ContentArguments('', value);
-                            if (context.mounted) {
-                              Navigator.of(context)
-                                  .push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
-                            }
-                            // debugPrint('Server_page: end Loading... $idx');
+                          if (!loading) {
                             setState(() {
-                              loading = false;
-                              index = -1;
+                              loading = true;
+                              index = idx;
                             });
-                          });
+                            DlnaService.browseAll(cdcs[idx].id).then((value) {
+                              final args = ContentArguments('', value);
+                              if (context.mounted) {
+                                Navigator.of(context)
+                                    .push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                              }
+                              setState(() {
+                                loading = false;
+                                index = -1;
+                              });
+                            });
+                          }
                         },
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 250),

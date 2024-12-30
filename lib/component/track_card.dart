@@ -9,9 +9,11 @@ class TrackCard extends ConsumerStatefulWidget {
   const TrackCard({
     super.key,
     required this.track,
+    required this.disabled,
   });
 
   final RawContent track;
+  final bool disabled;
 
   @override
   ConsumerState<TrackCard> createState() => _TrackCardState();
@@ -103,8 +105,9 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
                 textScaler: const TextScaler.linear(1.1),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
+                  color: widget.disabled ? Theme.of(context).disabledColor : null,
                 ),
               ),
               Row(
@@ -120,11 +123,18 @@ class _TrackCardState extends ConsumerState<TrackCard> with SingleTickerProvider
                             widget.track.artist,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
+                              color: widget.disabled ? Theme.of(context).disabledColor : null,
                             ),
                           ),
-                        if (widget.track.duration.isNotEmpty) Text(trDuration),
+                        if (widget.track.duration.isNotEmpty)
+                          Text(
+                            trDuration,
+                            style: TextStyle(
+                              color: widget.disabled ? Theme.of(context).disabledColor : null,
+                            ),
+                          ),
                       ],
                     ),
                   ),

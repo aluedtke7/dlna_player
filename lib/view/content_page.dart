@@ -304,39 +304,46 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         return GestureDetector(
             onTap: () {
               if (selItems[idx].classType != ContentClass.track) {
-                setState(() {
-                  searching = true;
-                  searchIdx = idx;
-                });
-                // open another page with content
-                DlnaService.browseAll(selItems[idx].id).then((value) {
-                  if (value.isNotEmpty) {
-                    final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                    if (context.mounted) {
-                      Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
-                    }
-                  }
+                if (!searching) {
                   setState(() {
-                    searching = false;
-                    searchIdx = -1;
+                    searching = true;
+                    searchIdx = idx;
                   });
-                });
+                  // open another page with content
+                  DlnaService.browseAll(selItems[idx].id).then((value) {
+                    if (value.isNotEmpty) {
+                      final args = ContentArguments(buildTitle(argument.title, typeName), value);
+                      if (context.mounted) {
+                        Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                      }
+                    }
+                    setState(() {
+                      searching = false;
+                      searchIdx = -1;
+                    });
+                  });
+                }
               } else {
-                // play track
                 if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                  if (!ref.read(playlistProvider).contains(selItems[idx])) {
-                    Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                  if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
+                    // pause/stop track
+                    ref.read(playingProvider.notifier).playPauseTrack();
+                  } else {
+                    // play track
+                    if (!ref.read(playlistProvider).contains(selItems[idx])) {
+                      Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                    }
+                    ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                    // make current visible list the playlist and set index
+                    ref
+                        .read(playlistProvider.notifier)
+                        .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
+                    ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                    var player = ref.read(playerProvider);
+                    player.play(UrlSource(selItems[idx].trackUrl!));
+                    ref.read(lruListProvider).add(selItems[idx].id);
+                    ref.read(playingProvider.notifier).getLyrics();
                   }
-                  ref.read(trackProvider.notifier).setTrack(selItems[idx]);
-                  var player = ref.read(playerProvider);
-                  // make current visible list the playlist and set index
-                  ref
-                      .read(playlistProvider.notifier)
-                      .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
-                  ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                  player.play(UrlSource(selItems[idx].trackUrl!));
-                  ref.read(lruListProvider).add(selItems[idx].id);
-                  ref.read(playingProvider.notifier).getLyrics();
                 }
               }
             },
@@ -349,10 +356,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
               child: searching && searchIdx == idx
                   ? ProgressCard(title: selItems[idx].title)
                   : selItems[idx].classType == ContentClass.album
-                      ? AlbumCard(container: selItems[idx])
+                      ? AlbumCard(container: selItems[idx], disabled: searching)
                       : selItems[idx].classType == ContentClass.track
-                          ? TrackCard(track: selItems[idx])
-                          : ContainerCard(container: selItems[idx]),
+                          ? TrackCard(track: selItems[idx], disabled: searching)
+                          : ContainerCard(container: selItems[idx], disabled: searching),
             ));
       },
       itemCount: selItems.length,
