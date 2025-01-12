@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+
+Name=DLNA Player
+Comment=A DLNA player made with Flutter
+Categories=Audio;AudioVideo;
+
+Icon=de.luedtke.dlna_player
+Exec=dlna_player
+Terminal=false
+StartupWMClass=dlna_player

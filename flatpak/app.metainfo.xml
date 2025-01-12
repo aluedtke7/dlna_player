@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>de.luedtke.dlna_player</id>
+  <name>DLNA Player</name>
+  <summary>A DLNA player made with Flutter</summary>
+  <developer_name>Andreas Lüdtke</developer_name>
+  <url type="homepage">https://github.com/aluedtke7/dlna_player</url>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <supports>
+    <control>pointing</control>
+    <control>keyboard</control>
+    <control>touch</control>
+  </supports>
+  <description>
+    <p>A DLNA player made with Flutter</p>
+    <p>Features</p>
+    <ul>
+      <li>several themes (Material 3)</li>
+      <li>two player widget sizes (click on player title to change)</li>
+      <li>localization (English and German)</li>
+      <li>lyrics (via genius.com - see also below: Build release version)</li>
+      <li>search artist via web links on Discogs, Musicbrainz and Wikipedia</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">de.luedtke.dlna_player.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://raw.githubusercontent.com/aluedtke7/dlna_player/main/screenshots/macos_1.png</image>
+    </screenshot>
+  </screenshots>
+  <content_rating type="oars-1.1" />
+  <releases>
+    <release version="1.0.0" date="2025-01-10" />
+  </releases>
+</component>

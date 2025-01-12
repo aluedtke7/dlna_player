@@ -1,0 +1,36 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
+
+---
+id: de.luedtke.dlna_player
+runtime: org.freedesktop.Platform
+runtime-version: "23.08"
+sdk: org.freedesktop.Sdk
+command: dlna_player
+separate-locales: false
+finish-args:
+  - --device=dri
+  - --share=network
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --socket=pulseaudio
+modules:
+  - name: dlna_player
+    buildsystem: simple
+    only-arches:
+      - x86_64
+    build-commands:
+      - "./build-flatpak.sh"
+    sources:
+      - type: file
+        path: ./build-flatpak.sh
+      - type: file
+        path: ./DLNA_Player-Linux-Portable.tar.gz
+      - type: file
+        path: ../assets/linux-logo.png
+        dest-filename: de.luedtke.dlna_player.png
+      - type: file
+        path: ./app.desktop
+        dest-filename: de.luedtke.dlna_player.desktop
+      - type: file
+        path: ./app.metainfo.xml
+        dest-filename: de.luedtke.dlna_player.metainfo.xml

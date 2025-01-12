@@ -65,7 +65,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   void initState() {
     super.initState();
     timeDilation = 1.5;
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    if (Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
       if (!getListenerBackend()!.initialize()) {
         debugPrint('Failed to initialize HID listener backend');
@@ -89,7 +89,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
 
   @override
   void dispose() {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+    if (Platform.isMacOS || Platform.isWindows) {
       windowManager.removeListener(this);
     }
     super.dispose();
