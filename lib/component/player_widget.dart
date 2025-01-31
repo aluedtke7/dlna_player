@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:math';
 import 'dart:async';
 
+import 'package:async/async.dart';
+import 'package:dlna_player/model/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +34,9 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   var isShuffle = false;
   var isRepeat = false;
   var isLyrics = false;
+  var showVolume = true;
   late Timer toggleTimer;
+  late RestartableTimer volumeHideTimer;
 
   @override
   void initState() {
@@ -42,12 +46,30 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
         showArtist = !showArtist;
       });
     });
+    volumeHideTimer = RestartableTimer(Duration(seconds: 4), () {
+      if (mounted) {
+        setState(() {
+          showVolume = false;
+        });
+        // debugPrint('RestartableTimer $showVolume');
+      }
+    });
     _loadPrefs();
+    eventBus.on<VolumeChangedEvent>().listen((volume) {
+      if (mounted) {
+        setState(() {
+          showVolume = true;
+        });
+        volumeHideTimer.reset();
+        // debugPrint('VolumeChangedEvent $showVolume');
+      }
+    });
   }
 
   @override
   void dispose() {
     toggleTimer.cancel();
+    volumeHideTimer.cancel();
     super.dispose();
   }
 
@@ -83,6 +105,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
     final playTimeRef = ref.watch(playTimeProvider);
     final endTimeRef = ref.watch(endTimeProvider);
     final playlistRef = ref.watch(playlistProvider);
+    final volumeRef = ref.watch(volumeProvider);
     isExpanded = ref.watch(playerWidgetExpansionProvider);
     isShuffle = ref.watch(shuffleModeProvider);
     isRepeat = ref.watch(repeatModeProvider);
@@ -96,203 +119,217 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
       }
     }
 
-    return AnimatedSize(
-      curve: Curves.decelerate,
-      duration: const Duration(milliseconds: 500),
-      child: Container(
-        padding: Platform.isIOS ? const EdgeInsets.only(bottom: 8) : null,
-        decoration: BoxDecoration(
-          color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor,
-        ),
-        child: Row(
-          children: [
-            Flexible(
-              fit: FlexFit.loose,
-              flex: 10,
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 4,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(
-                      left: 8,
-                      right: 8,
-                    ),
-                    child: GestureDetector(
-                      onTap: () {
-                        isExpanded = !isExpanded;
-                        ref.read(playerWidgetExpansionProvider.notifier).state = isExpanded;
-                        _savePrefs();
-                      },
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Stack(
+      children: [
+        AnimatedSize(
+          curve: Curves.decelerate,
+          duration: const Duration(milliseconds: 500),
+          child: Container(
+            padding: Platform.isIOS ? const EdgeInsets.only(bottom: 8) : null,
+            decoration: BoxDecoration(
+              color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor,
+            ),
+            child: Row(
+              children: [
+                Flexible(
+                  fit: FlexFit.loose,
+                  flex: 10,
+                  child: Column(
+                    children: [
+                      const SizedBox(
+                        height: 4,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 8,
+                          right: 8,
+                        ),
+                        child: GestureDetector(
+                          onTap: () {
+                            isExpanded = !isExpanded;
+                            ref.read(playerWidgetExpansionProvider.notifier).state = isExpanded;
+                            _savePrefs();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              SizedBox(width: 45, child: Text(playTimeRef.showMS())),
+                              Expanded(
+                                child: AnimatedCrossFade(
+                                  firstChild: SizedBox(
+                                    width: mq.size.width - 110,
+                                    child: Text(
+                                      trackRef.title,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  secondChild: SizedBox(
+                                    width: mq.size.width - 110,
+                                    child: Text(
+                                      trackRef.artist,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  crossFadeState: showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                                  duration: const Duration(milliseconds: 500),
+                                  sizeCurve: Curves.bounceInOut,
+                                ),
+                              ),
+                              SizedBox(
+                                  width: 45,
+                                  child: Text(
+                                    endTimeRef.showMS(),
+                                    textAlign: TextAlign.end,
+                                  )),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 45, child: Text(playTimeRef.showMS())),
+                          IconButton(
+                            onPressed: trackRef.title.isNotEmpty
+                                ? () => ref.read(playingProvider.notifier).playPauseTrack()
+                                : null,
+                            icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
+                            tooltip: i18n(context).pw_hint_play_pause,
+                          ),
                           Expanded(
-                            child: AnimatedCrossFade(
-                              firstChild: SizedBox(
-                                width: mq.size.width - 110,
-                                child: Text(
-                                  trackRef.title,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              secondChild: SizedBox(
-                                width: mq.size.width - 110,
-                                child: Text(
-                                  trackRef.artist,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              crossFadeState: showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                              duration: const Duration(milliseconds: 500),
-                              sizeCurve: Curves.bounceInOut,
+                            child: Slider(
+                              value: sliderPos,
+                              onChanged: (value) {
+                                setState(() {
+                                  sliderPos = min(1.0, value);
+                                });
+                              },
+                              onChangeStart: (value) {
+                                setState(() {
+                                  sliderIsMoving = true;
+                                });
+                              },
+                              onChangeEnd: (value) {
+                                final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
+                                ref.read(playerProvider).seek(newCurrent).then((_) {
+                                  setState(() {
+                                    sliderIsMoving = false;
+                                  });
+                                });
+                              },
                             ),
                           ),
-                          SizedBox(
-                              width: 45,
-                              child: Text(
-                                endTimeRef.showMS(),
-                                textAlign: TextAlign.end,
-                              )),
                         ],
                       ),
-                    ),
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      IconButton(
-                        onPressed: trackRef.title.isNotEmpty
-                            ? () => ref.read(playingProvider.notifier).playPauseTrack()
-                            : null,
-                        icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
-                        tooltip: i18n(context).pw_hint_play_pause,
-                      ),
-                      Expanded(
-                        child: Slider(
-                          value: sliderPos,
-                          onChanged: (value) {
-                            setState(() {
-                              sliderPos = min(1.0, value);
-                            });
-                          },
-                          onChangeStart: (value) {
-                            setState(() {
-                              sliderIsMoving = true;
-                            });
-                          },
-                          onChangeEnd: (value) {
-                            final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
-                            ref.read(playerProvider).seek(newCurrent).then((_) {
-                              setState(() {
-                                sliderIsMoving = false;
-                              });
-                            });
-                          },
+                      if (isExpanded) ...[
+                        Text(
+                          trackRef.album,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
                         ),
-                      ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                isShuffle = !isShuffle;
+                                ref.read(shuffleModeProvider.notifier).state = isShuffle;
+                                _savePrefs();
+                                Statics.showInfoSnackbar(
+                                    context, i18n(context).player_shuffle_mode(isShuffle.toString()));
+                              },
+                              icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
+                              tooltip: i18n(context).pw_hint_shuffle,
+                            ),
+                            IconButton(
+                              onPressed: playlistRef.length > 1
+                                  ? () => ref.read(playingProvider.notifier).playPreviousTrack()
+                                  : null,
+                              icon: const Icon(Icons.skip_previous, size: iconSize),
+                              tooltip: i18n(context).pw_hint_previous,
+                            ),
+                            IconButton(
+                              onPressed: playlistRef.length > 1
+                                  ? () {
+                                      ref.read(playingProvider.notifier).playNextTrack();
+                                    }
+                                  : null,
+                              icon: const Icon(Icons.skip_next, size: iconSize),
+                              tooltip: i18n(context).pw_hint_next,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                isRepeat = !isRepeat;
+                                ref.read(repeatModeProvider.notifier).state = isRepeat;
+                                _savePrefs();
+                                Statics.showInfoSnackbar(
+                                    context, i18n(context).player_repeat_mode(isRepeat.toString()));
+                              },
+                              icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
+                              tooltip: i18n(context).pw_hint_repeat,
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                isLyrics = !isLyrics;
+                                ref.read(showLyricsProvider.notifier).state = isLyrics;
+                                if (isLyrics && ref.read(lyricsProvider).text.isEmpty) {
+                                  ref.read(playingProvider.notifier).getLyrics();
+                                }
+                                _savePrefs();
+                              },
+                              icon: Icon(
+                                Icons.text_snippet_outlined,
+                                size: iconSize,
+                                color: !isLyrics ? Colors.grey : null,
+                              ),
+                              tooltip: i18n(context).pw_hint_lyrics,
+                            ),
+                          ],
+                        ),
+                      ]
                     ],
                   ),
-                  if (isExpanded) ...[
-                    if (trackRef.album.isNotEmpty)
-                      Text(
-                        trackRef.album,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                      ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            isShuffle = !isShuffle;
-                            ref.read(shuffleModeProvider.notifier).state = isShuffle;
-                            _savePrefs();
-                            Statics.showInfoSnackbar(context, i18n(context).player_shuffle_mode(isShuffle.toString()));
-                          },
-                          icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
-                          tooltip: i18n(context).pw_hint_shuffle,
-                        ),
-                        IconButton(
-                          onPressed: playlistRef.length > 1
-                              ? () => ref.read(playingProvider.notifier).playPreviousTrack()
-                              : null,
-                          icon: const Icon(Icons.skip_previous, size: iconSize),
-                          tooltip: i18n(context).pw_hint_previous,
-                        ),
-                        IconButton(
-                          onPressed: playlistRef.length > 1
-                              ? () {
-                                  ref.read(playingProvider.notifier).playNextTrack();
-                                }
-                              : null,
-                          icon: const Icon(Icons.skip_next, size: iconSize),
-                          tooltip: i18n(context).pw_hint_next,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            isRepeat = !isRepeat;
-                            ref.read(repeatModeProvider.notifier).state = isRepeat;
-                            _savePrefs();
-                            Statics.showInfoSnackbar(context, i18n(context).player_repeat_mode(isRepeat.toString()));
-                          },
-                          icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
-                          tooltip: i18n(context).pw_hint_repeat,
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            isLyrics = !isLyrics;
-                            ref.read(showLyricsProvider.notifier).state = isLyrics;
-                            if (isLyrics && ref.read(lyricsProvider).text.isEmpty) {
-                              ref.read(playingProvider.notifier).getLyrics();
-                            }
-                            _savePrefs();
-                          },
-                          icon: Icon(
-                            Icons.text_snippet_outlined,
-                            size: iconSize,
-                            color: !isLyrics ? Colors.grey : null,
-                          ),
-                          tooltip: i18n(context).pw_hint_lyrics,
-                        ),
-                      ],
-                    ),
-                  ]
-                ],
-              ),
-            ),
-            if (isExpanded && (trackRef.albumArt?.isNotEmpty ?? false))
-              Flexible(
-                fit: FlexFit.loose,
-                flex: 0,
-                child: SizedBox(
-                  width: imageSize,
-                  child: Image.network(
-                    trackRef.albumArt.toString(),
-                    height: imageSize,
-                    width: imageSize,
-                    alignment: Alignment.centerRight,
-                    fit: BoxFit.contain,
-                    errorBuilder: (context, error, stackTrace) => Image.asset(
-                      'assets/images/error_album.png',
-                      height: imageSize,
+                ),
+                if (isExpanded && (trackRef.albumArt?.isNotEmpty ?? false))
+                  Flexible(
+                    fit: FlexFit.loose,
+                    flex: 0,
+                    child: SizedBox(
                       width: imageSize,
-                      alignment: Alignment.centerRight,
-                      fit: BoxFit.contain,
+                      child: Image.network(
+                        trackRef.albumArt.toString(),
+                        height: imageSize,
+                        width: imageSize,
+                        alignment: Alignment.centerRight,
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) => Image.asset(
+                          'assets/images/error_album.png',
+                          height: imageSize,
+                          width: imageSize,
+                          alignment: Alignment.centerRight,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            const SizedBox(
-              width: 4,
-            )
-          ],
+                const SizedBox(
+                  width: 4,
+                )
+              ],
+            ),
+          ),
         ),
-      ),
+        Positioned(
+          left: 8,
+          top: 76,
+          child: AnimatedOpacity(
+            opacity: showVolume ? 1 : 0,
+            duration: Duration(milliseconds: 500),
+            child: Text('Volume ${volumeRef.showPercent()}'),
+          ),
+        ),
+      ],
     );
   }
 }

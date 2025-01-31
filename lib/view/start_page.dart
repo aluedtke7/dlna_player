@@ -162,6 +162,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       focusNode: textNode,
       trackRef: trackRef,
       playingNotifier: ref.read(playingProvider.notifier),
+      volumeNotifier: ref.read(volumeProvider.notifier),
       title: widget.title,
       drawer: AppDrawer(discoverFunc: _searchForServer),
       child: Container(

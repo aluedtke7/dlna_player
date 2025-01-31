@@ -150,6 +150,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
             focusNode: textNode,
             trackRef: trackRef,
             playingNotifier: ref.read(playingProvider.notifier),
+            volumeNotifier: ref.read(volumeProvider.notifier),
             title: buildTitle(argument.title, typeName),
             textStyle: const TextStyle(
               overflow: TextOverflow.fade,

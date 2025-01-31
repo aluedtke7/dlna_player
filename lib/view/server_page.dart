@@ -122,6 +122,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
       focusNode: textNode,
       trackRef: trackRef,
       playingNotifier: ref.read(playingProvider.notifier),
+      volumeNotifier: ref.read(volumeProvider.notifier),
       title: device.friendlyName ?? '',
       child: Container(
         decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,

@@ -3,14 +3,17 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:dlna_player/component/extensions.dart';
 import 'package:dlna_player/component/genius_helper.dart';
+import 'package:dlna_player/model/events.dart';
 import 'package:dlna_player/model/lru_list.dart';
 import 'package:dlna_player/model/lyrics.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final _player = AudioPlayer();
 final _lruList = LRUList<String>([], prefsKey: PrefKeys.lruListPrefsKey);
@@ -165,9 +168,12 @@ class PlayingNotifier extends StateNotifier<bool> {
     if (doPlay) {
       ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
       ref.read(trackProvider.notifier).setTrack(playlist[currentIdx]);
-      ref.read(playerProvider).play(UrlSource(playlist[currentIdx].trackUrl!));
-      lruList.add(playlist[currentIdx].id);
-      getLyrics();
+      ref.read(playerProvider).play(UrlSource(playlist[currentIdx].trackUrl!)).then((_) {
+        lruList.add(playlist[currentIdx].id);
+        getLyrics();
+      }).onError((err, _) {
+        debugPrint('AudioPlayers Exception $err');
+      });
     }
   }
 
@@ -194,7 +200,11 @@ class PlayingNotifier extends StateNotifier<bool> {
       }
       ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
       ref.read(trackProvider.notifier).setTrack(playlistRef[currentIdx]);
-      ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!));
+      ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!)).then((_) {
+        getLyrics();
+      }).onError((err, _) {
+        debugPrint('AudioPlayers Exception $err');
+      });
     } else {
       // just use track of last index
       final listSize = playlistRef.length;
@@ -205,10 +215,13 @@ class PlayingNotifier extends StateNotifier<bool> {
         }
         ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
         ref.read(trackProvider.notifier).setTrack(playlistRef[currentIdx]);
-        ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!));
+        ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!)).then((_) {
+          getLyrics();
+        }).onError((err, _) {
+          debugPrint('AudioPlayers Exception $err');
+        });
       }
     }
-    getLyrics();
   }
 
   Future<void> getLyrics() async {
@@ -276,3 +289,46 @@ class EndTimeNotifier extends StateNotifier<Duration> {
 }
 
 final endTimeProvider = StateNotifierProvider<EndTimeNotifier, Duration>((ref) => EndTimeNotifier());
+
+// ---------------------------------------------------------------------
+// provider for handling changes in volume
+// ---------------------------------------------------------------------
+class VolumeNotifier extends StateNotifier<double> {
+  VolumeNotifier() : super(0) {
+    SharedPreferences.getInstance().then((sp) {
+      state = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
+      _player.setVolume(state.toDouble());
+      debugPrint('VolumeNotifier ${state.showPercent()}');
+    });
+  }
+
+  void increaseVolume() {
+    if (_player.volume < 0.16) {
+      state = min(_player.volume + 0.01, 1.0);
+    } else {
+      state = min(_player.volume + 0.05, 1.0);
+    }
+    _player.setVolume(state.toDouble());
+    // debugPrint('Volume increased: ${state.showPercent()}');
+    eventBus.fire(VolumeChangedEvent(state));
+    SharedPreferences.getInstance().then((sp) {
+      sp.setDouble(PrefKeys.volumePrefsKey, state);
+    });
+  }
+
+  void decreaseVolume() {
+    if (_player.volume < 0.16) {
+      state = max(_player.volume - 0.01, 0.0);
+    } else {
+      state = max(_player.volume - 0.05, 0.0);
+    }
+    _player.setVolume(state.toDouble());
+    // debugPrint('Volume decreased: ${state.showPercent()}');
+    eventBus.fire(VolumeChangedEvent(state));
+    SharedPreferences.getInstance().then((sp) {
+      sp.setDouble(PrefKeys.volumePrefsKey, state);
+    });
+  }
+}
+
+final volumeProvider = StateNotifierProvider<VolumeNotifier, double>((ref) => VolumeNotifier());

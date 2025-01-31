@@ -13,3 +13,9 @@ extension DurationExt on Duration {
     return '$twoDigitMinutes:$twoDigitSeconds';
   }
 }
+
+extension PercentExt on double {
+  String showPercent() {
+    return '${(this * 100).round()}%';
+  }
+}

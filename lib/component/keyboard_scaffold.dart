@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class KeyboardScaffold extends StatelessWidget {
   const KeyboardScaffold({
@@ -10,6 +9,7 @@ class KeyboardScaffold extends StatelessWidget {
     required this.focusNode,
     required this.trackRef,
     required this.playingNotifier,
+    required this.volumeNotifier,
     required this.title,
     required this.child,
     this.drawer,
@@ -20,6 +20,7 @@ class KeyboardScaffold extends StatelessWidget {
   final FocusNode focusNode;
   final RawContent trackRef;
   final PlayingNotifier playingNotifier;
+  final VolumeNotifier volumeNotifier;
   final String title;
   final Widget? drawer;
   final Widget child;
@@ -36,6 +37,12 @@ class KeyboardScaffold extends StatelessWidget {
             if (trackRef.title.isNotEmpty) {
               playingNotifier.playPauseTrack();
             }
+          }
+          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowUp)) {
+            volumeNotifier.increaseVolume();
+          }
+          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowDown)) {
+            volumeNotifier.decreaseVolume();
           }
         },
         child: Scaffold(

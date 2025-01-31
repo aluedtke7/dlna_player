@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/model/lyrics.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 class LyricsCard extends StatelessWidget {
   const LyricsCard({
@@ -20,7 +21,8 @@ class LyricsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 5,
-      color: Statics.tintColor(Theme.of(context).cardColor, 0.9),
+      color: Statics.tintColor(ThemeProvider.themeOf(context).data.cardColor,
+          Theme.of(context).brightness == Brightness.dark ? 0.4 : 0.9),
       child: Container(
         width: width,
         height: height,
