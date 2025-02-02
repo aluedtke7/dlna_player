@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:dlna_player/model/lyrics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:http/http.dart' as http;
 
@@ -50,9 +51,13 @@ class GeniusHelper {
       for (var hit in hits) {
         final result = hit['result'];
         final foundArtist = result?['artist_names'];
-        if (foundArtist != null && partialRatio(foundArtist.toString().toLowerCase(), artist.toLowerCase()) > 80) {
-          foundResult = result;
-          break;
+        if (foundArtist != null) {
+          final fuzzyRatio = partialRatio(foundArtist.toString().toLowerCase(), artist.toLowerCase());
+          if (fuzzyRatio > 90) {
+            debugPrint('Found artist: $foundArtist - $fuzzyRatio');
+            foundResult = result;
+            break;
+          }
         }
       }
       if (foundResult == null) {
