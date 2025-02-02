@@ -105,6 +105,12 @@
       "bool": {}
     }
   },
+  "player_volume": "Volume {str}",
+  "@player_volume": {
+    "placeholders": {
+      "str": {}
+    }
+  },
   "lyrics_state": "{ls, select, other{---} unknown{} loading{Loading lyrics...} notFound{Track not found} empty{No Lyrics found} error{Error loading lyrics} success{}}",
   "@lyrics_state": {
     "placeholders": {

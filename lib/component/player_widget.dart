@@ -1,21 +1,23 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
-import 'dart:async';
 
 import 'package:async/async.dart';
-import 'package:dlna_player/model/events.dart';
+import 'package:dlna_player/component/extensions.dart';
+import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/player_control/animated_volume.dart';
+import 'package:dlna_player/component/player_control/artist_title_fader.dart';
+import 'package:dlna_player/component/player_control/track_cover.dart';
+import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/theme_options.dart';
+import 'package:dlna_player/service/events.dart';
+import 'package:dlna_player/model/pref_keys.dart';
+import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
-
-import 'package:dlna_player/component/extensions.dart';
-import 'package:dlna_player/component/i18n_util.dart';
-import 'package:dlna_player/component/statics.dart';
-import 'package:dlna_player/component/theme_options.dart';
-import 'package:dlna_player/model/pref_keys.dart';
-import 'package:dlna_player/provider/player_provider.dart';
-import 'package:dlna_player/provider/prefs_provider.dart';
 
 const double iconSize = 32;
 
@@ -42,26 +44,18 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   void initState() {
     super.initState();
     toggleTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
-      setState(() {
-        showArtist = !showArtist;
-      });
+      setState(() => showArtist = !showArtist);
     });
     volumeHideTimer = RestartableTimer(Duration(seconds: 4), () {
       if (mounted) {
-        setState(() {
-          showVolume = false;
-        });
-        // debugPrint('RestartableTimer $showVolume');
+        setState(() => showVolume = false);
       }
     });
     _loadPrefs();
     eventBus.on<VolumeChangedEvent>().listen((volume) {
       if (mounted) {
-        setState(() {
-          showVolume = true;
-        });
+        setState(() => showVolume = true);
         volumeHideTimer.reset();
-        // debugPrint('VolumeChangedEvent $showVolume');
       }
     });
   }
@@ -93,13 +87,6 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final double imageSize;
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-      imageSize = 150.0;
-    } else {
-      imageSize = 90.0;
-    }
-    final mq = MediaQuery.of(context);
     final trackRef = ref.watch(trackProvider);
     final playingRef = ref.watch(playingProvider);
     final playTimeRef = ref.watch(playTimeProvider);
@@ -155,26 +142,10 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             children: [
                               SizedBox(width: 45, child: Text(playTimeRef.showMS())),
                               Expanded(
-                                child: AnimatedCrossFade(
-                                  firstChild: SizedBox(
-                                    width: mq.size.width - 110,
-                                    child: Text(
-                                      trackRef.title,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  secondChild: SizedBox(
-                                    width: mq.size.width - 110,
-                                    child: Text(
-                                      trackRef.artist,
-                                      overflow: TextOverflow.ellipsis,
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ),
-                                  crossFadeState: showArtist ? CrossFadeState.showSecond : CrossFadeState.showFirst,
-                                  duration: const Duration(milliseconds: 500),
-                                  sizeCurve: Curves.bounceInOut,
+                                child: ArtistTitleFader(
+                                  artist: trackRef.artist,
+                                  title: trackRef.title,
+                                  showArtist: showArtist,
                                 ),
                               ),
                               SizedBox(
@@ -292,43 +263,12 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                   ),
                 ),
                 if (isExpanded && (trackRef.albumArt?.isNotEmpty ?? false))
-                  Flexible(
-                    fit: FlexFit.loose,
-                    flex: 0,
-                    child: SizedBox(
-                      width: imageSize,
-                      child: Image.network(
-                        trackRef.albumArt.toString(),
-                        height: imageSize,
-                        width: imageSize,
-                        alignment: Alignment.centerRight,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => Image.asset(
-                          'assets/images/error_album.png',
-                          height: imageSize,
-                          width: imageSize,
-                          alignment: Alignment.centerRight,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  ),
-                const SizedBox(
-                  width: 4,
-                )
+                  TrackCover(coverUrl: trackRef.albumArt.toString()),
               ],
             ),
           ),
         ),
-        Positioned(
-          left: 8,
-          top: 76,
-          child: AnimatedOpacity(
-            opacity: showVolume ? 1 : 0,
-            duration: Duration(milliseconds: 500),
-            child: Text('Volume ${volumeRef.showPercent()}'),
-          ),
-        ),
+        Positioned(left: 120, top: 8, child: AnimatedVolume(show: showVolume, volume: volumeRef)),
       ],
     );
   }

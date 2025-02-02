@@ -6,7 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 import 'package:upnp2/upnp.dart' as upnp;
 
-import 'package:dlna_player/component/device_card.dart';
+import 'package:dlna_player/component/card/device_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';

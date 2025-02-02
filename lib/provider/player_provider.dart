@@ -4,8 +4,8 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dlna_player/component/extensions.dart';
-import 'package:dlna_player/component/genius_helper.dart';
-import 'package:dlna_player/model/events.dart';
+import 'package:dlna_player/service/genius_helper.dart';
+import 'package:dlna_player/service/events.dart';
 import 'package:dlna_player/model/lru_list.dart';
 import 'package:dlna_player/model/lyrics.dart';
 import 'package:dlna_player/model/pref_keys.dart';

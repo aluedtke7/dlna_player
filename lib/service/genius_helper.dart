@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:beautiful_soup_dart/beautiful_soup.dart';
 import 'package:dlna_player/model/lyrics.dart';
+import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:http/http.dart' as http;
 
 class GeniusHelper {
@@ -45,9 +46,16 @@ class GeniusHelper {
       if (hits.isEmpty) {
         return const Lyrics(LyricsState.notFound);
       }
-      final foundResult = hits[0]['result'];
-      final foundArtist = foundResult?['artist_names'];
-      if (foundArtist != null && !foundArtist.toString().toLowerCase().contains(artist.toLowerCase())) {
+      dynamic foundResult;
+      for (var hit in hits) {
+        final result = hit['result'];
+        final foundArtist = result?['artist_names'];
+        if (foundArtist != null && partialRatio(foundArtist.toString().toLowerCase(), artist.toLowerCase()) > 80) {
+          foundResult = result;
+          break;
+        }
+      }
+      if (foundResult == null) {
         return const Lyrics(LyricsState.empty);
       }
       final String responseBody = (await http.get(Uri.parse(Uri.encodeFull(foundResult?['url'])))).body;

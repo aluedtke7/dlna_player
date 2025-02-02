@@ -1,9 +1,9 @@
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
-import 'package:dlna_player/component/progress_card.dart';
+import 'package:dlna_player/component/card/progress_card.dart';
 import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/component/theme_options.dart';
-import 'package:dlna_player/component/topic_card.dart';
+import 'package:dlna_player/component/card/topic_card.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_container.dart';
 import 'package:dlna_player/provider/player_provider.dart';
