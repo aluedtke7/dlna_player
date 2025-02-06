@@ -75,7 +75,8 @@ class DlnaService {
         final id = element.getAttribute('id') ?? '';
         final parentId = element.getAttribute('parentID') ?? '';
         final title = element.getElement('dc:title')?.innerText ?? '';
-        final artist = element.getElement('upnp:artist')?.innerText ?? '';
+        final artist =
+            element.getElement('dc:creator')?.innerText ?? element.getElement('upnp:artist')?.innerText ?? '';
         final album = element.getElement('upnp:album')?.innerText ?? '';
         final genre = element.getElement('upnp:genre')?.innerText ?? '';
         final trackNum = int.tryParse(element.getElement('upnp:originalTrackNumber')?.innerText ?? '0') ?? 0;
