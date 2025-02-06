@@ -7,7 +7,7 @@ import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:http/http.dart' as http;
 
 class GeniusHelper {
-  final String token = const String.fromEnvironment('GENIUS_TOKEN', defaultValue: '');
+  var token = '';
   final patternRound = RegExp(r'\(.*\)');
   final patternSquare = RegExp(r'\[.*\]');
   final patternCurly = RegExp(r'\{.*\}');
@@ -15,11 +15,13 @@ class GeniusHelper {
   final patternSlash = RegExp(r'/');
   final Map<String, String> headers = {};
 
-  GeniusHelper() {
-    headers.putIfAbsent('Authorization', () => 'Bearer $token');
+  void setToken(String apiToken) {
+    token = apiToken;
   }
 
   Future<Lyrics> searchLyrics(String artist, String title) async {
+    // always set the authorization header
+    headers.update('Authorization', (_) => 'Bearer $token', ifAbsent: () => 'Bearer $token');
     // make the search term more compatible with Genius
     var searchTerm = '$title $artist'
         .replaceAll(patternAngle, '')

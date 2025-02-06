@@ -51,6 +51,7 @@ dependencies:
   hid_listener: ^2.0.1
   event_bus: ^2.0.1
   fuzzywuzzy: ^1.2.0
+  form_validator: ^2.1.1
 
 dev_dependencies:
   flutter_test:

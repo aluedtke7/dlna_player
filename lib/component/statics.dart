@@ -154,6 +154,68 @@ class Statics {
         });
   }
 
+  static Future<String?> showGeniusTokenDialog(BuildContext context, String title, String info, String initVal) async {
+    var input = initVal;
+    final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+    final TextEditingController textEditingController = TextEditingController(text: initVal);
+
+    return showDialog<String?>(
+      context: context,
+      builder: (ctx) {
+        var textFormField = TextFormField(
+          autofocus: true,
+          controller: textEditingController,
+          textInputAction: TextInputAction.done,
+          decoration: InputDecoration(
+            labelText: i18n(context).dlg_api_token_label,
+          ),
+          keyboardType: TextInputType.text,
+          onChanged: (value) => input = value,
+          onFieldSubmitted: (value) {
+            if (formKey.currentState?.validate() ?? false) {
+              Navigator.of(ctx).pop(value);
+            }
+          },
+        );
+        return StatefulBuilder(builder: (context, setState) {
+          return AlertDialog(
+            title: Text(title),
+            // icon: Icon(Icons.settings),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(info),
+                    const SizedBox(height: 16),
+                    textFormField,
+                  ],
+                ),
+              ),
+            ),
+            actions: <Widget>[
+              ElevatedButton(
+                autofocus: false,
+                onPressed: () {
+                  Navigator.of(ctx).pop(null);
+                },
+                child: Text(i18n(context).com_cancel),
+              ),
+              ElevatedButton(
+                autofocus: false,
+                onPressed: () {
+                  Navigator.of(ctx).pop(input);
+                },
+                child: Text(i18n(context).com_save),
+              ),
+            ],
+          );
+        });
+      },
+    );
+  }
+
   static Route createAnimPageRoute(Widget page, {String? name, Object? argument, bool toRight = false}) {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,

@@ -13,6 +13,7 @@ import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_class.dart';
 import 'package:dlna_player/model/open_link.dart';
+import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 class ContentPage extends ConsumerStatefulWidget {
@@ -46,7 +48,18 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   var showPlayerWidget = true;
   var searching = false;
   var searchIdx = -1;
+  late SharedPreferences prefs;
   final textNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPrefInstance();
+  }
+
+  Future<void> _loadPrefInstance() async {
+    prefs = await SharedPreferences.getInstance();
+  }
 
   @override
   void dispose() {
@@ -203,6 +216,12 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                           leading: const Icon(Icons.search),
                           title: Text('Wikipedia ${trackRef.artist}'),
                         )),
+                    PopupMenuItem<int>(
+                        value: 5,
+                        child: ListTile(
+                          leading: const Icon(Icons.settings),
+                          title: Text(i18n(context).dlg_api_token),
+                        )),
                   ];
                 },
                 onSelected: (value) {
@@ -227,6 +246,19 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       break;
                     case 4:
                       OpenLink.openSite(Website.wikipedia, trackRef.artist);
+                      break;
+                    case 5:
+                      Statics.showGeniusTokenDialog(
+                        context,
+                        i18n(context).dlg_api_token,
+                        i18n(context).dlg_api_token_info,
+                        prefs.getString(PrefKeys.geniusApiTokenPrefsKey) ?? '',
+                      ).then((token) {
+                        if (token?.isNotEmpty ?? false) {
+                          prefs.setString(PrefKeys.geniusApiTokenPrefsKey, token ?? '');
+                          ref.read(playingProvider.notifier).updateGeniusToken(token ?? '');
+                        }
+                      });
                       break;
                   }
                 },

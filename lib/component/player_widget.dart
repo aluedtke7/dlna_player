@@ -76,6 +76,8 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
     final repeat = prefs.getBool(PrefKeys.playerWidgetRepeatStatePrefsKey) ?? false;
     ref.read(repeatModeProvider.notifier).state = repeat;
     ref.read(showLyricsProvider.notifier).state = false;
+    final geniusApiToken = prefs.getString(PrefKeys.geniusApiTokenPrefsKey) ?? '';
+    ref.read(playingProvider.notifier).updateGeniusToken(geniusApiToken);
   }
 
   Future<void> _savePrefs() async {

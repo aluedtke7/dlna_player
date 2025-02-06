@@ -239,6 +239,10 @@ class PlayingNotifier extends StateNotifier<bool> {
     }
   }
 
+  Future<void> updateGeniusToken(String geniusApiToken) async {
+    geniusHelper.setToken(geniusApiToken);
+  }
+
   PlayingNotifier(this.ref) : super(false) {
     _subscriptions.add(_player.onPlayerStateChanged.listen((event) {
       switch (event) {

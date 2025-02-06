@@ -2,6 +2,7 @@
   "com_app_name": "DLNA Player",
   "com_ok": "Ok",
   "com_cancel": "Abbruch",
+  "com_save": "Speichern",
   "com_yes": "Ja",
   "com_no": "Nein",
   "com_back": "Zurück",
@@ -45,5 +46,8 @@
   "pw_hint_previous": "Springt zum vorigen Lied",
   "pw_hint_next": "Springt zum nächsten Lied",
   "pw_hint_repeat": "Setzt den Wiederholungsmodus",
-  "pw_hint_lyrics": "Zeigt / versteckt Liedtext (genius.com)"
+  "pw_hint_lyrics": "Zeigt / versteckt Liedtext (genius.com)",
+  "dlg_api_token": "Genius API token",
+  "dlg_api_token_info": "Bitte geben Sie Ihren privaten Genius API token ein",
+  "dlg_api_token_label": "API token"
 }
