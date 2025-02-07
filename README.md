@@ -25,7 +25,7 @@ received lists (tracks, artists, albums etc.) are searched/filtered on the clien
 - two player widget sizes (click on player title to change)
 - localization (English and German)
 - works on Android, iOS, Linux, MacOS and Windows
-- lyrics (via genius.com - see also below: Build release version)
+- lyrics (via genius.com)
 - search artist via web links on Discogs, Musicbrainz and Wikipedia 
 
 ## Screenshots
@@ -91,12 +91,9 @@ This will update the files in `.dart_tool/flutter_gen/gen_l10n`.
 >
 > This command is also necessary, when the app is built for the first time.
  
-### Build release version
+### Genius lyrics
 The access of the genius api at api.genius.com needs a token. Therefore, you have to supply
-this token when you compile your own version:
-
-    > flutter build macos --dart-define="GENIUS_TOKEN=YOUR-OWN-TOKEN"
-
+this token in the settings dialog that's available via the 3 dot menu in the upper right corner.
 
 ## Build Linux Flatpak
 ### General

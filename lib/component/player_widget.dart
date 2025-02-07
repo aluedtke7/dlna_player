@@ -270,7 +270,8 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
             ),
           ),
         ),
-        Positioned(left: 120, top: 8, child: AnimatedVolume(show: showVolume, volume: volumeRef)),
+        if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
+          Positioned(left: 120, top: 8, child: AnimatedVolume(show: showVolume, volume: volumeRef)),
       ],
     );
   }

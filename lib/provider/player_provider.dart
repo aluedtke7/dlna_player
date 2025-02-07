@@ -299,39 +299,45 @@ final endTimeProvider = StateNotifierProvider<EndTimeNotifier, Duration>((ref) =
 // ---------------------------------------------------------------------
 class VolumeNotifier extends StateNotifier<double> {
   VolumeNotifier() : super(0) {
-    SharedPreferences.getInstance().then((sp) {
-      state = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
-      _player.setVolume(state.toDouble());
-      debugPrint('VolumeNotifier ${state.showPercent()}');
-    });
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      SharedPreferences.getInstance().then((sp) {
+        state = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
+        _player.setVolume(state.toDouble());
+        debugPrint('VolumeNotifier ${state.showPercent()}');
+      });
+    }
   }
 
   void increaseVolume() {
-    if (_player.volume < 0.16) {
-      state = min(_player.volume + 0.01, 1.0);
-    } else {
-      state = min(_player.volume + 0.05, 1.0);
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      if (_player.volume < 0.16) {
+        state = min(_player.volume + 0.01, 1.0);
+      } else {
+        state = min(_player.volume + 0.05, 1.0);
+      }
+      _player.setVolume(state.toDouble());
+      // debugPrint('Volume increased: ${state.showPercent()}');
+      eventBus.fire(VolumeChangedEvent(state));
+      SharedPreferences.getInstance().then((sp) {
+        sp.setDouble(PrefKeys.volumePrefsKey, state);
+      });
     }
-    _player.setVolume(state.toDouble());
-    // debugPrint('Volume increased: ${state.showPercent()}');
-    eventBus.fire(VolumeChangedEvent(state));
-    SharedPreferences.getInstance().then((sp) {
-      sp.setDouble(PrefKeys.volumePrefsKey, state);
-    });
   }
 
   void decreaseVolume() {
-    if (_player.volume < 0.16) {
-      state = max(_player.volume - 0.01, 0.0);
-    } else {
-      state = max(_player.volume - 0.05, 0.0);
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      if (_player.volume < 0.16) {
+        state = max(_player.volume - 0.01, 0.0);
+      } else {
+        state = max(_player.volume - 0.05, 0.0);
+      }
+      _player.setVolume(state.toDouble());
+      // debugPrint('Volume decreased: ${state.showPercent()}');
+      eventBus.fire(VolumeChangedEvent(state));
+      SharedPreferences.getInstance().then((sp) {
+        sp.setDouble(PrefKeys.volumePrefsKey, state);
+      });
     }
-    _player.setVolume(state.toDouble());
-    // debugPrint('Volume decreased: ${state.showPercent()}');
-    eventBus.fire(VolumeChangedEvent(state));
-    SharedPreferences.getInstance().then((sp) {
-      sp.setDouble(PrefKeys.volumePrefsKey, state);
-    });
   }
 }
 
