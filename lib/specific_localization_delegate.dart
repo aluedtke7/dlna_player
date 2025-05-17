@@ -1,7 +1,7 @@
+import 'package:dlna_player/l10n/app_localizations.dart';
+import 'package:dlna_player/l10n/app_localizations_de.dart';
+import 'package:dlna_player/l10n/app_localizations_en.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations_de.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations_en.dart';
 import 'package:flutter/widgets.dart';
 
 class SpecificLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

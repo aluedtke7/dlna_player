@@ -101,7 +101,7 @@ We need a special Docker image for building the app and the flatpak version of i
 supported Linux OS for this task, to get the widest OS support for our flatpak app. I'm using the LTS version
 Ubuntu 20.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the needed dependencies
 to be able to compile the source code for Linux. In additon, the flatpak utilities are also installed. It's also
-important to install all the dependencies, that the Linux version of the used Flutter packages needs. You find
+important to install all the dependencies that the Linux version of the used Flutter packages needs. You find
 this information typically on pub.dev at the Linux version of the used package.
 
 The build time for this image is approx. 10 minutes on my machine and the resulting image size is around 12GB.
@@ -120,12 +120,13 @@ a flatpak version of it (`de.luedtke.shoppinglist.flatpak`):
         -w /home/builder/app/flatpak flutterpack:1.0.0 "./build-flutter-app.sh"
 
 ### Local install
-In order to run the flatpak app, you need to have the following runtime installed on your local machine:
+To run the flatpak app, you need to have the following runtime installed on your local machine:
 
     flatpak install org.freedesktop.Platform/x86_64/23.08
 
 Now install the app locally:
 
+    cd flatpak
     flatpak install --user de.luedtke.dlna_player.flatpak
 
 If you want to remove it:
