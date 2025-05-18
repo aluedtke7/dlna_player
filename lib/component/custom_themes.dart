@@ -13,7 +13,7 @@ var customThemes = [
         seedColor: Colors.green,
         brightness: Brightness.light,
       ),
-      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 240, 240, 240)),
     ),
     options: ThemeOptions(
       const Color(0xFFCDE1C8),
@@ -34,7 +34,7 @@ var customThemes = [
         seedColor: Colors.blue,
         brightness: Brightness.light,
       ),
-      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 240, 240, 240)),
     ),
     options: ThemeOptions(
       const Color(0xFFACCAF1),
@@ -51,7 +51,7 @@ var customThemes = [
     description: 'Light purple',
     data: ThemeData(
       useMaterial3: true,
-      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 240, 240, 240)),
     ),
     options: ThemeOptions(
       const Color(0xFFC8BFD2),
@@ -72,7 +72,7 @@ var customThemes = [
         primarySwatch: Colors.deepOrange,
         accentColor: Colors.deepOrange.shade700,
       ),
-      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 240, 240, 240)),
     ),
     options: ThemeOptions(
       const Color(0xFFFADFD0),
@@ -93,7 +93,7 @@ var customThemes = [
         primarySwatch: Colors.orange,
         accentColor: Colors.orange,
       ),
-      dialogBackgroundColor: const Color.fromARGB(255, 240, 240, 240),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 240, 240, 240)),
     ),
     options: ThemeOptions(
       const Color(0xFFFFF0E0),
@@ -136,7 +136,7 @@ var customThemes = [
         primarySwatch: Colors.cyan,
         accentColor: Colors.cyan.shade700,
       ),
-      dialogBackgroundColor: const Color.fromARGB(255, 50, 50, 50),
+      dialogTheme: DialogThemeData(backgroundColor: const Color.fromARGB(255, 50, 50, 50)),
     ),
     options: ThemeOptions(
       const Color(0xFF0B535E),

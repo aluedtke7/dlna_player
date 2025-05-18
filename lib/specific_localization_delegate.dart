@@ -1,8 +1,9 @@
-import 'package:dlna_player/l10n/app_localizations.dart';
-import 'package:dlna_player/l10n/app_localizations_de.dart';
-import 'package:dlna_player/l10n/app_localizations_en.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+
+import 'package:dlna_player/src/generated/i18n/app_localizations.dart';
+import 'package:dlna_player/src/generated/i18n/app_localizations_de.dart';
+import 'package:dlna_player/src/generated/i18n/app_localizations_en.dart';
 
 class SpecificLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {
   final Locale overriddenLocale;

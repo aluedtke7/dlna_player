@@ -81,15 +81,15 @@ to recreate all logo images for all platforms.
 ### Localization
 
 The app uses the `Intl` package to maintain different localizations. Run the following command, if you change
-the content of the `./lib/l10n/*.arb` files:
+the content of the `./lib/i18n/*.arb` files:
 
     > flutter gen-l10n
 
-This will update the files in `.dart_tool/flutter_gen/gen_l10n`.
+This will update the files in `lib/src/generated/i18n/`.
 
 > **Info**
 >
-> This command is also necessary, when the app is built for the first time.
+> This command is also necessary when the app is built for the first time.
  
 ### Genius lyrics
 The access of the genius api at api.genius.com needs a token. Therefore, you have to supply
