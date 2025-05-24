@@ -104,7 +104,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
       if (endTimeRef.inSeconds == 0) {
         sliderPos = 0;
       } else {
-        sliderPos = playTimeRef.inSeconds / endTimeRef.inSeconds;
+        sliderPos = min(1.0, playTimeRef.inMilliseconds.toDouble() / endTimeRef.inMilliseconds.toDouble());
       }
     }
 
