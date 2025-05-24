@@ -91,15 +91,21 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     final double mainAxisExtend;
     switch (type) {
       case ContentClass.album:
-        selItems = argument.content
-            .where((el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm))
-            .toList();
+        selItems =
+            argument.content
+                .where(
+                  (el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm),
+                )
+                .toList();
         mainAxisExtend = 110;
         break;
       case ContentClass.artist:
-        selItems = argument.content
-            .where((el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm))
-            .toList();
+        selItems =
+            argument.content
+                .where(
+                  (el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm),
+                )
+                .toList();
         mainAxisExtend = 110;
         break;
       case ContentClass.genre:
@@ -112,12 +118,15 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         mainAxisExtend = 110;
         break;
       case ContentClass.track:
-        selItems = argument.content
-            .where((el) =>
-                el.title.toLowerCase().contains(searchTerm) ||
-                el.artist.toLowerCase().contains(searchTerm) ||
-                el.album.toLowerCase().contains(searchTerm))
-            .toList();
+        selItems =
+            argument.content
+                .where(
+                  (el) =>
+                      el.title.toLowerCase().contains(searchTerm) ||
+                      el.artist.toLowerCase().contains(searchTerm) ||
+                      el.album.toLowerCase().contains(searchTerm),
+                )
+                .toList();
         mainAxisExtend = 100;
         break;
       default:
@@ -150,12 +159,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
-          OpenSearchIntent: CallbackAction<OpenSearchIntent>(
-            onInvoke: (intent) => openSearchDialog(),
-          ),
-          ClearSearchIntent: CallbackAction<ClearSearchIntent>(
-            onInvoke: (intent) => clearSearch(),
-          ),
+          OpenSearchIntent: CallbackAction<OpenSearchIntent>(onInvoke: (intent) => openSearchDialog()),
+          ClearSearchIntent: CallbackAction<ClearSearchIntent>(onInvoke: (intent) => clearSearch()),
         },
         child: FocusScope(
           autofocus: true,
@@ -165,16 +170,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
             playingNotifier: ref.read(playingProvider.notifier),
             volumeNotifier: ref.read(volumeProvider.notifier),
             title: buildTitle(argument.title, typeName),
-            textStyle: const TextStyle(
-              overflow: TextOverflow.fade,
-              fontSize: 16,
-            ),
+            textStyle: const TextStyle(overflow: TextOverflow.fade, fontSize: 16),
             actions: [
-              IconButton(
-                onPressed: openSearchDialog,
-                icon: const Icon(Icons.search),
-                tooltip: i18n(context).com_f3,
-              ),
+              IconButton(onPressed: openSearchDialog, icon: const Icon(Icons.search), tooltip: i18n(context).com_f3),
               IconButton(
                 onPressed: searchTerm.isEmpty ? null : clearSearch,
                 icon: const Icon(Icons.clear),
@@ -184,44 +182,38 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 itemBuilder: (BuildContext context) {
                   return [
                     PopupMenuItem<int>(
-                        value: 0,
-                        child: ListTile(
-                          leading: const Icon(Icons.color_lens),
-                          title: Text(i18n(context).com_change_theme),
-                        )),
+                      value: 0,
+                      child: ListTile(
+                        leading: const Icon(Icons.color_lens),
+                        title: Text(i18n(context).com_change_theme),
+                      ),
+                    ),
                     PopupMenuItem<int>(
-                        value: 1,
-                        child: ListTile(
-                          leading: const Icon(Icons.language),
-                          title: Text(i18n(context).com_change_language),
-                        )),
+                      value: 1,
+                      child: ListTile(
+                        leading: const Icon(Icons.language),
+                        title: Text(i18n(context).com_change_language),
+                      ),
+                    ),
                     PopupMenuItem<int>(
-                        enabled: trackRef.artist.isNotEmpty,
-                        value: 2,
-                        child: ListTile(
-                          leading: const Icon(Icons.search),
-                          title: Text('Discogs ${trackRef.artist}'),
-                        )),
+                      enabled: trackRef.artist.isNotEmpty,
+                      value: 2,
+                      child: ListTile(leading: const Icon(Icons.search), title: Text('Discogs ${trackRef.artist}')),
+                    ),
                     PopupMenuItem<int>(
-                        enabled: trackRef.artist.isNotEmpty,
-                        value: 3,
-                        child: ListTile(
-                          leading: const Icon(Icons.search),
-                          title: Text('Musicbrainz ${trackRef.artist}'),
-                        )),
+                      enabled: trackRef.artist.isNotEmpty,
+                      value: 3,
+                      child: ListTile(leading: const Icon(Icons.search), title: Text('Musicbrainz ${trackRef.artist}')),
+                    ),
                     PopupMenuItem<int>(
-                        enabled: trackRef.artist.isNotEmpty,
-                        value: 4,
-                        child: ListTile(
-                          leading: const Icon(Icons.search),
-                          title: Text('Wikipedia ${trackRef.artist}'),
-                        )),
+                      enabled: trackRef.artist.isNotEmpty,
+                      value: 4,
+                      child: ListTile(leading: const Icon(Icons.search), title: Text('Wikipedia ${trackRef.artist}')),
+                    ),
                     PopupMenuItem<int>(
-                        value: 5,
-                        child: ListTile(
-                          leading: const Icon(Icons.settings),
-                          title: Text(i18n(context).dlg_api_token),
-                        )),
+                      value: 5,
+                      child: ListTile(leading: const Icon(Icons.settings), title: Text(i18n(context).dlg_api_token)),
+                    ),
                   ];
                 },
                 onSelected: (value) {
@@ -268,21 +260,20 @@ class _ContentPageState extends ConsumerState<ContentPage> {
               decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
               child: Column(
                 children: [
-                  const SizedBox(
-                    height: 4,
+                  const SizedBox(height: 4),
+                  Text(
+                    i18n(context).content_selected(
+                      selItems.length,
+                      argument.content.length,
+                      searchTerm.isNotEmpty ? ' - $searchTerm' : '',
+                    ),
                   ),
-                  Text(i18n(context).content_selected(
-                      selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : '')),
-                  const SizedBox(
-                    height: 4,
-                  ),
+                  const SizedBox(height: 4),
                   if (mq.size.width < 600)
                     Expanded(
                       child: Column(
                         children: [
-                          Expanded(
-                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
-                          ),
+                          Expanded(child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context)),
                           if (ref.watch(showLyricsProvider))
                             LyricsCard(
                               lyrics: ref.watch(lyricsProvider),
@@ -296,9 +287,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                     Expanded(
                       child: Row(
                         children: [
-                          Expanded(
-                            child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context),
-                          ),
+                          Expanded(child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context)),
                           if (ref.watch(showLyricsProvider))
                             LyricsCard(
                               lyrics: ref.watch(lyricsProvider),
@@ -308,9 +297,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                         ],
                       ),
                     ),
-                  PlayerWidget(
-                    trackRef.title,
-                  ),
+                  PlayerWidget(trackRef.title),
                 ],
               ),
             ),
@@ -335,65 +322,64 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       ),
       itemBuilder: (ctx, idx) {
         return GestureDetector(
-            onTap: () {
-              if (selItems[idx].classType != ContentClass.track) {
-                if (!searching) {
-                  setState(() {
-                    searching = true;
-                    searchIdx = idx;
-                  });
-                  // open another page with content
-                  DlnaService.browseAll(selItems[idx].id).then((value) {
-                    if (value.isNotEmpty) {
-                      final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                      if (context.mounted) {
-                        Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
-                      }
+          onTap: () {
+            if (selItems[idx].classType != ContentClass.track) {
+              if (!searching) {
+                setState(() {
+                  searching = true;
+                  searchIdx = idx;
+                });
+                // open another page with content
+                DlnaService.browseAll(selItems[idx].id).then((value) {
+                  if (value.isNotEmpty) {
+                    final args = ContentArguments(buildTitle(argument.title, typeName), value);
+                    if (context.mounted) {
+                      Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
                     }
-                    setState(() {
-                      searching = false;
-                      searchIdx = -1;
-                    });
-                  });
-                }
-              } else {
-                if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                  if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
-                    // pause/stop track
-                    ref.read(playingProvider.notifier).playPauseTrack();
-                  } else {
-                    // play track
-                    if (!ref.read(playlistProvider).contains(selItems[idx])) {
-                      Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
-                    }
-                    ref.read(trackProvider.notifier).setTrack(selItems[idx]);
-                    // make current visible list the playlist and set index
-                    ref
-                        .read(playlistProvider.notifier)
-                        .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
-                    ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                    var player = ref.read(playerProvider);
-                    player.play(UrlSource(selItems[idx].trackUrl!));
-                    ref.read(lruListProvider).add(selItems[idx].id);
-                    ref.read(playingProvider.notifier).getLyrics();
                   }
+                  setState(() {
+                    searching = false;
+                    searchIdx = -1;
+                  });
+                });
+              }
+            } else {
+              if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
+                if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
+                  // pause/stop track
+                  ref.read(playingProvider.notifier).playPauseTrack();
+                } else {
+                  // play track
+                  if (!ref.read(playlistProvider).contains(selItems[idx])) {
+                    Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                  }
+                  ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                  // make current visible list the playlist and set index
+                  ref
+                      .read(playlistProvider.notifier)
+                      .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
+                  ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                  var player = ref.read(playerProvider);
+                  player.play(UrlSource(selItems[idx].trackUrl!), mode: PlayerMode.mediaPlayer);
+                  ref.read(lruListProvider).add(selItems[idx].id);
+                  ref.read(playingProvider.notifier).getLyrics();
                 }
               }
-            },
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 250),
-              transitionBuilder: (child, animation) => ScaleTransition(
-                scale: animation,
-                child: child,
-              ),
-              child: searching && searchIdx == idx
-                  ? ProgressCard(title: selItems[idx].title)
-                  : selItems[idx].classType == ContentClass.album
-                      ? AlbumCard(container: selItems[idx], disabled: searching)
-                      : selItems[idx].classType == ContentClass.track
-                          ? TrackCard(track: selItems[idx], disabled: searching)
-                          : ContainerCard(container: selItems[idx], disabled: searching),
-            ));
+            }
+          },
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+            child:
+                searching && searchIdx == idx
+                    ? ProgressCard(title: selItems[idx].title)
+                    : selItems[idx].classType == ContentClass.album
+                    ? AlbumCard(container: selItems[idx], disabled: searching)
+                    : selItems[idx].classType == ContentClass.track
+                    ? TrackCard(track: selItems[idx], disabled: searching)
+                    : ContainerCard(container: selItems[idx], disabled: searching),
+          ),
+        );
       },
       itemCount: selItems.length,
     );

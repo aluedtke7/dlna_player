@@ -24,17 +24,16 @@ bool playerInitialized = false;
 // ---------------------------------------------------------------------
 // provider to access AudioPlayer
 // ---------------------------------------------------------------------
-final playerProvider = Provider(
-  (ref) {
-    if (!playerInitialized) {
-      playerInitialized = true;
-      if (Platform.isAndroid) {
-        _player.setAudioContext(AudioContext(android: const AudioContextAndroid(stayAwake: true)));
-      }
+final playerProvider = Provider((ref) {
+  if (!playerInitialized) {
+    playerInitialized = true;
+    _player.setReleaseMode(ReleaseMode.stop);
+    if (Platform.isAndroid) {
+      _player.setAudioContext(AudioContext(android: const AudioContextAndroid(stayAwake: true)));
     }
-    return _player;
-  },
-);
+  }
+  return _player;
+});
 
 // ---------------------------------------------------------------------
 // provider for handling changes in tracks
@@ -91,9 +90,7 @@ final playlistIndexProvider = StateNotifierProvider<PlaylistIndexNotifier, int>(
 // ---------------------------------------------------------------------
 // provider to access LRUList
 // ---------------------------------------------------------------------
-final lruListProvider = Provider(
-  (ref) => _lruList,
-);
+final lruListProvider = Provider((ref) => _lruList);
 
 // ---------------------------------------------------------------------
 // provider for handling changes in play state
@@ -110,7 +107,7 @@ class PlayingNotifier extends StateNotifier<bool> {
       player.pause();
     } else {
       if (playTimeRef.inSeconds == endTimeRef.inSeconds) {
-        player.play(UrlSource(trackRef.trackUrl!));
+        player.play(UrlSource(trackRef.trackUrl!), mode: PlayerMode.mediaPlayer);
         ref.read(lruListProvider).add(trackRef.id);
       } else {
         player.resume();
@@ -168,12 +165,16 @@ class PlayingNotifier extends StateNotifier<bool> {
     if (doPlay) {
       ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
       ref.read(trackProvider.notifier).setTrack(playlist[currentIdx]);
-      ref.read(playerProvider).play(UrlSource(playlist[currentIdx].trackUrl!)).then((_) {
-        lruList.add(playlist[currentIdx].id);
-        getLyrics();
-      }).onError((err, _) {
-        debugPrint('AudioPlayers Exception $err');
-      });
+      ref
+          .read(playerProvider)
+          .play(UrlSource(playlist[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
+          .then((_) {
+            lruList.add(playlist[currentIdx].id);
+            getLyrics();
+          })
+          .onError((err, _) {
+            debugPrint('doPlay: AudioPlayers Exception $err');
+          });
     }
   }
 
@@ -200,11 +201,15 @@ class PlayingNotifier extends StateNotifier<bool> {
       }
       ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
       ref.read(trackProvider.notifier).setTrack(playlistRef[currentIdx]);
-      ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!)).then((_) {
-        getLyrics();
-      }).onError((err, _) {
-        debugPrint('AudioPlayers Exception $err');
-      });
+      ref
+          .read(playerProvider)
+          .play(UrlSource(playlistRef[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
+          .then((_) {
+            getLyrics();
+          })
+          .onError((err, _) {
+            debugPrint('shuffleMode: AudioPlayers Exception $err');
+          });
     } else {
       // just use track of last index
       final listSize = playlistRef.length;
@@ -215,11 +220,15 @@ class PlayingNotifier extends StateNotifier<bool> {
         }
         ref.read(playlistIndexProvider.notifier).setIndex(currentIdx);
         ref.read(trackProvider.notifier).setTrack(playlistRef[currentIdx]);
-        ref.read(playerProvider).play(UrlSource(playlistRef[currentIdx].trackUrl!)).then((_) {
-          getLyrics();
-        }).onError((err, _) {
-          debugPrint('AudioPlayers Exception $err');
-        });
+        ref
+            .read(playerProvider)
+            .play(UrlSource(playlistRef[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
+            .then((_) {
+              getLyrics();
+            })
+            .onError((err, _) {
+              debugPrint('normalMode: AudioPlayers Exception $err');
+            });
       }
     }
   }
@@ -244,25 +253,28 @@ class PlayingNotifier extends StateNotifier<bool> {
   }
 
   PlayingNotifier(this.ref) : super(false) {
-    _subscriptions.add(_player.onPlayerStateChanged.listen((event) {
-      switch (event) {
-        case PlayerState.playing:
-          state = true;
-          break;
-        case PlayerState.paused:
-          state = false;
-          break;
-        case PlayerState.stopped:
-          state = false;
-          break;
-        case PlayerState.completed:
-          state = false;
-          playNextTrack();
-          break;
-        default:
-          break;
-      }
-    }));
+    _subscriptions.add(
+      _player.onPlayerStateChanged.listen((event) {
+        switch (event) {
+          case PlayerState.playing:
+            state = true;
+            break;
+          case PlayerState.paused:
+            state = false;
+            break;
+          case PlayerState.stopped:
+            state = false;
+            break;
+          case PlayerState.completed:
+            state = false;
+            playNextTrack();
+            break;
+          default:
+            state = false;
+            break;
+        }
+      }),
+    );
   }
 }
 
@@ -273,9 +285,11 @@ final playingProvider = StateNotifierProvider<PlayingNotifier, bool>((ref) => Pl
 // ----------------------------------------------------------------------
 class PlayTimeNotifier extends StateNotifier<Duration> {
   PlayTimeNotifier() : super(Duration.zero) {
-    _subscriptions.add(_player.onPositionChanged.listen((event) {
-      state = event;
-    }));
+    _subscriptions.add(
+      _player.onPositionChanged.listen((event) {
+        state = event;
+      }),
+    );
   }
 }
 
@@ -286,9 +300,11 @@ final playTimeProvider = StateNotifierProvider<PlayTimeNotifier, Duration>((ref)
 // ---------------------------------------------------------------------
 class EndTimeNotifier extends StateNotifier<Duration> {
   EndTimeNotifier() : super(Duration.zero) {
-    _subscriptions.add(_player.onDurationChanged.listen((event) {
-      state = event;
-    }));
+    _subscriptions.add(
+      _player.onDurationChanged.listen((event) {
+        state = event;
+      }),
+    );
   }
 }
 
