@@ -50,11 +50,15 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   var searchIdx = -1;
   late SharedPreferences prefs;
   final textNode = FocusNode();
+  final maxCrossAxisExtent = 400.0;
+  final landscapeWidth = 600;
+  late ScrollController scrollController;
 
   @override
   void initState() {
     super.initState();
     _loadPrefInstance();
+    scrollController = ScrollController();
   }
 
   Future<void> _loadPrefInstance() async {
@@ -64,6 +68,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   @override
   void dispose() {
     textNode.dispose();
+    scrollController.dispose();
     super.dispose();
   }
 
@@ -76,6 +81,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     ContentClass type;
     final mq = MediaQuery.of(context);
     final trackRef = ref.watch(trackProvider);
+    final playListRef = ref.watch(playlistProvider);
+    final playListIndexRef = ref.watch(playlistIndexProvider);
     final argument = ModalRoute.of(context)!.settings.arguments as ContentArguments;
     if (argument.content.isEmpty) {
       type = ContentClass.none;
@@ -132,6 +139,22 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       default:
         selItems = argument.content;
         mainAxisExtend = 120;
+    }
+    final trackGrid = buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context);
+    late int numberOfColumns;
+    // When lyrics are being displayed, we only have 2/3 of the width for the track grid
+    if (mq.size.width >= landscapeWidth && ref.read(showLyricsProvider)) {
+      numberOfColumns = (mq.size.width * 2 / 3 / maxCrossAxisExtent).ceil();
+    } else {
+      numberOfColumns = (mq.size.width / maxCrossAxisExtent).ceil();
+    }
+
+    // The ScrollController must be connected to the UI in order to work. We check also if the length of the play list
+    // is the same as the list being displayed. This is not totally correct, but it will avoid scroll events when
+    // the two lists don't match in length.
+    if (scrollController.hasClients && selItems.length == playListRef.length) {
+      var idx = (playListIndexRef.toDouble() ~/ numberOfColumns) * 100.0;
+      scrollController.animateTo(idx, duration: Duration(milliseconds: 1000), curve: Curves.easeInOut);
     }
 
     void openSearchDialog() {
@@ -269,11 +292,11 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  if (mq.size.width < 600)
+                  if (mq.size.width < landscapeWidth)
                     Expanded(
                       child: Column(
                         children: [
-                          Expanded(child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context)),
+                          Expanded(child: trackGrid),
                           if (ref.watch(showLyricsProvider))
                             LyricsCard(
                               lyrics: ref.watch(lyricsProvider),
@@ -287,7 +310,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                     Expanded(
                       child: Row(
                         children: [
-                          Expanded(child: buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context)),
+                          Expanded(child: trackGrid),
                           if (ref.watch(showLyricsProvider))
                             LyricsCard(
                               lyrics: ref.watch(lyricsProvider),
@@ -315,8 +338,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     BuildContext context,
   ) {
     return GridView.builder(
+      controller: scrollController,
       gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: 400,
+        maxCrossAxisExtent: maxCrossAxisExtent,
         mainAxisExtent: mainAxisExtend,
         childAspectRatio: 3,
       ),
