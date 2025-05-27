@@ -280,6 +280,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
               ),
             ],
             child: Container(
+              //height: mq.size.height-130,
               decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
               child: Column(
                 children: [

@@ -45,19 +45,21 @@ class KeyboardScaffold extends StatelessWidget {
             volumeNotifier.decreaseVolume();
           }
         },
-        child: Scaffold(
-          appBar: AppBar(
-            iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            title: Text(
-              title,
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+        child: SafeArea(
+          child: Scaffold(
+            appBar: AppBar(
+              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              title: Text(
+                title,
+                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
+              ),
+              titleTextStyle: textStyle,
+              actions: actions,
             ),
-            titleTextStyle: textStyle,
-            actions: actions,
+            drawer: drawer,
+            body: child,
           ),
-          drawer: drawer,
-          body: child,
         ));
   }
 }
