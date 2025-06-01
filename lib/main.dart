@@ -145,7 +145,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     }
   }
 
-  onLocaleChange(Locale locale) {
+  void onLocaleChange(Locale locale) {
     setState(() {
       _localeOverrideDelegate = SpecificLocalizationDelegate(locale);
     });

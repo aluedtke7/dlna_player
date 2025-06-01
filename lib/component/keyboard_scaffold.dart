@@ -30,36 +30,38 @@ class KeyboardScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return KeyboardListener(
-        autofocus: true,
-        focusNode: focusNode,
-        onKeyEvent: (k) {
-          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.space)) {
-            if (trackRef.title.isNotEmpty) {
-              playingNotifier.playPauseTrack();
-            }
+      autofocus: true,
+      focusNode: focusNode,
+      onKeyEvent: (k) {
+        if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.space)) {
+          if (trackRef.title.isNotEmpty) {
+            playingNotifier.playPauseTrack();
           }
-          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowUp)) {
-            volumeNotifier.increaseVolume();
-          }
-          if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowDown)) {
-            volumeNotifier.decreaseVolume();
-          }
-        },
-        child: SafeArea(
-          child: Scaffold(
-            appBar: AppBar(
-              iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              title: Text(
-                title,
-                style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-              ),
-              titleTextStyle: textStyle,
-              actions: actions,
-            ),
-            drawer: drawer,
-            body: child,
-          ),
-        ));
+        }
+        if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowUp)) {
+          volumeNotifier.increaseVolume();
+        }
+        if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowDown)) {
+          volumeNotifier.decreaseVolume();
+        }
+        if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowRight)) {
+          playingNotifier.skipForward();
+        }
+        if (HardwareKeyboard.instance.isLogicalKeyPressed(LogicalKeyboardKey.arrowLeft)) {
+          playingNotifier.skipBackward();
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Theme.of(context).colorScheme.onPrimary),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          title: Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onPrimary)),
+          titleTextStyle: textStyle,
+          actions: actions,
+        ),
+        drawer: drawer,
+        body: SafeArea(child: child),
+      ),
+    );
   }
 }

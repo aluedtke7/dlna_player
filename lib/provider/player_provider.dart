@@ -4,13 +4,13 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:dlna_player/component/extensions.dart';
-import 'package:dlna_player/service/genius_helper.dart';
-import 'package:dlna_player/service/events.dart';
 import 'package:dlna_player/model/lru_list.dart';
 import 'package:dlna_player/model/lyrics.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
+import 'package:dlna_player/service/events.dart';
+import 'package:dlna_player/service/genius_helper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -115,6 +115,10 @@ class PlayingNotifier extends StateNotifier<bool> {
     }
   }
 
+  Future<void> handleError(String err) async {
+    ref.read(errorProvider.notifier).setError(err.toString());
+  }
+
   void playNextTrack() {
     var doPlay = false;
     var currentIdx = 0;
@@ -174,6 +178,7 @@ class PlayingNotifier extends StateNotifier<bool> {
           })
           .onError((err, _) {
             debugPrint('doPlay: AudioPlayers Exception $err');
+            handleError(err.toString());
           });
     }
   }
@@ -209,6 +214,7 @@ class PlayingNotifier extends StateNotifier<bool> {
           })
           .onError((err, _) {
             debugPrint('shuffleMode: AudioPlayers Exception $err');
+            handleError(err.toString());
           });
     } else {
       // just use track of last index
@@ -228,6 +234,7 @@ class PlayingNotifier extends StateNotifier<bool> {
             })
             .onError((err, _) {
               debugPrint('normalMode: AudioPlayers Exception $err');
+              handleError(err.toString());
             });
       }
     }
@@ -276,6 +283,37 @@ class PlayingNotifier extends StateNotifier<bool> {
       }),
     );
   }
+
+  Duration _clampDuration(Duration position, Duration max) {
+    if (position.isNegative) {
+      return Duration.zero;
+    } else if (position.compareTo(max) > 0) {
+      return max;
+    }
+    return position;
+  }
+
+  void _skip(bool backward) {
+    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+      _player.getCurrentPosition().then((currentPos) {
+        late Duration newPosition;
+        if (backward) {
+          newPosition = (currentPos ?? Duration.zero) - Duration(seconds: 10);
+        } else {
+          newPosition = (currentPos ?? Duration.zero) + Duration(seconds: 10);
+        }
+        _player.seek(_clampDuration(newPosition, ref.read(endTimeProvider)));
+      });
+    }
+  }
+
+  void skipForward() {
+    _skip(false);
+  }
+
+  void skipBackward() {
+    _skip(true);
+  }
 }
 
 final playingProvider = StateNotifierProvider<PlayingNotifier, bool>((ref) => PlayingNotifier(ref));
@@ -301,8 +339,8 @@ final playTimeProvider = StateNotifierProvider<PlayTimeNotifier, Duration>((ref)
 class EndTimeNotifier extends StateNotifier<Duration> {
   EndTimeNotifier() : super(Duration.zero) {
     _subscriptions.add(
-      _player.onDurationChanged.listen((event) {
-        state = event;
+      _player.onDurationChanged.listen((duration) {
+        state = duration;
       }),
     );
   }
@@ -358,3 +396,16 @@ class VolumeNotifier extends StateNotifier<double> {
 }
 
 final volumeProvider = StateNotifierProvider<VolumeNotifier, double>((ref) => VolumeNotifier());
+
+// ---------------------------------------------------------------------
+// provider for errors that happened while playing music
+// ---------------------------------------------------------------------
+class ErrorNotifier extends StateNotifier<String> {
+  ErrorNotifier() : super('');
+
+  void setError(String error) {
+    state = error;
+  }
+}
+
+final errorProvider = StateNotifierProvider<ErrorNotifier, String>((ref) => ErrorNotifier());

@@ -45,7 +45,7 @@ class LyricsCard extends StatelessWidget {
                 child: TweenAnimationBuilder<double>(
                   duration: const Duration(seconds: 4),
                   tween: Tween<double>(begin: 0.7, end: 1.5),
-                  builder: (_, size, __) => Text(
+                  builder: (_, size, _) => Text(
                     i18n(context).lyrics_state(lyrics.state.toString()),
                     textScaler: TextScaler.linear(size),
                     textAlign: TextAlign.center,

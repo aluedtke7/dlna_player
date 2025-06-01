@@ -19,6 +19,7 @@ import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -48,6 +49,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   var showPlayerWidget = true;
   var searching = false;
   var searchIdx = -1;
+  var lastIdx = -1;
   late SharedPreferences prefs;
   final textNode = FocusNode();
   final maxCrossAxisExtent = 400.0;
@@ -74,6 +76,15 @@ class _ContentPageState extends ConsumerState<ContentPage> {
 
   String buildTitle(String parent, String title) {
     return (parent.isNotEmpty ? '$parent - ' : '') + title;
+  }
+
+  void showError(BuildContext context, String err) async {
+    if (err != '') {
+      Future(() {
+        ref.read(errorProvider.notifier).setError('');
+      });
+      Statics.showErrorSnackbar(context, err);
+    }
   }
 
   @override
@@ -141,21 +152,44 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         mainAxisExtend = 120;
     }
     final trackGrid = buildTrackGrid(mainAxisExtend, selItems, argument, typeName, context);
-    late int numberOfColumns;
-    // When lyrics are being displayed, we only have 2/3 of the width for the track grid
-    if (mq.size.width >= landscapeWidth && ref.read(showLyricsProvider)) {
-      numberOfColumns = (mq.size.width * 2 / 3 / maxCrossAxisExtent).ceil();
-    } else {
-      numberOfColumns = (mq.size.width / maxCrossAxisExtent).ceil();
-    }
 
-    // The ScrollController must be connected to the UI in order to work. We check also if the length of the play list
-    // is the same as the list being displayed. This is not totally correct, but it will avoid scroll events when
+    // The ScrollController must be connected to the UI in order to work and the length of the play list
+    // must be the same as the list being displayed. This is not totally correct, but it will avoid scroll events when
     // the two lists don't match in length.
-    if (scrollController.hasClients && selItems.length == playListRef.length) {
-      var idx = (playListIndexRef.toDouble() ~/ numberOfColumns) * 100.0;
-      scrollController.animateTo(idx, duration: Duration(milliseconds: 1000), curve: Curves.easeInOut);
+    if (scrollController.hasClients && selItems.length == playListRef.length && type == ContentClass.track) {
+      late int numberOfColumns;
+      // When lyrics are being displayed, we only have 2/3 of the width for the track grid
+      if (mq.size.width >= landscapeWidth && ref.read(showLyricsProvider)) {
+        numberOfColumns = (mq.size.width * 2 / 3 / maxCrossAxisExtent).ceil();
+      } else {
+        numberOfColumns = (mq.size.width / maxCrossAxisExtent).ceil();
+      }
+      // final numberOfRows = (selItems.length / numberOfColumns).ceil();
+      late int visibleRows;
+      if (mq.size.width < landscapeWidth && ref.read(showLyricsProvider)) {
+        visibleRows = (mq.size.height * 3 / 4 / maxCrossAxisExtent * 3).floor();
+      } else {
+        visibleRows = (mq.size.height / maxCrossAxisExtent * 3).floor();
+      }
+
+      var idx = (playListIndexRef.toDouble() ~/ numberOfColumns);
+      // debugPrint('Rows - V. Rows - Columns: $numberOfRows - $visibleRows - $numberOfColumns');
+      // debugPrint('Length - idx: ${selItems.length} - $idx');
+
+      // Only scroll to index when index has changed and items don't fit on one page
+      if (lastIdx != idx && idx >= visibleRows) {
+        // scrollController.jumpTo(idx * mainAxisExtend);
+        scrollController.animateTo(
+          idx * mainAxisExtend,
+          duration: Duration(milliseconds: 1000),
+          curve: Curves.easeInOut,
+        );
+      }
+      lastIdx = idx;
     }
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      showError(context, ref.watch(errorProvider));
+    });
 
     void openSearchDialog() {
       Statics.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {
