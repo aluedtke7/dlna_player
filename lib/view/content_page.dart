@@ -19,7 +19,6 @@ import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/dlna_service.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -76,15 +75,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
 
   String buildTitle(String parent, String title) {
     return (parent.isNotEmpty ? '$parent - ' : '') + title;
-  }
-
-  void showError(BuildContext context, String err) async {
-    if (err != '') {
-      Future(() {
-        ref.read(errorProvider.notifier).setError('');
-      });
-      Statics.showErrorSnackbar(context, err);
-    }
   }
 
   @override
@@ -187,9 +177,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       }
       lastIdx = idx;
     }
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      showError(context, ref.watch(errorProvider));
-    });
 
     void openSearchDialog() {
       Statics.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {

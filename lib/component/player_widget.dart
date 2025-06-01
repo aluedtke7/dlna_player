@@ -10,11 +10,12 @@ import 'package:dlna_player/component/player_control/artist_title_fader.dart';
 import 'package:dlna_player/component/player_control/track_cover.dart';
 import 'package:dlna_player/component/statics.dart';
 import 'package:dlna_player/component/theme_options.dart';
-import 'package:dlna_player/service/events.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
+import 'package:dlna_player/service/events.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -87,6 +88,15 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
     prefs.setBool(PrefKeys.playerWidgetRepeatStatePrefsKey, isRepeat);
   }
 
+  void showError(BuildContext context, String err) async {
+    if (err != '') {
+      Future(() {
+        ref.read(errorProvider.notifier).setError('');
+      });
+      Statics.showErrorSnackbar(context, err);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final trackRef = ref.watch(trackProvider);
@@ -107,6 +117,9 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
         sliderPos = min(1.0, playTimeRef.inMilliseconds.toDouble() / endTimeRef.inMilliseconds.toDouble());
       }
     }
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      showError(context, ref.watch(errorProvider));
+    });
 
     return Stack(
       children: [
@@ -125,14 +138,9 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                   flex: 10,
                   child: Column(
                     children: [
-                      const SizedBox(
-                        height: 4,
-                      ),
+                      const SizedBox(height: 4),
                       Padding(
-                        padding: const EdgeInsets.only(
-                          left: 8,
-                          right: 8,
-                        ),
+                        padding: const EdgeInsets.only(left: 8, right: 8),
                         child: GestureDetector(
                           onTap: () {
                             isExpanded = !isExpanded;
@@ -150,12 +158,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                   showArtist: showArtist,
                                 ),
                               ),
-                              SizedBox(
-                                  width: 45,
-                                  child: Text(
-                                    endTimeRef.showMS(),
-                                    textAlign: TextAlign.end,
-                                  )),
+                              SizedBox(width: 45, child: Text(endTimeRef.showMS(), textAlign: TextAlign.end)),
                             ],
                           ),
                         ),
@@ -164,9 +167,10 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            onPressed: trackRef.title.isNotEmpty
-                                ? () => ref.read(playingProvider.notifier).playPauseTrack()
-                                : null,
+                            onPressed:
+                                trackRef.title.isNotEmpty
+                                    ? () => ref.read(playingProvider.notifier).playPauseTrack()
+                                    : null,
                             icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
                             tooltip: i18n(context).pw_hint_play_pause,
                           ),
@@ -196,11 +200,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                         ],
                       ),
                       if (isExpanded) ...[
-                        Text(
-                          trackRef.album,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
+                        Text(trackRef.album, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
@@ -210,24 +210,28 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 ref.read(shuffleModeProvider.notifier).state = isShuffle;
                                 _savePrefs();
                                 Statics.showInfoSnackbar(
-                                    context, i18n(context).player_shuffle_mode(isShuffle.toString()));
+                                  context,
+                                  i18n(context).player_shuffle_mode(isShuffle.toString()),
+                                );
                               },
                               icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_shuffle,
                             ),
                             IconButton(
-                              onPressed: playlistRef.length > 1
-                                  ? () => ref.read(playingProvider.notifier).playPreviousTrack()
-                                  : null,
+                              onPressed:
+                                  playlistRef.length > 1
+                                      ? () => ref.read(playingProvider.notifier).playPreviousTrack()
+                                      : null,
                               icon: const Icon(Icons.skip_previous, size: iconSize),
                               tooltip: i18n(context).pw_hint_previous,
                             ),
                             IconButton(
-                              onPressed: playlistRef.length > 1
-                                  ? () {
-                                      ref.read(playingProvider.notifier).playNextTrack();
-                                    }
-                                  : null,
+                              onPressed:
+                                  playlistRef.length > 1
+                                      ? () {
+                                        ref.read(playingProvider.notifier).playNextTrack();
+                                      }
+                                      : null,
                               icon: const Icon(Icons.skip_next, size: iconSize),
                               tooltip: i18n(context).pw_hint_next,
                             ),
@@ -237,7 +241,9 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 ref.read(repeatModeProvider.notifier).state = isRepeat;
                                 _savePrefs();
                                 Statics.showInfoSnackbar(
-                                    context, i18n(context).player_repeat_mode(isRepeat.toString()));
+                                  context,
+                                  i18n(context).player_repeat_mode(isRepeat.toString()),
+                                );
                               },
                               icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_repeat,
@@ -260,7 +266,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             ),
                           ],
                         ),
-                      ]
+                      ],
                     ],
                   ),
                 ),
