@@ -67,13 +67,44 @@ class GeniusHelper {
       }
       final String responseBody = (await http.get(Uri.parse(Uri.encodeFull(foundResult?['url'])))).body;
       final BeautifulSoup bs = BeautifulSoup(responseBody.replaceAll('<br/>', '\n'));
-      final lyrics =
-          bs.findAll('div', attrs: {'data-lyrics-container': 'true'}).map((e) => e.getText().trim()).join('\n');
+      var lyrics = bs
+          .findAll('div', attrs: {'data-lyrics-container': 'true'})
+          .map((e) => e.getText().trim())
+          .join('\n');
       if (lyrics.isEmpty) {
         return const Lyrics(LyricsState.empty);
       }
-      return Lyrics(LyricsState.success, lyrics);
+      final firstBreak = lyrics.indexOf('\n');
+      debugPrint('Lyrics: ${lyrics.substring(0, firstBreak)}');
+      return Lyrics(LyricsState.success, _cleanHeader(lyrics));
     }
     return const Lyrics(LyricsState.error);
+  }
+
+  String _cleanHeader(String lyrics) {
+    // The lyrics at Genius.com have often text fragments at the beginning that don't belong to the lyrics.
+    // The used tokens are not very consistent and vary from song to song.
+    // I try to find the optimal position to remove this.
+    final tokenL = 'Lyrics';
+    final tokenLPos = lyrics.indexOf(tokenL);
+    if (tokenLPos > 0) {
+      var cleaned = lyrics.substring(tokenLPos + tokenL.length);
+      final secondPos = cleaned.indexOf('Read More');
+      if (secondPos > 0) {
+        return cleaned.substring(secondPos + 9);
+      }
+      final tokenC = 'Contributors';
+      final tokenCPos = cleaned.indexOf(tokenC);
+      if (tokenCPos > 0) {
+        cleaned = cleaned.substring(tokenCPos + tokenC.length);
+      }
+      final tokenV = '[Verse';
+      final tokenVPos = cleaned.indexOf(tokenV);
+      if (tokenVPos > 0) {
+        return cleaned.substring(tokenVPos);
+      }
+      return cleaned;
+    }
+    return lyrics;
   }
 }

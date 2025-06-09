@@ -49,6 +49,8 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   var searching = false;
   var searchIdx = -1;
   var lastIdx = -1;
+  var lastInfoString = '';
+  var gridWidth = 0.0;
   late SharedPreferences prefs;
   final textNode = FocusNode();
   final maxCrossAxisExtent = 400.0;
@@ -150,11 +152,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       late int numberOfColumns;
       // When lyrics are being displayed, we only have 2/3 of the width for the track grid
       if (mq.size.width >= landscapeWidth && ref.read(showLyricsProvider)) {
-        numberOfColumns = (mq.size.width * 2 / 3 / maxCrossAxisExtent).ceil();
+        numberOfColumns = (((mq.size.width * 2 / 3) - 24) / maxCrossAxisExtent).ceil();
       } else {
         numberOfColumns = (mq.size.width / maxCrossAxisExtent).ceil();
       }
-      // final numberOfRows = (selItems.length / numberOfColumns).ceil();
       late int visibleRows;
       if (mq.size.width < landscapeWidth && ref.read(showLyricsProvider)) {
         visibleRows = (mq.size.height * 3 / 4 / maxCrossAxisExtent * 3).floor();
@@ -163,8 +164,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       }
 
       var idx = (playListIndexRef.toDouble() ~/ numberOfColumns);
-      // debugPrint('Rows - V. Rows - Columns: $numberOfRows - $visibleRows - $numberOfColumns');
-      // debugPrint('Length - idx: ${selItems.length} - $idx');
+      var infoString =
+          'Width - Grid Width - V. Rows - Columns: ${mq.size.width} - $gridWidth - $visibleRows - $numberOfColumns';
+      if (lastInfoString != infoString) debugPrint(infoString);
+      lastInfoString = infoString;
 
       // Only scroll to index when index has changed and items don't fit on one page
       if (lastIdx != idx && idx >= visibleRows) {
@@ -352,82 +355,87 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     );
   }
 
-  GridView buildTrackGrid(
+  LayoutBuilder buildTrackGrid(
     double mainAxisExtend,
     List<RawContent> selItems,
     ContentArguments argument,
     String typeName,
     BuildContext context,
   ) {
-    return GridView.builder(
-      controller: scrollController,
-      gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-        maxCrossAxisExtent: maxCrossAxisExtent,
-        mainAxisExtent: mainAxisExtend,
-        childAspectRatio: 3,
-      ),
-      itemBuilder: (ctx, idx) {
-        return GestureDetector(
-          onTap: () {
-            if (selItems[idx].classType != ContentClass.track) {
-              if (!searching) {
-                setState(() {
-                  searching = true;
-                  searchIdx = idx;
-                });
-                // open another page with content
-                DlnaService.browseAll(selItems[idx].id).then((value) {
-                  if (value.isNotEmpty) {
-                    final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                    if (context.mounted) {
-                      Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        gridWidth = constraints.maxWidth;
+        return GridView.builder(
+          controller: scrollController,
+          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: maxCrossAxisExtent,
+            mainAxisExtent: mainAxisExtend,
+            childAspectRatio: 3,
+          ),
+          itemBuilder: (ctx, idx) {
+            return GestureDetector(
+              onTap: () {
+                if (selItems[idx].classType != ContentClass.track) {
+                  if (!searching) {
+                    setState(() {
+                      searching = true;
+                      searchIdx = idx;
+                    });
+                    // open another page with content
+                    DlnaService.browseAll(selItems[idx].id).then((value) {
+                      if (value.isNotEmpty) {
+                        final args = ContentArguments(buildTitle(argument.title, typeName), value);
+                        if (context.mounted) {
+                          Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                        }
+                      }
+                      setState(() {
+                        searching = false;
+                        searchIdx = -1;
+                      });
+                    });
+                  }
+                } else {
+                  if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
+                    if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
+                      // pause/stop track
+                      ref.read(playingProvider.notifier).playPauseTrack();
+                    } else {
+                      // play track
+                      if (!ref.read(playlistProvider).contains(selItems[idx])) {
+                        Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                      }
+                      ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                      // make current visible list the playlist and set index
+                      ref
+                          .read(playlistProvider.notifier)
+                          .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
+                      ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                      var player = ref.read(playerProvider);
+                      player.play(UrlSource(selItems[idx].trackUrl!), mode: PlayerMode.mediaPlayer);
+                      ref.read(lruListProvider).add(selItems[idx].id);
+                      ref.read(playingProvider.notifier).getLyrics();
                     }
                   }
-                  setState(() {
-                    searching = false;
-                    searchIdx = -1;
-                  });
-                });
-              }
-            } else {
-              if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
-                  // pause/stop track
-                  ref.read(playingProvider.notifier).playPauseTrack();
-                } else {
-                  // play track
-                  if (!ref.read(playlistProvider).contains(selItems[idx])) {
-                    Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
-                  }
-                  ref.read(trackProvider.notifier).setTrack(selItems[idx]);
-                  // make current visible list the playlist and set index
-                  ref
-                      .read(playlistProvider.notifier)
-                      .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
-                  ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                  var player = ref.read(playerProvider);
-                  player.play(UrlSource(selItems[idx].trackUrl!), mode: PlayerMode.mediaPlayer);
-                  ref.read(lruListProvider).add(selItems[idx].id);
-                  ref.read(playingProvider.notifier).getLyrics();
                 }
-              }
-            }
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 250),
+                transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                child:
+                    searching && searchIdx == idx
+                        ? ProgressCard(title: selItems[idx].title)
+                        : selItems[idx].classType == ContentClass.album
+                        ? AlbumCard(container: selItems[idx], disabled: searching)
+                        : selItems[idx].classType == ContentClass.track
+                        ? TrackCard(track: selItems[idx], disabled: searching)
+                        : ContainerCard(container: selItems[idx], disabled: searching),
+              ),
+            );
           },
-          child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 250),
-            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-            child:
-                searching && searchIdx == idx
-                    ? ProgressCard(title: selItems[idx].title)
-                    : selItems[idx].classType == ContentClass.album
-                    ? AlbumCard(container: selItems[idx], disabled: searching)
-                    : selItems[idx].classType == ContentClass.track
-                    ? TrackCard(track: selItems[idx], disabled: searching)
-                    : ContainerCard(container: selItems[idx], disabled: searching),
-          ),
+          itemCount: selItems.length,
         );
       },
-      itemCount: selItems.length,
     );
   }
 }
