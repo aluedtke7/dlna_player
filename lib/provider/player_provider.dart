@@ -38,54 +38,58 @@ final playerProvider = Provider((ref) {
 // ---------------------------------------------------------------------
 // provider for handling changes in tracks
 // ---------------------------------------------------------------------
-class TrackNotifier extends StateNotifier<RawContent> {
-  TrackNotifier() : super(RawContent());
+class TrackNotifier extends Notifier<RawContent> {
+  @override
+  RawContent build() => RawContent();
 
   void setTrack(RawContent newTrack) {
     state = newTrack;
   }
 }
 
-final trackProvider = StateNotifierProvider<TrackNotifier, RawContent>((ref) => TrackNotifier());
+final trackProvider = NotifierProvider<TrackNotifier, RawContent>(() => TrackNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling the playlist
 // ---------------------------------------------------------------------
-class PlaylistNotifier extends StateNotifier<List<RawContent>> {
-  PlaylistNotifier() : super([]);
+class PlaylistNotifier extends Notifier<List<RawContent>> {
+  @override
+  List<RawContent> build() => [];
 
   void setPlaylist(List<RawContent> newPlaylist) {
     state = newPlaylist;
   }
 }
 
-final playlistProvider = StateNotifierProvider<PlaylistNotifier, List<RawContent>>((ref) => PlaylistNotifier());
+final playlistProvider = NotifierProvider<PlaylistNotifier, List<RawContent>>(() => PlaylistNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling the playlist index (current track index)
 // ---------------------------------------------------------------------
-class LyricsNotifier extends StateNotifier<Lyrics> {
-  LyricsNotifier() : super(const Lyrics(LyricsState.unknown));
+class LyricsNotifier extends Notifier<Lyrics> {
+  @override
+  Lyrics build() => const Lyrics(LyricsState.unknown);
 
   void setLyrics(Lyrics newLyrics) {
     state = newLyrics;
   }
 }
 
-final lyricsProvider = StateNotifierProvider<LyricsNotifier, Lyrics>((ref) => LyricsNotifier());
+final lyricsProvider = NotifierProvider<LyricsNotifier, Lyrics>(() => LyricsNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling the playlist index (current track index)
 // ---------------------------------------------------------------------
-class PlaylistIndexNotifier extends StateNotifier<int> {
-  PlaylistIndexNotifier() : super(0);
+class PlaylistIndexNotifier extends Notifier<int> {
+  @override
+  int build() => 0;
 
   void setIndex(int newIndex) {
     state = newIndex;
   }
 }
 
-final playlistIndexProvider = StateNotifierProvider<PlaylistIndexNotifier, int>((ref) => PlaylistIndexNotifier());
+final playlistIndexProvider = NotifierProvider<PlaylistIndexNotifier, int>(() => PlaylistIndexNotifier());
 
 // ---------------------------------------------------------------------
 // provider to access LRUList
@@ -95,8 +99,33 @@ final lruListProvider = Provider((ref) => _lruList);
 // ---------------------------------------------------------------------
 // provider for handling changes in play state
 // ---------------------------------------------------------------------
-class PlayingNotifier extends StateNotifier<bool> {
-  final Ref ref;
+class PlayingNotifier extends Notifier<bool> {
+  @override
+  bool build() {
+    _subscriptions.add(
+      _player.onPlayerStateChanged.listen((event) {
+        switch (event) {
+          case PlayerState.playing:
+            state = true;
+            break;
+          case PlayerState.paused:
+            state = false;
+            break;
+          case PlayerState.stopped:
+            state = false;
+            break;
+          case PlayerState.completed:
+            state = false;
+            playNextTrack();
+            break;
+          default:
+            state = false;
+            break;
+        }
+      }),
+    );
+    return false;
+  }
 
   void playPauseTrack() {
     final trackRef = ref.read(trackProvider);
@@ -173,13 +202,13 @@ class PlayingNotifier extends StateNotifier<bool> {
           .read(playerProvider)
           .play(UrlSource(playlist[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
           .then((_) {
-            lruList.add(playlist[currentIdx].id);
-            getLyrics();
-          })
+        lruList.add(playlist[currentIdx].id);
+        getLyrics();
+      })
           .onError((err, _) {
-            debugPrint('doPlay: AudioPlayers Exception $err');
-            handleError(err.toString());
-          });
+        debugPrint('doPlay: AudioPlayers Exception $err');
+        handleError(err.toString());
+      });
     }
   }
 
@@ -210,12 +239,12 @@ class PlayingNotifier extends StateNotifier<bool> {
           .read(playerProvider)
           .play(UrlSource(playlistRef[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
           .then((_) {
-            getLyrics();
-          })
+        getLyrics();
+      })
           .onError((err, _) {
-            debugPrint('shuffleMode: AudioPlayers Exception $err');
-            handleError(err.toString());
-          });
+        debugPrint('shuffleMode: AudioPlayers Exception $err');
+        handleError(err.toString());
+      });
     } else {
       // just use track of last index
       final listSize = playlistRef.length;
@@ -230,12 +259,12 @@ class PlayingNotifier extends StateNotifier<bool> {
             .read(playerProvider)
             .play(UrlSource(playlistRef[currentIdx].trackUrl!), mode: PlayerMode.mediaPlayer)
             .then((_) {
-              getLyrics();
-            })
+          getLyrics();
+        })
             .onError((err, _) {
-              debugPrint('normalMode: AudioPlayers Exception $err');
-              handleError(err.toString());
-            });
+          debugPrint('normalMode: AudioPlayers Exception $err');
+          handleError(err.toString());
+        });
       }
     }
   }
@@ -257,31 +286,6 @@ class PlayingNotifier extends StateNotifier<bool> {
 
   Future<void> updateGeniusToken(String geniusApiToken) async {
     geniusHelper.setToken(geniusApiToken);
-  }
-
-  PlayingNotifier(this.ref) : super(false) {
-    _subscriptions.add(
-      _player.onPlayerStateChanged.listen((event) {
-        switch (event) {
-          case PlayerState.playing:
-            state = true;
-            break;
-          case PlayerState.paused:
-            state = false;
-            break;
-          case PlayerState.stopped:
-            state = false;
-            break;
-          case PlayerState.completed:
-            state = false;
-            playNextTrack();
-            break;
-          default:
-            state = false;
-            break;
-        }
-      }),
-    );
   }
 
   Duration _clampDuration(Duration position, Duration max) {
@@ -316,43 +320,48 @@ class PlayingNotifier extends StateNotifier<bool> {
   }
 }
 
-final playingProvider = StateNotifierProvider<PlayingNotifier, bool>((ref) => PlayingNotifier(ref));
+final playingProvider = NotifierProvider<PlayingNotifier, bool>(() => PlayingNotifier());
 
 // ----------------------------------------------------------------------
 // provider for handling changes in play time (current position in track)
 // ----------------------------------------------------------------------
-class PlayTimeNotifier extends StateNotifier<Duration> {
-  PlayTimeNotifier() : super(Duration.zero) {
+class PlayTimeNotifier extends Notifier<Duration> {
+  @override
+  Duration build() {
     _subscriptions.add(
       _player.onPositionChanged.listen((event) {
         state = event;
       }),
     );
+    return Duration.zero;
   }
 }
 
-final playTimeProvider = StateNotifierProvider<PlayTimeNotifier, Duration>((ref) => PlayTimeNotifier());
+final playTimeProvider = NotifierProvider<PlayTimeNotifier, Duration>(() => PlayTimeNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling changes in track duration
 // ---------------------------------------------------------------------
-class EndTimeNotifier extends StateNotifier<Duration> {
-  EndTimeNotifier() : super(Duration.zero) {
+class EndTimeNotifier extends Notifier<Duration> {
+  @override
+  Duration build() {
     _subscriptions.add(
       _player.onDurationChanged.listen((duration) {
         state = duration;
       }),
     );
+    return Duration.zero;
   }
 }
 
-final endTimeProvider = StateNotifierProvider<EndTimeNotifier, Duration>((ref) => EndTimeNotifier());
+final endTimeProvider = NotifierProvider<EndTimeNotifier, Duration>(() => EndTimeNotifier());
 
 // ---------------------------------------------------------------------
 // provider for handling changes in volume
 // ---------------------------------------------------------------------
-class VolumeNotifier extends StateNotifier<double> {
-  VolumeNotifier() : super(0) {
+class VolumeNotifier extends Notifier<double> {
+  @override
+  double build() {
     if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
       SharedPreferences.getInstance().then((sp) {
         state = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
@@ -360,6 +369,7 @@ class VolumeNotifier extends StateNotifier<double> {
         debugPrint('VolumeNotifier ${state.showPercent()}');
       });
     }
+    return 0;
   }
 
   void increaseVolume() {
@@ -395,17 +405,18 @@ class VolumeNotifier extends StateNotifier<double> {
   }
 }
 
-final volumeProvider = StateNotifierProvider<VolumeNotifier, double>((ref) => VolumeNotifier());
+final volumeProvider = NotifierProvider<VolumeNotifier, double>(() => VolumeNotifier());
 
 // ---------------------------------------------------------------------
 // provider for errors that happened while playing music
 // ---------------------------------------------------------------------
-class ErrorNotifier extends StateNotifier<String> {
-  ErrorNotifier() : super('');
+class ErrorNotifier extends Notifier<String> {
+  @override
+  String build() => '';
 
   void setError(String error) {
     state = error;
   }
 }
 
-final errorProvider = StateNotifierProvider<ErrorNotifier, String>((ref) => ErrorNotifier());
+final errorProvider = NotifierProvider<ErrorNotifier, String>(() => ErrorNotifier());

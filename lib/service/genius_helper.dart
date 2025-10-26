@@ -98,11 +98,11 @@ class GeniusHelper {
       if (tokenCPos > 0) {
         cleaned = cleaned.substring(tokenCPos + tokenC.length);
       }
-      final tokenV = '[Verse';
-      final tokenVPos = cleaned.indexOf(tokenV);
-      if (tokenVPos > 0) {
-        return cleaned.substring(tokenVPos);
-      }
+      // final tokenV = '[Verse';
+      // final tokenVPos = cleaned.indexOf(tokenV);
+      // if (tokenVPos > 0) {
+      //   return cleaned.substring(tokenVPos);
+      // }
       return cleaned;
     }
     return lyrics;

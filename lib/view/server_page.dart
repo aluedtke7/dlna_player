@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/card/progress_card.dart';
@@ -29,6 +30,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   var loading = false;
   var index = -1;
   final textNode = FocusNode();
+  RestartableTimer? timer = null;
 
   @override
   void dispose() {
@@ -45,20 +47,28 @@ class _ServerPageState extends ConsumerState<ServerPage> {
         for (var action in service.actions) {
           if (action.name == 'Browse') {
             DlnaService.browseAction = action;
-            final browseDoc = await DlnaService.browse('0', maxCount: 0);
-            for (var node in browseDoc.children) {
-              for (var el in node.children) {
-                if (el.attributes.isNotEmpty) {
-                  final id = el.attributes.firstWhere((el) => el.name.toString() == 'id').value;
-                  final count =
-                      int.tryParse(el.attributes.firstWhere((el) => el.name.toString() == 'childCount').value) ?? 0;
-                  final t = el.children[0];
-                  final String title = t.firstChild?.value ?? '';
-                  cdcs.add(ContentContainer(id: id, title: title, count: count));
+            try {
+              final browseDoc = await DlnaService.browse('0', maxCount: 0);
+              for (var node in browseDoc.children) {
+                for (var el in node.children) {
+                  if (el.attributes.isNotEmpty) {
+                    final id = el.attributes.firstWhere((el) => el.name.toString() == 'id').value;
+                    final count = int.tryParse(el.attributes.firstWhere((el) => el.name.toString() == 'childCount').value) ?? 0;
+                    final t = el.children[0];
+                    final String title = t.firstChild?.value ?? '';
+                    cdcs.add(ContentContainer(id: id, title: title, count: count));
+                  }
                 }
               }
+              break;
+            } catch (e) {
+              if (mounted) {
+                if (timer == null || !timer!.isActive) {
+                  Statics.showErrorSnackbar(context, e);
+                }
+                timer = RestartableTimer(Duration(seconds: 4), () {});
+              }
             }
-            break;
           }
         }
         // listServiceActions(service);
@@ -78,10 +88,8 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     }
     for (var action in service.actions) {
       debugPrint('    - Name: ${action.name}');
-      debugPrint(
-          "    - Arguments: ${action.arguments.where((it) => it.direction == "in").map((it) => it.name).toList()}");
-      debugPrint(
-          "    - Results: ${action.arguments.where((it) => it.direction == "out").map((it) => it.name).toList()}");
+      debugPrint("    - Arguments: ${action.arguments.where((it) => it.direction == "in").map((it) => it.name).toList()}");
+      debugPrint("    - Results: ${action.arguments.where((it) => it.direction == "out").map((it) => it.name).toList()}");
       debugPrint('');
     }
     if (service.stateVariables.isNotEmpty) {
@@ -112,9 +120,11 @@ class _ServerPageState extends ConsumerState<ServerPage> {
     ref.read(lastServerListProvider).add(device.url ?? '');
     if (cdcs.isEmpty) {
       findContentContainer(device.services).then((value) {
-        setState(() {
-          cdcs = value;
-        });
+        if (mounted) {
+          setState(() {
+            cdcs = value;
+          });
+        }
       });
     }
 
@@ -151,8 +161,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                             DlnaService.browseAll(cdcs[idx].id).then((value) {
                               final args = ContentArguments('', value);
                               if (context.mounted) {
-                                Navigator.of(context)
-                                    .push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                                Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
                               }
                               setState(() {
                                 loading = false;
@@ -163,16 +172,11 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                         },
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 250),
-                          transitionBuilder: (child, animation) => ScaleTransition(
-                            scale: animation,
-                            child: child,
-                          ),
-                          child: loading && index == idx
-                              ? ProgressCard(title: cdcs[idx].title)
-                              : SizedBox(
-                                  width: 300,
-                                  child: TopicCard(topic: cdcs[idx]),
-                                ),
+                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                          child:
+                              loading && index == idx
+                                  ? ProgressCard(title: cdcs[idx].title)
+                                  : SizedBox(width: 300, child: TopicCard(topic: cdcs[idx])),
                         ),
                       ),
                     );

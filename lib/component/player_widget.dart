@@ -71,12 +71,12 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   Future<void> _loadPrefs() async {
     final prefs = await SharedPreferences.getInstance();
     final expand = prefs.getBool(PrefKeys.playerWidgetExpandStatePrefsKey) ?? true;
-    ref.read(playerWidgetExpansionProvider.notifier).state = expand;
+    ref.read(playerWidgetExpansionProvider.notifier).setExpansion(expand);
     final shuffle = prefs.getBool(PrefKeys.playerWidgetShuffleStatePrefsKey) ?? false;
-    ref.read(shuffleModeProvider.notifier).state = shuffle;
+    ref.read(shuffleModeProvider.notifier).setShuffle(shuffle);
     final repeat = prefs.getBool(PrefKeys.playerWidgetRepeatStatePrefsKey) ?? false;
-    ref.read(repeatModeProvider.notifier).state = repeat;
-    ref.read(showLyricsProvider.notifier).state = false;
+    ref.read(repeatModeProvider.notifier).setRepeat(repeat);
+    ref.read(showLyricsProvider.notifier).setShowLyrics(false);
     final geniusApiToken = prefs.getString(PrefKeys.geniusApiTokenPrefsKey) ?? '';
     ref.read(playingProvider.notifier).updateGeniusToken(geniusApiToken);
   }
@@ -144,7 +144,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                         child: GestureDetector(
                           onTap: () {
                             isExpanded = !isExpanded;
-                            ref.read(playerWidgetExpansionProvider.notifier).state = isExpanded;
+                            ref.read(playerWidgetExpansionProvider.notifier).setExpansion(isExpanded);
                             _savePrefs();
                           },
                           child: Row(
@@ -207,7 +207,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             IconButton(
                               onPressed: () {
                                 isShuffle = !isShuffle;
-                                ref.read(shuffleModeProvider.notifier).state = isShuffle;
+                                ref.read(shuffleModeProvider.notifier).setShuffle(isShuffle);
                                 _savePrefs();
                                 Statics.showInfoSnackbar(
                                   context,
@@ -238,7 +238,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             IconButton(
                               onPressed: () {
                                 isRepeat = !isRepeat;
-                                ref.read(repeatModeProvider.notifier).state = isRepeat;
+                                ref.read(repeatModeProvider.notifier).setRepeat(isRepeat);
                                 _savePrefs();
                                 Statics.showInfoSnackbar(
                                   context,
@@ -251,7 +251,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             IconButton(
                               onPressed: () {
                                 isLyrics = !isLyrics;
-                                ref.read(showLyricsProvider.notifier).state = isLyrics;
+                                ref.read(showLyricsProvider.notifier).setShowLyrics(isLyrics);
                                 if (isLyrics && ref.read(lyricsProvider).text.isEmpty) {
                                   ref.read(playingProvider.notifier).getLyrics();
                                 }

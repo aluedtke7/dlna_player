@@ -7,20 +7,20 @@ A DLNA ([Digital Living Network Alliance](https://en.wikipedia.org/wiki/Digital_
 The idea for this app came through the lack of a simple DLNA player for linux. Nevertheless, 
 this app works on Windows, macOS, iOS and Android as well.
 
-This app has been tested so far with MiniDLNA and Jellyfin. Both DLNA server were installed 
-on an OpenMediaVault NAS server. MiniDLNA was installed direct while Jellyfin was running in a
+This app has been tested so far with MiniDLNA and Jellyfin. Both DLNA servers were installed 
+on an OpenMediaVault NAS server. MiniDLNA was installed directly while Jellyfin was running in a
 Docker container.
 
 The displayed categories depend on the used DLNA server. That's why the categories are
-different on the screenshots. The installed DLNA server were using German, so some texts are
+different in the screenshots. The installed DLNA server was using German, so some texts are
 in German even though the app language was set to English.
 
 The implemented search functionality is not searching on the server. Instead, the
-received lists (tracks, artists, albums etc.) are searched/filtered on the client.
+received lists (tracks, artists, albums, etc.) are searched/filtered on the client.
 
 ## Features
 
-- Dart 3 and Flutter 3.27 compatible
+- Dart 3 and Flutter 3.35 compatible
 - several themes (Material 3)
 - two player widget sizes (click on player title to change)
 - localization (English and German)
@@ -93,14 +93,14 @@ This will update the files in `lib/src/generated/i18n/`.
  
 ### Genius lyrics
 The access of the genius api at api.genius.com needs a token. Therefore, you have to supply
-this token in the settings dialog that's available via the 3 dot menu in the upper right corner.
+this token in the settings dialog that's available via the 3-dot menu in the upper right corner.
 
 ## Build Linux Flatpak
 ### General
 We need a special Docker image for building the app and the flatpak version of it. It's best to use the oldest
 supported Linux OS for this task, to get the widest OS support for our flatpak app. I'm using the LTS version
-Ubuntu 20.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the needed dependencies
-to be able to compile the source code for Linux. In additon, the flatpak utilities are also installed. It's also
+Ubuntu 20.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the necessary dependencies
+to be able to compile the source code for Linux. In addition, the flatpak utilities are also installed. It's also
 important to install all the dependencies that the Linux version of the used Flutter packages needs. You find
 this information typically on pub.dev at the Linux version of the used package.
 

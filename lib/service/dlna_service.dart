@@ -10,14 +10,18 @@ class DlnaService {
   static Future<XmlDocument> browse(String id, {int maxCount = 0, int startIdx = 0}) async {
     final Map<String, String> browseMap;
     if (browseAction != null) {
-      browseMap = await browseAction!.invoke({
-        'ObjectID': id,
-        'BrowseFlag': 'BrowseDirectChildren',
-        'Filter': '*',
-        'StartingIndex': startIdx,
-        'RequestedCount': maxCount,
-        'SortCriteria': '',
-      });
+      try {
+        browseMap = await browseAction!.invoke({
+                'ObjectID': id,
+                'BrowseFlag': 'BrowseDirectChildren',
+                'Filter': '*',
+                'StartingIndex': startIdx,
+                'RequestedCount': maxCount,
+                'SortCriteria': '',
+              });
+      } catch (e) {
+        throw Exception('Error browsing device: empty result');
+      };
     } else {
       browseMap = {};
     }
