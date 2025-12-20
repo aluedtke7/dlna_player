@@ -21,7 +21,7 @@ class DlnaService {
               });
       } catch (e) {
         throw Exception('Error browsing device: empty result');
-      };
+      }
     } else {
       browseMap = {};
     }

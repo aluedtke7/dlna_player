@@ -30,7 +30,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   var loading = false;
   var index = -1;
   final textNode = FocusNode();
-  RestartableTimer? timer = null;
+  RestartableTimer? timer;
 
   @override
   void dispose() {
