@@ -1,4 +1,4 @@
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Europe apt-get -y install tzdata
 
@@ -7,7 +7,7 @@ RUN apt-get -y install tree curl file git unzip xz-utils zip clang cmake ninja-b
 # Install GStreamer dependencies (needed by audioplayers)
 RUN apt-get -y install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 # Install app-specific dependencies
-RUN apt-get -y install keybinder-3.0 appindicator3-0.1 libappindicator3-1 libappindicator3-dev
+RUN apt-get -y install keybinder-3.0 appindicator3-0.1
 # Prepare environment for building Flatpak
 RUN apt-get -y install flatpak flatpak-builder
 RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo

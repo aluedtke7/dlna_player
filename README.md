@@ -99,12 +99,12 @@ this token in the settings dialog that's available via the 3-dot menu in the upp
 ### General
 We need a special Docker image for building the app and the flatpak version of it. It's best to use the oldest
 supported Linux OS for this task, to get the widest OS support for our flatpak app. I'm using the LTS version
-Ubuntu 20.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the necessary dependencies
+Ubuntu 22.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the necessary dependencies
 to be able to compile the source code for Linux. In addition, the flatpak utilities are also installed. It's also
 important to install all the dependencies that the Linux version of the used Flutter packages needs. You find
 this information typically on pub.dev at the Linux version of the used package.
 
-The build time for this image is approx. 10 minutes on my machine and the resulting image size is around 12GB.
+The build time for this image is approx. 10 minutes on my machine and the resulting image size is around 10GB.
 
 ### Image for Flutter and Flatpak
 Build the image:

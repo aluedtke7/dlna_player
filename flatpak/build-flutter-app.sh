@@ -12,6 +12,7 @@ cd ..
 
 # Build Flutter app
 flutter --disable-analytics
+flutter --version
 flutter clean
 flutter gen-l10n
 flutter build linux --release

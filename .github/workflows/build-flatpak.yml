@@ -1,0 +1,61 @@
+name: Build Linux Flatpak
+
+on:
+  push:
+    branches:
+      - test
+
+jobs:
+  build-flatpak:
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive TZ=Europe apt-get install -y \
+            clang cmake ninja-build pkg-config libgtk-3-dev libunwind-dev \
+            libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev \
+            keybinder-3.0 appindicator3-0.1 \
+            flatpak flatpak-builder
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.6'
+          channel: 'stable'
+
+      - name: Setup Flatpak
+        run: |
+          sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+          sudo flatpak install -y flathub org.freedesktop.Platform//23.08
+          sudo flatpak install -y flathub org.freedesktop.Sdk//23.08
+          sudo flatpak install -y flathub org.freedesktop.appstream-glib
+
+      - name: Build Flutter app and generate Flatpak
+        run: |
+          cd flatpak
+          ./build-flutter-app.sh
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dlna-player-flatpak
+          path: flatpak/de.luedtke.dlna_player.flatpak
+          if-no-files-found: error
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: flatpak-${{ github.sha }}
+          name: Flatpak Build ${{ github.sha }}
+          draft: false
+          prerelease: true
+          files: flatpak/de.luedtke.dlna_player.flatpak
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
