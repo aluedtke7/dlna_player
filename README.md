@@ -97,12 +97,13 @@ this token in the settings dialog that's available via the 3-dot menu in the upp
 
 ## Build Linux Flatpak
 ### General
-We need a special Docker image for building the app and the flatpak version of it. It's best to use the oldest
-supported Linux OS for this task, to get the widest OS support for our flatpak app. I'm using the LTS version
-Ubuntu 22.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the necessary dependencies
-to be able to compile the source code for Linux. In addition, the flatpak utilities are also installed. It's also
-important to install all the dependencies that the Linux version of the used Flutter packages needs. You find
-this information typically on pub.dev at the Linux version of the used package.
+The GitHub action executes all necessary steps to build the Linux flatpak (see `build-flatpak.yml` for details). 
+The created file is available under the **Releases** tab. For a local build of the Flatpak it's best to use a Docker 
+image. I use an older Linux OS for this task, to get the widest OS support for our flatpak app. I'm using the LTS 
+version Ubuntu 22.04. The [Dockerfile](./flatpak/Dockerfile) takes this as the base image and installs then all the
+necessary dependencies to be able to compile the source code for Linux. In addition, the flatpak utilities are also 
+installed. It's also important to install all the dependencies that the Linux version of the used Flutter packages 
+needs. You find this information typically on pub.dev at the Linux version of the used package.
 
 The build time for this image is approx. 10 minutes on my machine and the resulting image size is around 10GB.
 
@@ -110,14 +111,14 @@ The build time for this image is approx. 10 minutes on my machine and the result
 Build the image:
 
     cd flatpak
-    docker build --platform linux/amd64 -t flutterpack:1.0.0 . 
+    docker build --platform linux/amd64 -t flutterpak:1.0.0 . 
 
 ### Build and pack
 Execute the following command in the project root folder to compile the Flutter source code and to generate
-a flatpak version of it (`de.luedtke.shoppinglist.flatpak`):
+a flatpak version of it (`de.luedtke.dlna_player.flatpak`):
 
     docker run --rm --privileged --platform linux/amd64 -u builder -v "$PWD":/home/builder/app \
-        -w /home/builder/app/flatpak flutterpack:1.0.0 "./build-flutter-app.sh"
+        -w /home/builder/app/flatpak flutterpak:1.0.0 "./build-flutter-app.sh"
 
 ### Local install
 To run the flatpak app, you need to have the following runtime installed on your local machine:
