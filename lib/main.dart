@@ -20,6 +20,7 @@ import 'package:dlna_player/component/custom_themes.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/model/window_settings.dart';
 import 'package:dlna_player/provider/player_provider.dart';
+import 'package:dlna_player/service/mpris_service.dart';
 import 'package:dlna_player/specific_localization_delegate.dart';
 import 'package:dlna_player/view/content_page.dart';
 import 'package:dlna_player/view/start_page.dart';
@@ -60,17 +61,25 @@ class PlayerApp extends ConsumerStatefulWidget {
 
 class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   late SpecificLocalizationDelegate _localeOverrideDelegate;
+  MPRISService? _mprisService;
 
   @override
   void initState() {
     super.initState();
     timeDilation = 1.5;
-    if (Platform.isMacOS || Platform.isWindows) {
+    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
+
+      // Initialize hid_listener for X11/macOS/Windows
       if (!getListenerBackend()!.initialize()) {
         debugPrint('Failed to initialize HID listener backend');
       }
       getListenerBackend()!.addKeyboardListener(listener);
+
+      // Also initialize MPRIS for Linux (works on both X11 and Wayland)
+      if (Platform.isLinux) {
+        _initializeMPRIS();
+      }
     }
     final String initialLanguage;
     if (kIsWeb) {
@@ -87,11 +96,30 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     loadSavedList();
   }
 
+  Future<void> _initializeMPRIS() async {
+    _mprisService = MPRISService(
+      onPlayPause: () {
+        debugPrint('MPRIS: Play/Pause triggered');
+        ref.read(playingProvider.notifier).playPauseTrack();
+      },
+      onNext: () {
+        debugPrint('MPRIS: Next triggered');
+        ref.read(playingProvider.notifier).playNextTrack();
+      },
+      onPrevious: () {
+        debugPrint('MPRIS: Previous triggered');
+        ref.read(playingProvider.notifier).playPreviousTrack();
+      },
+    );
+    await _mprisService!.initialize('DLNAPlayer');
+  }
+
   @override
   void dispose() {
     if (Platform.isMacOS || Platform.isWindows) {
       windowManager.removeListener(this);
     }
+    _mprisService?.dispose();
     super.dispose();
   }
 
@@ -126,8 +154,8 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     ref.read(lruListProvider).list.addAll(lruList);
   }
 
-  void listener(RawKeyEvent event) {
-    if (event is RawKeyUpEvent) {
+  void listener(KeyEvent event) {
+    if (event is KeyUpEvent) {
       // debugPrint('logicalKey ${event.logicalKey}');
       if (event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
           event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
