@@ -20,7 +20,9 @@ received lists (tracks, artists, albums, etc.) are searched/filtered on the clie
 
 ## Features
 
-- Dart 3 and Flutter 3.35 compatible
+- Dart 3 and Flutter 3.38 compatible
+- Media keys work on Linux again (Wayland and X11)
+- Github action to build Linux flatpak
 - several themes (Material 3)
 - two player widget sizes (click on player title to change)
 - localization (English and German)
@@ -67,7 +69,7 @@ This project would be impossible without the following packages:
 
 [upnp2](https://pub.dev/packages/upnp2) and [audioplayers](https://pub.dev/packages/audioplayers) do the heavy lifting
 of handling the UPNP protocol and playing audio files. The handling of the media keys is done
-by [hid_listener](https://github.com/localcc/hid_listener).
+by [hid_listener](https://github.com/localcc/hid_listener). I'm now using a fork of this package since there wasn't an update in the last 2 years.
 
 ## Tips and tricks
 ### Update logo etc.
