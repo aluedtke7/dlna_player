@@ -312,9 +312,11 @@ packages:
   hid_listener:
     dependency: "direct main"
     description:
-      path: "../hid_listener_fork"
-      relative: true
-    source: path
+      path: "."
+      ref: HEAD
+      resolved-ref: ab37b77a4fe7558fb304897715b6989e9a6e88a1
+      url: "https://github.com/aluedtke7/hid_listener_fork.git"
+    source: git
     version: "2.0.1"
   hooks:
     dependency: transitive
