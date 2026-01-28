@@ -32,3 +32,7 @@ cp -r $projectId.desktop $desktopFileDir/
 metadataDir=/app/share/metainfo
 mkdir -p $metadataDir
 cp -r $projectId.metainfo.xml $metadataDir/
+
+#serviceFileDir=/app/share/dbus-1/services
+#mkdir -p $serviceFileDir
+#cp -r d-bus.service "$serviceFileDir/$projectId".service

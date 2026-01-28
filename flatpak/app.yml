@@ -11,8 +11,10 @@ finish-args:
   - --device=dri
   - --share=network
   - --socket=wayland
-  - --socket=fallback-x11
+  - --socket=x11
   - --socket=pulseaudio
+  - --socket=session-bus
+  - --socket=system-bus
 modules:
   - name: dlna_player
     buildsystem: simple
@@ -34,3 +36,6 @@ modules:
       - type: file
         path: ./app.metainfo.xml
         dest-filename: de.luedtke.dlna_player.metainfo.xml
+#      - type: file
+#        path: ./d-bus.service
+#        dest-filename: d-bus.service

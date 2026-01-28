@@ -3,7 +3,7 @@ FROM ubuntu:22.04
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive TZ=Europe apt-get -y install tzdata
 
 # Install tree and Flutter dependencies
-RUN apt-get -y install tree curl file git unzip xz-utils zip clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev
+RUN apt-get -y install tree curl file git unzip xz-utils zip clang cmake lld ninja-build pkg-config libgtk-3-dev liblzma-dev
 # Install GStreamer dependencies (needed by audioplayers)
 RUN apt-get -y install libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev
 # Install app-specific dependencies

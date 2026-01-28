@@ -70,11 +70,13 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
       windowManager.addListener(this);
 
-      // Initialize hid_listener for X11/macOS/Windows
-      if (!getListenerBackend()!.initialize()) {
-        debugPrint('Failed to initialize HID listener backend');
+      // Initialize hid_listener for X11/macOS/Windows (but not Linux)
+      if (!Platform.isLinux) {
+        if (!getListenerBackend()!.initialize()) {
+          debugPrint('Failed to initialize HID listener backend');
+        }
+        getListenerBackend()!.addKeyboardListener(listener);
       }
-      getListenerBackend()!.addKeyboardListener(listener);
 
       // Also initialize MPRIS for Linux (works on both X11 and Wayland)
       if (Platform.isLinux) {
