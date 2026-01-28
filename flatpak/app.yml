@@ -36,6 +36,6 @@ modules:
       - type: file
         path: ./app.metainfo.xml
         dest-filename: de.luedtke.dlna_player.metainfo.xml
-#      - type: file
-#        path: ./d-bus.service
-#        dest-filename: d-bus.service
+      - type: file
+        path: ./d-bus.service
+        dest-filename: d-bus.service
