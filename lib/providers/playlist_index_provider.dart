@@ -11,7 +11,9 @@ class PlaylistIndexNotifier extends Notifier<int> {
     state = handler.currentIndex;
 
     _subscription = handler.currentIndexStream.listen((index) {
-      state = index ?? 0;
+      if (index != null && index >= 0) {
+        state = index;
+      }
     });
 
     ref.onDispose(() => _subscription?.cancel());

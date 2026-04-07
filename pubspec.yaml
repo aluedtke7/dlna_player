@@ -38,6 +38,7 @@ dependencies:
   fuzzywuzzy: ^1.2.0
   form_validator: ^2.1.1
   async: ^2.12.0
+  just_audio_media_kit: ^2.1.0
 
 dev_dependencies:
   flutter_test:

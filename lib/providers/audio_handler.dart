@@ -43,14 +43,18 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     final file = File('${albumArtDir.path}/$filename');
     if (await file.exists()) {
-      return Uri.parse('content://de.luedtke.dlna_player.fileprovider/album_art/$filename');
+      return Uri.parse(
+        'content://de.luedtke.dlna_player.fileprovider/album_art/$filename',
+      );
     }
 
     try {
       final response = await http.get(uri);
       if (response.statusCode == 200) {
         await file.writeAsBytes(response.bodyBytes);
-        return Uri.parse('content://de.luedtke.dlna_player.fileprovider/album_art/$filename');
+        return Uri.parse(
+          'content://de.luedtke.dlna_player.fileprovider/album_art/$filename',
+        );
       }
     } catch (_) {}
     return null;
@@ -59,30 +63,45 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   Future<void> _init() async {
     // Forward player events to AudioService playbackState
     _player.playbackEventStream.listen((event) {
-      playbackState.add(
-        playbackState.value.copyWith(
-          controls: _getControls(),
-          systemActions: const {MediaAction.seek, MediaAction.seekForward, MediaAction.seekBackward},
-          processingState: _mapProcessingState(_player.processingState),
-          playing: _player.playing,
-          updatePosition: _player.position,
-          bufferedPosition: _player.bufferedPosition,
-          speed: _player.speed,
-          queueIndex: _player.currentIndex,
-        ),
-      );
+      try {
+        final idx = _player.currentIndex;
+        if (idx == null || idx < 0 || idx >= queue.value.length) return;
+        playbackState.add(
+          playbackState.value.copyWith(
+            controls: _getControls(),
+            systemActions: const {
+              MediaAction.seek,
+              MediaAction.seekForward,
+              MediaAction.seekBackward,
+            },
+            processingState: _mapProcessingState(_player.processingState),
+            playing: _player.playing,
+            updatePosition: _player.position,
+            bufferedPosition: _player.bufferedPosition,
+            speed: _player.speed,
+            queueIndex: idx,
+          ),
+        );
+      } catch (e) {
+        // Ignore errors during playback state updates
+      }
     });
 
     // Update mediaItem when current index changes, and load album art on demand
     _player.currentIndexStream.listen((index) {
-      if (index != null && queue.value.isNotEmpty) {
+      if (index != null &&
+          index >= 0 &&
+          queue.value.isNotEmpty &&
+          index < queue.value.length) {
         final item = queue.value[index];
         mediaItem.add(item);
 
         // Load album art if not already loaded
         final currentArtUri = item.artUri;
         final originalAlbumArt = item.extras?['originalAlbumArt'] as String?;
-        if (currentArtUri == null && originalAlbumArt != null && originalAlbumArt.isNotEmpty) {
+        if (currentArtUri == null &&
+            originalAlbumArt != null &&
+            originalAlbumArt.isNotEmpty) {
           _getLocalArtUri(originalAlbumArt).then((uri) {
             if (uri != null) {
               final updated = item.copyWith(artUri: uri);
@@ -115,8 +134,17 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     // Initial playback state
     playbackState.add(
       PlaybackState(
-        controls: [MediaControl.skipToPrevious, MediaControl.play, MediaControl.stop, MediaControl.skipToNext],
-        systemActions: const {MediaAction.seek, MediaAction.seekForward, MediaAction.seekBackward},
+        controls: [
+          MediaControl.skipToPrevious,
+          MediaControl.play,
+          MediaControl.stop,
+          MediaControl.skipToNext,
+        ],
+        systemActions: const {
+          MediaAction.seek,
+          MediaAction.seekForward,
+          MediaAction.seekBackward,
+        },
         processingState: AudioProcessingState.idle,
         playing: false,
         updatePosition: Duration.zero,
@@ -129,9 +157,19 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   List<MediaControl> _getControls() {
     if (_player.playing) {
-      return const [MediaControl.skipToPrevious, MediaControl.pause, MediaControl.stop, MediaControl.skipToNext];
+      return const [
+        MediaControl.skipToPrevious,
+        MediaControl.pause,
+        MediaControl.stop,
+        MediaControl.skipToNext,
+      ];
     } else {
-      return const [MediaControl.skipToPrevious, MediaControl.play, MediaControl.stop, MediaControl.skipToNext];
+      return const [
+        MediaControl.skipToPrevious,
+        MediaControl.play,
+        MediaControl.stop,
+        MediaControl.skipToNext,
+      ];
     }
   }
 
@@ -189,7 +227,10 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
             duration: dur,
             artUri: null,
             // will be set later
-            extras: {'trackUrl': track.trackUrl!, 'originalAlbumArt': track.albumArt},
+            extras: {
+              'trackUrl': track.trackUrl!,
+              'originalAlbumArt': track.albumArt,
+            },
           );
         }).toList();
 
@@ -198,10 +239,17 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
     final audioSources =
         mediaItems.map((item) {
-          return AudioSource.uri(Uri.parse(item.extras!['trackUrl'] as String), tag: item);
+          return AudioSource.uri(
+            Uri.parse(item.extras!['trackUrl'] as String),
+            tag: item,
+          );
         }).toList();
 
-    await _player.setAudioSources(audioSources, initialIndex: 0, initialPosition: Duration.zero);
+    await _player.setAudioSources(
+      audioSources,
+      initialIndex: 0,
+      initialPosition: Duration.zero,
+    );
   }
 
   void setShuffle(bool shuffle) {
@@ -229,7 +277,7 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   List<RawContent> get currentPlaylist => List.unmodifiable(_currentPlaylist);
 
   // Get current index from player
-  int get currentIndex => _player.currentIndex ?? 0;
+  int get currentIndex => _player.currentIndex ?? -1;
 
   @override
   Future<void> play() => _player.play();
@@ -240,7 +288,12 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   @override
   Future<void> stop() async {
     await _player.stop();
-    playbackState.add(playbackState.value.copyWith(processingState: AudioProcessingState.idle, playing: false));
+    playbackState.add(
+      playbackState.value.copyWith(
+        processingState: AudioProcessingState.idle,
+        playing: false,
+      ),
+    );
   }
 
   @override

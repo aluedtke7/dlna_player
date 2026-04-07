@@ -26,11 +26,28 @@ import 'package:dlna_player/view/content_page.dart';
 import 'package:dlna_player/view/start_page.dart';
 import 'package:dlna_player/view/server_page.dart';
 
+import 'package:just_audio_media_kit/just_audio_media_kit.dart';
+
 const appName = 'DLNA Player';
 Timer? saveSettingsTimer;
 
 void main() async {
+  // Catch global errors to prevent crashes from just_audio/media_kit issues
+  await runZonedGuarded(
+    () async {
+      await _runApp();
+    },
+    (error, stack) {
+      debugPrint('Global error caught: $error');
+    },
+  );
+}
+
+Future<void> _runApp() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize just_audio_media_kit for Linux audio support
+  JustAudioMediaKit.ensureInitialized();
 
   // Initialize AudioService for background playback
   final handler = DlnaAudioHandler();
@@ -49,14 +66,17 @@ void main() async {
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
     await windowManager.ensureInitialized();
     final prefs = await SharedPreferences.getInstance();
-    final maximized = prefs.getBool(PrefKeys.windowSettingsMaximizedPrefsKey) ?? false;
+    final maximized =
+        prefs.getBool(PrefKeys.windowSettingsMaximizedPrefsKey) ?? false;
     final ws = prefs.getString(PrefKeys.windowSettingsPrefsKey) ?? '{}';
     var windowSettings = WindowSettings.fromJson(jsonDecode(ws));
     windowManager.waitUntilReadyToShow(null, () async {
       await windowManager.show();
       await windowManager.focus();
       if (windowSettings.sizeX > 0 && windowSettings.sizeY > 0) {
-        windowManager.setPosition(Offset(windowSettings.posX, windowSettings.posY));
+        windowManager.setPosition(
+          Offset(windowSettings.posX, windowSettings.posY),
+        );
         windowManager.setSize(Size(windowSettings.sizeX, windowSettings.sizeY));
       }
       if (maximized) {
@@ -102,9 +122,13 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     if (kIsWeb) {
       initialLanguage = PlatformDispatcher.instance.locale.languageCode;
     } else {
-      initialLanguage = Platform.localeName.substring(0, 2);
+      final localeName = Platform.localeName;
+      initialLanguage =
+          localeName.length >= 2 ? localeName.substring(0, 2) : 'en';
     }
-    _localeOverrideDelegate = SpecificLocalizationDelegate(Locale(initialLanguage));
+    _localeOverrideDelegate = SpecificLocalizationDelegate(
+      Locale(initialLanguage),
+    );
     Intl.defaultLocale = initialLanguage;
 
     /// Let's save a pointer to this method, should the user wants to change its language
@@ -150,7 +174,12 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
         if (!maximized) {
           final position = await windowManager.getPosition();
           final size = await windowManager.getSize();
-          final ws = WindowSettings(position.dx, position.dy, size.width, size.height);
+          final ws = WindowSettings(
+            position.dx,
+            position.dy,
+            size.width,
+            size.height,
+          );
           final s = jsonEncode(ws.toJson());
           prefs.setString(PrefKeys.windowSettingsPrefsKey, s);
         }
@@ -162,13 +191,16 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   void listener(KeyEvent event) {
     if (event is KeyUpEvent) {
       // debugPrint('logicalKey ${event.logicalKey}');
-      if (event.logicalKey == LogicalKeyboardKey.mediaFastForward || event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
+      if (event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
+          event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
         debugPrint('HID next track');
         ref.read(playingProvider.notifier).playNextTrack();
-      } else if (event.logicalKey == LogicalKeyboardKey.mediaRewind || event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaRewind ||
+          event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
         debugPrint('HID prev track');
         ref.read(playingProvider.notifier).playPreviousTrack();
-      } else if (event.logicalKey == LogicalKeyboardKey.mediaPlayPause || event.logicalKey == LogicalKeyboardKey.mediaPlay) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaPlayPause ||
+          event.logicalKey == LogicalKeyboardKey.mediaPlay) {
         debugPrint('HID play pause');
         ref.read(playingProvider.notifier).playPauseTrack();
       }
@@ -184,7 +216,8 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   @override
   Widget build(BuildContext context) {
     return ThemeProvider(
-      onThemeChanged: (oldTheme, newTheme) => debugPrint('Theme: ${newTheme.id}'),
+      onThemeChanged:
+          (oldTheme, newTheme) => debugPrint('Theme: ${newTheme.id}'),
       loadThemeOnInit: true,
       saveThemesOnChange: true,
       themes: customThemes,
@@ -202,7 +235,10 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
                 ],
                 supportedLocales: APPLIC().supportedLocales(),
                 home: const StartPage(title: appName),
-                routes: {ServerPage.routeName: (context) => const ServerPage(), ContentPage.routeName: (context) => const ContentPage()},
+                routes: {
+                  ServerPage.routeName: (context) => const ServerPage(),
+                  ContentPage.routeName: (context) => const ContentPage(),
+                },
               ),
         ),
       ),
