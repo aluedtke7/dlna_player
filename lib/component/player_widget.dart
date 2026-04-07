@@ -128,9 +128,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
           duration: const Duration(milliseconds: 500),
           child: Container(
             padding: Platform.isIOS ? const EdgeInsets.only(bottom: 8) : null,
-            decoration: BoxDecoration(
-              color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor,
-            ),
+            decoration: BoxDecoration(color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor),
             child: Row(
               children: [
                 Flexible(
@@ -151,13 +149,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(width: 45, child: Text(playTimeRef.showMS())),
-                              Expanded(
-                                child: ArtistTitleFader(
-                                  artist: trackRef.artist,
-                                  title: trackRef.title,
-                                  showArtist: showArtist,
-                                ),
-                              ),
+                              Expanded(child: ArtistTitleFader(artist: trackRef.artist, title: trackRef.title, showArtist: showArtist)),
                               SizedBox(width: 45, child: Text(endTimeRef.showMS(), textAlign: TextAlign.end)),
                             ],
                           ),
@@ -167,10 +159,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           IconButton(
-                            onPressed:
-                                trackRef.title.isNotEmpty
-                                    ? () => ref.read(playingProvider.notifier).playPauseTrack()
-                                    : null,
+                            onPressed: trackRef.title.isNotEmpty ? () => ref.read(playingProvider.notifier).playPauseTrack() : null,
                             icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
                             tooltip: i18n(context).pw_hint_play_pause,
                           ),
@@ -189,7 +178,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                               },
                               onChangeEnd: (value) {
                                 final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
-                                ref.read(playerProvider).seek(newCurrent).then((_) {
+                                ref.read(audioHandlerProvider).seek(newCurrent).then((_) {
                                   setState(() {
                                     sliderIsMoving = false;
                                   });
@@ -209,19 +198,13 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 isShuffle = !isShuffle;
                                 ref.read(shuffleModeProvider.notifier).setShuffle(isShuffle);
                                 _savePrefs();
-                                Statics.showInfoSnackbar(
-                                  context,
-                                  i18n(context).player_shuffle_mode(isShuffle.toString()),
-                                );
+                                Statics.showInfoSnackbar(context, i18n(context).player_shuffle_mode(isShuffle.toString()));
                               },
                               icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_shuffle,
                             ),
                             IconButton(
-                              onPressed:
-                                  playlistRef.length > 1
-                                      ? () => ref.read(playingProvider.notifier).playPreviousTrack()
-                                      : null,
+                              onPressed: playlistRef.length > 1 ? () => ref.read(playingProvider.notifier).playPreviousTrack() : null,
                               icon: const Icon(Icons.skip_previous, size: iconSize),
                               tooltip: i18n(context).pw_hint_previous,
                             ),
@@ -240,10 +223,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 isRepeat = !isRepeat;
                                 ref.read(repeatModeProvider.notifier).setRepeat(isRepeat);
                                 _savePrefs();
-                                Statics.showInfoSnackbar(
-                                  context,
-                                  i18n(context).player_repeat_mode(isRepeat.toString()),
-                                );
+                                Statics.showInfoSnackbar(context, i18n(context).player_repeat_mode(isRepeat.toString()));
                               },
                               icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_repeat,
@@ -257,11 +237,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 }
                                 _savePrefs();
                               },
-                              icon: Icon(
-                                Icons.text_snippet_outlined,
-                                size: iconSize,
-                                color: !isLyrics ? Colors.grey : null,
-                              ),
+                              icon: Icon(Icons.text_snippet_outlined, size: iconSize, color: !isLyrics ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_lyrics,
                             ),
                           ],
@@ -270,8 +246,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                     ],
                   ),
                 ),
-                if (isExpanded && (trackRef.albumArt?.isNotEmpty ?? false))
-                  TrackCover(coverUrl: trackRef.albumArt.toString()),
+                if (isExpanded && (trackRef.albumArt?.isNotEmpty ?? false)) TrackCover(coverUrl: trackRef.albumArt.toString()),
               ],
             ),
           ),

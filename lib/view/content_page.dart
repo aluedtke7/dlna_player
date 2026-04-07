@@ -1,4 +1,3 @@
-import 'package:audioplayers/audioplayers.dart';
 import 'package:dlna_player/application.dart';
 import 'package:dlna_player/component/card/album_card.dart';
 import 'package:dlna_player/component/card/container_card.dart';
@@ -103,18 +102,14 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       case ContentClass.album:
         selItems =
             argument.content
-                .where(
-                  (el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm),
-                )
+                .where((el) => el.title.toLowerCase().contains(searchTerm) || el.artist.toLowerCase().contains(searchTerm))
                 .toList();
         mainAxisExtend = 110;
         break;
       case ContentClass.artist:
         selItems =
             argument.content
-                .where(
-                  (el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm),
-                )
+                .where((el) => el.title.toLowerCase().contains(searchTerm) || el.genre.toLowerCase().contains(searchTerm))
                 .toList();
         mainAxisExtend = 110;
         break;
@@ -164,19 +159,14 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       }
 
       var idx = (playListIndexRef.toDouble() ~/ numberOfColumns);
-      var infoString =
-          'Width - Grid Width - V. Rows - Columns: ${mq.size.width} - $gridWidth - $visibleRows - $numberOfColumns';
+      var infoString = 'Width - Grid Width - V. Rows - Columns: ${mq.size.width} - $gridWidth - $visibleRows - $numberOfColumns';
       if (lastInfoString != infoString) debugPrint(infoString);
       lastInfoString = infoString;
 
       // Only scroll to index when index has changed and items don't fit on one page
       if (lastIdx != idx && idx >= visibleRows) {
         // scrollController.jumpTo(idx * mainAxisExtend);
-        scrollController.animateTo(
-          idx * mainAxisExtend,
-          duration: Duration(milliseconds: 1000),
-          curve: Curves.easeInOut,
-        );
+        scrollController.animateTo(idx * mainAxisExtend, duration: Duration(milliseconds: 1000), curve: Curves.easeInOut);
       }
       lastIdx = idx;
     }
@@ -230,17 +220,11 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                   return [
                     PopupMenuItem<int>(
                       value: 0,
-                      child: ListTile(
-                        leading: const Icon(Icons.color_lens),
-                        title: Text(i18n(context).com_change_theme),
-                      ),
+                      child: ListTile(leading: const Icon(Icons.color_lens), title: Text(i18n(context).com_change_theme)),
                     ),
                     PopupMenuItem<int>(
                       value: 1,
-                      child: ListTile(
-                        leading: const Icon(Icons.language),
-                        title: Text(i18n(context).com_change_language),
-                      ),
+                      child: ListTile(leading: const Icon(Icons.language), title: Text(i18n(context).com_change_language)),
                     ),
                     PopupMenuItem<int>(
                       enabled: trackRef.artist.isNotEmpty,
@@ -310,11 +294,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 children: [
                   const SizedBox(height: 4),
                   Text(
-                    i18n(context).content_selected(
-                      selItems.length,
-                      argument.content.length,
-                      searchTerm.isNotEmpty ? ' - $searchTerm' : '',
-                    ),
+                    i18n(context).content_selected(selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : ''),
                   ),
                   const SizedBox(height: 4),
                   if (mq.size.width < landscapeWidth)
@@ -323,11 +303,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                         children: [
                           Expanded(child: trackGrid),
                           if (ref.watch(showLyricsProvider))
-                            LyricsCard(
-                              lyrics: ref.watch(lyricsProvider),
-                              height: mq.size.height / 4,
-                              width: double.maxFinite,
-                            ),
+                            LyricsCard(lyrics: ref.watch(lyricsProvider), height: mq.size.height / 4, width: double.maxFinite),
                         ],
                       ),
                     )
@@ -337,11 +313,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                         children: [
                           Expanded(child: trackGrid),
                           if (ref.watch(showLyricsProvider))
-                            LyricsCard(
-                              lyrics: ref.watch(lyricsProvider),
-                              height: double.maxFinite,
-                              width: mq.size.width / 3,
-                            ),
+                            LyricsCard(lyrics: ref.watch(lyricsProvider), height: double.maxFinite, width: mq.size.width / 3),
                         ],
                       ),
                     ),
@@ -374,7 +346,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
           ),
           itemBuilder: (ctx, idx) {
             return GestureDetector(
-              onTap: () {
+              onTap: () async {
                 if (selItems[idx].classType != ContentClass.track) {
                   if (!searching) {
                     setState(() {
@@ -407,12 +379,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       }
                       ref.read(trackProvider.notifier).setTrack(selItems[idx]);
                       // make current visible list the playlist and set index
-                      ref
+                      await ref
                           .read(playlistProvider.notifier)
                           .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
                       ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                      var player = ref.read(playerProvider);
-                      player.play(UrlSource(selItems[idx].trackUrl!), mode: PlayerMode.mediaPlayer);
                       ref.read(lruListProvider).add(selItems[idx].id);
                       ref.read(playingProvider.notifier).getLyrics();
                     }

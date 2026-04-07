@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,6 @@ import 'package:hid_listener/hid_listener.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
-
 import 'package:window_manager/window_manager.dart';
 
 import 'package:dlna_player/application.dart';
@@ -31,6 +31,21 @@ Timer? saveSettingsTimer;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize AudioService for background playback
+  final handler = DlnaAudioHandler();
+  audioHandler = await AudioService.init(
+    builder: () => handler,
+    config: AudioServiceConfig(
+      androidNotificationChannelId: 'dlna_player_channel',
+      androidNotificationChannelName: 'DLNA Player',
+      androidNotificationOngoing: true,
+      androidShowNotificationBadge: true,
+      androidNotificationIcon: 'mipmap/ic_launcher',
+      androidStopForegroundOnPause: true,
+    ),
+  );
+
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
     await windowManager.ensureInitialized();
     final prefs = await SharedPreferences.getInstance();
@@ -136,12 +151,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
         if (!maximized) {
           final position = await windowManager.getPosition();
           final size = await windowManager.getSize();
-          final ws = WindowSettings(
-            position.dx,
-            position.dy,
-            size.width,
-            size.height,
-          );
+          final ws = WindowSettings(position.dx, position.dy, size.width, size.height);
           final s = jsonEncode(ws.toJson());
           prefs.setString(PrefKeys.windowSettingsPrefsKey, s);
         }
@@ -159,16 +169,13 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
   void listener(KeyEvent event) {
     if (event is KeyUpEvent) {
       // debugPrint('logicalKey ${event.logicalKey}');
-      if (event.logicalKey == LogicalKeyboardKey.mediaFastForward ||
-          event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
+      if (event.logicalKey == LogicalKeyboardKey.mediaFastForward || event.logicalKey == LogicalKeyboardKey.mediaTrackNext) {
         debugPrint('HID next track');
         ref.read(playingProvider.notifier).playNextTrack();
-      } else if (event.logicalKey == LogicalKeyboardKey.mediaRewind ||
-          event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaRewind || event.logicalKey == LogicalKeyboardKey.mediaTrackPrevious) {
         debugPrint('HID prev track');
         ref.read(playingProvider.notifier).playPreviousTrack();
-      } else if (event.logicalKey == LogicalKeyboardKey.mediaPlayPause ||
-          event.logicalKey == LogicalKeyboardKey.mediaPlay) {
+      } else if (event.logicalKey == LogicalKeyboardKey.mediaPlayPause || event.logicalKey == LogicalKeyboardKey.mediaPlay) {
         debugPrint('HID play pause');
         ref.read(playingProvider.notifier).playPauseTrack();
       }
@@ -190,22 +197,20 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
       themes: customThemes,
       child: ThemeConsumer(
         child: Builder(
-          builder: (themeCtx) => MaterialApp(
-            title: appName,
-            theme: ThemeProvider.themeOf(themeCtx).data,
-            localizationsDelegates: [
-              _localeOverrideDelegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: APPLIC().supportedLocales(),
-            home: const StartPage(title: appName),
-            routes: {
-              ServerPage.routeName: (context) => const ServerPage(),
-              ContentPage.routeName: (context) => const ContentPage(),
-            },
-          ),
+          builder:
+              (themeCtx) => MaterialApp(
+                title: appName,
+                theme: ThemeProvider.themeOf(themeCtx).data,
+                localizationsDelegates: [
+                  _localeOverrideDelegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: APPLIC().supportedLocales(),
+                home: const StartPage(title: appName),
+                routes: {ServerPage.routeName: (context) => const ServerPage(), ContentPage.routeName: (context) => const ContentPage()},
+              ),
         ),
       ),
     );
