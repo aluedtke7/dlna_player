@@ -110,7 +110,6 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     /// Let's save a pointer to this method, should the user wants to change its language
     /// We would then call: applic.onLocaleChanged(new Locale('en',''));
     APPLIC().onLocaleChanged = onLocaleChange;
-    loadSavedList();
   }
 
   Future<void> _initializeMPRIS() async {
@@ -158,12 +157,6 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
         debugPrint('saveSettingsTimer');
       });
     }
-  }
-
-  Future<void> loadSavedList() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lruList = prefs.getStringList(PrefKeys.lruListPrefsKey) ?? [];
-    ref.read(lruListProvider).list.addAll(lruList);
   }
 
   void listener(KeyEvent event) {

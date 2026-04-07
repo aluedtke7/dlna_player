@@ -374,7 +374,9 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       ref.read(playingProvider.notifier).playPauseTrack();
                     } else {
                       // play track
-                      if (!ref.read(playlistProvider).contains(selItems[idx])) {
+                      final currentPlaylist = ref.read(playlistProvider);
+                      final isInCurrentPlaylist = currentPlaylist.any((track) => track.id == selItems[idx].id);
+                      if (!isInCurrentPlaylist) {
                         Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
                       }
                       ref.read(trackProvider.notifier).setTrack(selItems[idx]);
@@ -383,7 +385,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                           .read(playlistProvider.notifier)
                           .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
                       ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                      ref.read(lruListProvider).add(selItems[idx].id);
                       ref.read(playingProvider.notifier).getLyrics();
                     }
                   }

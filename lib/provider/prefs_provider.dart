@@ -63,6 +63,4 @@ final showLyricsProvider = NotifierProvider<ShowLyricsNotifier, bool>(() => Show
 // ---------------------------------------------------------------------
 // provider to access Last Server List
 // ---------------------------------------------------------------------
-final lastServerListProvider = Provider(
-      (ref) => _lastServerList,
-);
+final lastServerListProvider = Provider((ref) => _lastServerList);
