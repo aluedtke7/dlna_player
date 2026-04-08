@@ -20,7 +20,7 @@ received lists (tracks, artists, albums, etc.) are searched/filtered on the clie
 
 ## Features
 
-- Dart 3 and Flutter 3.38 compatible
+- Dart 3 and Flutter 3.41 compatible
 - Media keys work on Linux again (Wayland and X11)
 - Github action to build Linux flatpak
 - several themes (Material 3)
@@ -43,6 +43,7 @@ received lists (tracks, artists, albums, etc.) are searched/filtered on the clie
     <img src="./screenshots/macos_lyrics.png" title="Lyrics" width="45%" alt="Lyrics">
     <img src="./screenshots/macos_filtered_albums.png" title="Filtered albums" width="45%" alt="Filtered albums">
     <img src="./screenshots/macos_minimal_player.png" title="Minimal player" width="45%" alt="Minimal player">
+    <img src="./screenshots/macos_notification.png" title="Notification" height="20%" alt="Notification">
 </p>
 
 ### Android
@@ -62,13 +63,15 @@ received lists (tracks, artists, albums, etc.) are searched/filtered on the clie
 <p float="left">
     <img src="./screenshots/android_lyrics.png" title="Lyrics" width="30%" alt="Lyrics">
     <img src="./screenshots/android_filtered_artists.png" title="Filtered artists" width="30%" alt="Filtered artists">
+    <img src="./screenshots/android_notification.png" title="Notification" width="30%" alt="Notification">
 </p>
 
 ## Acknowledgements
 This project would be impossible without the following packages:
 
-[upnp2](https://pub.dev/packages/upnp2) and [audioplayers](https://pub.dev/packages/audioplayers) do the heavy lifting
-of handling the UPNP protocol and playing audio files. The handling of the media keys is done
+[upnp2](https://pub.dev/packages/upnp2), [just_audio](https://pub.dev/packages/just_audio),
+[audio_service](https://pub.dev/packages/audio_service) and [audio_session](https://pub.dev/packages/audio_session)
+do the heavy lifting of handling the UPNP protocol and playing audio files. The handling of the media keys is done
 by [hid_listener](https://github.com/localcc/hid_listener). I'm now using a fork of this package since there wasn't an update in the last 2 years.
 
 ## Tips and tricks
