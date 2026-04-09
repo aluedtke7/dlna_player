@@ -14,8 +14,10 @@ cd ..
 flutter --disable-analytics
 flutter --version
 flutter clean
+rm pubspec.lock
+flutter pub get
 flutter gen-l10n
-flutter build linux --release
+flutter build linux --release -v
 
 cd build/linux/x64/release/bundle || exit 1
 tar -czaf $archiveName ./*
