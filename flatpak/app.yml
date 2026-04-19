@@ -15,17 +15,6 @@ finish-args:
   - --socket=pulseaudio
   - --socket=session-bus
   - --socket=system-bus
-  - --share=ipc
-  - --socket=fallback-x11
-  - --filesystem=xdg-videos
-  - --filesystem=xdg-music
-  - --filesystem=xdg-download
-  - --filesystem=home:ro
-add-extensions:
-  org.freedesktop.Platform.ffmpeg-full:
-    directory: lib/ffmpeg
-    version: "23.08"
-    add-ld-path: .
 modules:
   - name: libass
     buildsystem: autotools
@@ -36,19 +25,6 @@ modules:
       - type: archive
         url: https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.xz
         sha256: f0da0bbfba476c16ae3e1cfd862256d30915911f7abaa1b16ce62ee653192784
-  - name: uchardet
-    buildsystem: cmake-ninja
-    config-opts:
-      - -DCMAKE_BUILD_TYPE=Release
-      - -DBUILD_STATIC=OFF
-    cleanup:
-      - /bin
-      - /include
-      - /lib/pkgconfig
-    sources:
-      - type: archive
-        url: https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz
-        sha256: e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0
   - name: lua
     buildsystem: simple
     cleanup:

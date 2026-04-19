@@ -54,6 +54,7 @@ build*.sh
 flatpak/*.flatpak
 flatpak/*.tar.gz
 flatpak/.flatpak-builder/
+flatpak/build/
 flatpak/build-dir/
 flatpak/repo/
 /lib/src/generated/i18n/*.dart
