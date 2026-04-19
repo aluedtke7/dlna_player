@@ -27,7 +27,6 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.38.8'
           channel: 'stable'
 
       - name: Setup Flatpak
@@ -36,6 +35,7 @@ jobs:
           sudo flatpak install -y flathub org.freedesktop.Platform//23.08
           sudo flatpak install -y flathub org.freedesktop.Sdk//23.08
           sudo flatpak install -y flathub org.freedesktop.appstream-glib
+          sudo flatpak install -y flathub io.mpv.Mpv
 
       - name: Build Flutter app and generate Flatpak
         run: |
