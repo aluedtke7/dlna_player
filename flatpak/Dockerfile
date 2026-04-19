@@ -14,6 +14,7 @@ RUN flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.
 RUN flatpak install -y org.freedesktop.Sdk/x86_64/23.08
 RUN flatpak install -y org.freedesktop.Platform/x86_64/23.08
 RUN flatpak install -y flathub org.freedesktop.appstream-glib
+RUN flatpak install -y flathub io.mpv.Mpv
 
 RUN useradd -m -s /bin/bash builder
 

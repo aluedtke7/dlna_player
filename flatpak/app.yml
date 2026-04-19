@@ -15,6 +15,12 @@ finish-args:
   - --socket=pulseaudio
   - --socket=session-bus
   - --socket=system-bus
+  - --share=ipc
+  - --socket=fallback-x11
+add-extensions:
+  io.mpv.Mpv:
+    directory: lib/mpv
+    version: "1.0"
 modules:
   - name: dlna_player
     buildsystem: simple
