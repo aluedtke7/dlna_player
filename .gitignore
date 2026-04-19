@@ -50,9 +50,10 @@ Todo.md
 build*.sh
 
 # Flatpak
+/.flatpak-builder/
 flatpak/*.flatpak
 flatpak/*.tar.gz
-flatpak/.flatpak-builder
-flatpak/build-dir
-flatpak/repo
+flatpak/.flatpak-builder/
+flatpak/build-dir/
+flatpak/repo/
 /lib/src/generated/i18n/*.dart

@@ -17,11 +17,80 @@ finish-args:
   - --socket=system-bus
   - --share=ipc
   - --socket=fallback-x11
+  - --filesystem=xdg-videos
+  - --filesystem=xdg-music
+  - --filesystem=xdg-download
+  - --filesystem=home:ro
 add-extensions:
-  io.mpv.Mpv:
-    directory: lib/mpv
-    version: "1.0"
+  org.freedesktop.Platform.ffmpeg-full:
+    directory: lib/ffmpeg
+    version: "23.08"
+    add-ld-path: .
 modules:
+  - name: libass
+    buildsystem: autotools
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://github.com/libass/libass/releases/download/0.17.1/libass-0.17.1.tar.xz
+        sha256: f0da0bbfba476c16ae3e1cfd862256d30915911f7abaa1b16ce62ee653192784
+  - name: uchardet
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_BUILD_TYPE=Release
+      - -DBUILD_STATIC=OFF
+    cleanup:
+      - /bin
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://www.freedesktop.org/software/uchardet/releases/uchardet-0.0.8.tar.xz
+        sha256: e97a60cfc00a1c147a674b097bb1422abd9fa78a2d9ce3f3fdcc2e78a34ac5f0
+  - name: lua
+    buildsystem: simple
+    cleanup:
+      - /bin
+      - /include
+      - /share/man
+    build-commands:
+      - make linux CFLAGS="-O2 -fPIC -DLUA_USE_LINUX" SYSLIBS="-Wl,-E -ldl -lreadline -lhistory -lncurses"
+      - make install INSTALL_TOP=${FLATPAK_DEST}
+      - |
+        mkdir -p ${FLATPAK_DEST}/lib/pkgconfig
+        cat > ${FLATPAK_DEST}/lib/pkgconfig/lua.pc <<EOF
+        prefix=${FLATPAK_DEST}
+        libdir=\${prefix}/lib
+        includedir=\${prefix}/include
+
+        Name: Lua
+        Description: An Extensible Extension Language
+        Version: 5.1.5
+        Requires:
+        Libs: -L\${libdir} -llua -lm
+        Cflags: -I\${includedir}
+        EOF
+      - ln -s lua.pc ${FLATPAK_DEST}/lib/pkgconfig/lua5.1.pc
+    sources:
+      - type: archive
+        url: https://www.lua.org/ftp/lua-5.1.5.tar.gz
+        sha256: 2640fc56a795f29d28ef15e13c34a47e223960b0240e8cb0a82d9b0738695333
+  - name: libmpv
+    buildsystem: meson
+    config-opts:
+      - -Dlibmpv=true
+      - -Dcplayer=false
+      - -Dlua=enabled
+      - -Djavascript=disabled
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.36.0.tar.gz
+        sha256: 29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6
   - name: dlna_player
     buildsystem: simple
     only-arches:
