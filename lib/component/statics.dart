@@ -117,41 +117,10 @@ class Statics {
   }
 
   static Future<String?> showSearchDialog(BuildContext context, String title, String initValue) async {
-    final controller = TextEditingController();
-    controller.text = initValue;
-
     return showDialog<String?>(
-        context: context,
-        builder: (ctx) {
-          var textFormField = TextFormField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              labelText: i18n(context).com_search,
-              suffixIcon: IconButton(
-                onPressed: () => controller.clear(),
-                icon: const Icon(Icons.clear),
-              ),
-            ),
-            keyboardType: TextInputType.text,
-            onEditingComplete: () => Navigator.of(ctx).pop(controller.text),
-          );
-
-          return AlertDialog(
-            title: Text(title),
-            content: textFormField,
-            actions: <Widget>[
-              ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(null),
-                child: Text(i18n(context).com_cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(ctx).pop(controller.text),
-                child: Text(i18n(context).com_ok),
-              ),
-            ],
-          );
-        });
+      context: context,
+      builder: (ctx) => _SearchDialog(title: title, initValue: initValue),
+    );
   }
 
   static Future<String?> showGeniusTokenDialog(BuildContext context, String title, String info, String initVal) async {
@@ -244,4 +213,67 @@ class Statics {
 
   static Color shadeColor(Color color, double factor) => Color.fromRGBO(
       shadeValue(color.r.toInt(), factor), shadeValue(color.g.toInt(), factor), shadeValue(color.b.toInt(), factor), 1);
+}
+
+class _SearchDialog extends StatefulWidget {
+  const _SearchDialog({required this.title, required this.initValue});
+
+  final String title;
+  final String initValue;
+
+  @override
+  State<_SearchDialog> createState() => _SearchDialogState();
+}
+
+class _SearchDialogState extends State<_SearchDialog> {
+  late final TextEditingController _controller;
+  late final FocusNode _focusNode;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(text: widget.initValue);
+    _controller.selection = TextSelection(baseOffset: 0, extentOffset: widget.initValue.length);
+    _focusNode = FocusNode();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text(widget.title),
+      content: TextFormField(
+        controller: _controller,
+        focusNode: _focusNode,
+        decoration: InputDecoration(
+          labelText: i18n(context).com_search,
+          suffixIcon: IconButton(
+            onPressed: () => _controller.clear(),
+            icon: const Icon(Icons.clear),
+          ),
+        ),
+        keyboardType: TextInputType.text,
+        onEditingComplete: () => Navigator.of(context).pop(_controller.text),
+      ),
+      actions: <Widget>[
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(null),
+          child: Text(i18n(context).com_cancel),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          child: Text(i18n(context).com_ok),
+        ),
+      ],
+    );
+  }
 }
