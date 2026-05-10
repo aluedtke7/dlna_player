@@ -8,7 +8,7 @@ import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/player_control/animated_volume.dart';
 import 'package:dlna_player/component/player_control/artist_title_fader.dart';
 import 'package:dlna_player/component/player_control/track_cover.dart';
-import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/snackbar.dart';
 import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/provider/player_provider.dart';
@@ -93,7 +93,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
       Future(() {
         ref.read(errorProvider.notifier).setError('');
       });
-      Statics.showErrorSnackbar(context, err);
+      SnackbarHelper.showErrorSnackbar(context, err);
     }
   }
 
@@ -198,7 +198,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 isShuffle = !isShuffle;
                                 ref.read(shuffleModeProvider.notifier).setShuffle(isShuffle);
                                 _savePrefs();
-                                Statics.showInfoSnackbar(context, i18n(context).player_shuffle_mode(isShuffle.toString()));
+                                SnackbarHelper.showInfoSnackbar(context, i18n(context).player_shuffle_mode(isShuffle.toString()));
                               },
                               icon: Icon(Icons.shuffle, size: iconSize, color: !isShuffle ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_shuffle,
@@ -223,7 +223,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                                 isRepeat = !isRepeat;
                                 ref.read(repeatModeProvider.notifier).setRepeat(isRepeat);
                                 _savePrefs();
-                                Statics.showInfoSnackbar(context, i18n(context).player_repeat_mode(isRepeat.toString()));
+                                SnackbarHelper.showInfoSnackbar(context, i18n(context).player_repeat_mode(isRepeat.toString()));
                               },
                               icon: Icon(Icons.repeat, size: iconSize, color: !isRepeat ? Colors.grey : null),
                               tooltip: i18n(context).pw_hint_repeat,

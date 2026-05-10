@@ -2,7 +2,8 @@ import 'package:async/async.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/card/progress_card.dart';
-import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/dialog.dart';
+import 'package:dlna_player/component/snackbar.dart';
 import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/component/card/topic_card.dart';
 import 'package:dlna_player/model/content_arguments.dart';
@@ -64,7 +65,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
             } catch (e) {
               if (mounted) {
                 if (timer == null || !timer!.isActive) {
-                  Statics.showErrorSnackbar(context, e);
+                  SnackbarHelper.showErrorSnackbar(context, e);
                 }
                 timer = RestartableTimer(Duration(seconds: 4), () {});
               }
@@ -161,7 +162,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                             DlnaService.browseAll(cdcs[idx].id).then((value) {
                               final args = ContentArguments('', value);
                               if (context.mounted) {
-                                Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                                Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
                               }
                               setState(() {
                                 loading = false;

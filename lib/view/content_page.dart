@@ -7,7 +7,8 @@ import 'package:dlna_player/component/card/track_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
-import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/dialog.dart';
+import 'package:dlna_player/component/snackbar.dart';
 import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_class.dart';
@@ -172,7 +173,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     }
 
     void openSearchDialog() {
-      Statics.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {
+      DialogHelper.showSearchDialog(context, i18n(context).content_search_for, searchTerm).then((value) {
         if (value != null) {
           setState(() {
             searchTerm = value.toLowerCase();
@@ -271,7 +272,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       OpenLink.openSite(Website.wikipedia, trackRef.artist);
                       break;
                     case 5:
-                      Statics.showGeniusTokenDialog(
+                      DialogHelper.showGeniusTokenDialog(
                         context,
                         i18n(context).dlg_api_token,
                         i18n(context).dlg_api_token_info,
@@ -358,7 +359,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       if (value.isNotEmpty) {
                         final args = ContentArguments(buildTitle(argument.title, typeName), value);
                         if (context.mounted) {
-                          Navigator.of(context).push(Statics.createAnimPageRoute(const ContentPage(), argument: args));
+                          Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
                         }
                       }
                       setState(() {
@@ -377,7 +378,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                       final currentPlaylist = ref.read(playlistProvider);
                       final isInCurrentPlaylist = currentPlaylist.any((track) => track.id == selItems[idx].id);
                       if (!isInCurrentPlaylist) {
-                        Statics.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                        SnackbarHelper.showInfoSnackbar(context, i18n(context).com_new_playlist);
                       }
                       ref.read(trackProvider.notifier).setTrack(selItems[idx]);
                       // make current visible list the playlist and set index

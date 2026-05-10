@@ -10,7 +10,8 @@ import 'package:dlna_player/component/card/device_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/component/keyboard_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
-import 'package:dlna_player/component/statics.dart';
+import 'package:dlna_player/component/dialog.dart';
+import 'package:dlna_player/component/snackbar.dart';
 import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/model/pref_keys.dart';
 import 'package:dlna_player/provider/player_provider.dart';
@@ -80,7 +81,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           print(stack);
         }
         if (mounted) {
-          Statics.showErrorSnackbar(context, e);
+          SnackbarHelper.showErrorSnackbar(context, e);
         }
       }
     }
@@ -97,7 +98,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       onError: (e) {
         debugPrint('Error on discover: $e');
         if (mounted) {
-          Statics.showErrorSnackbar(context, e);
+          SnackbarHelper.showErrorSnackbar(context, e);
         }
       },
     );
@@ -131,7 +132,7 @@ class _StartPageState extends ConsumerState<StartPage> {
           print('ERROR: $e - ${client.location}');
         }
         if (e is! FormatException && mounted) {
-          Statics.showErrorSnackbar(context, e);
+          SnackbarHelper.showErrorSnackbar(context, e);
         }
       }
     }).onDone(() {
@@ -141,7 +142,7 @@ class _StartPageState extends ConsumerState<StartPage> {
       if (devices.isEmpty) {
         var ctx = context;
         if (ctx.mounted) {
-          Statics.showErrorSnackbar(ctx, i18n(ctx).server_not_found);
+          SnackbarHelper.showErrorSnackbar(ctx, i18n(ctx).server_not_found);
         }
       }
     });
@@ -187,7 +188,7 @@ class _StartPageState extends ConsumerState<StartPage> {
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context)
-                              .push(Statics.createAnimPageRoute(const ServerPage(), argument: lastDevices[idx]));
+                              .push(DialogHelper.createAnimPageRoute(const ServerPage(), argument: lastDevices[idx]));
                         },
                         child: DeviceCard(device: lastDevices[idx]),
                       );
@@ -215,7 +216,7 @@ class _StartPageState extends ConsumerState<StartPage> {
                       return GestureDetector(
                         onTap: () {
                           Navigator.of(context)
-                              .push(Statics.createAnimPageRoute(const ServerPage(), argument: devices[idx]));
+                              .push(DialogHelper.createAnimPageRoute(const ServerPage(), argument: devices[idx]));
                         },
                         child: DeviceCard(device: devices[idx]),
                       );
