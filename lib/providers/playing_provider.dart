@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:dlna_player/model/lyrics.dart';
+import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/providers/audio_handler.dart';
 import 'package:dlna_player/providers/error_provider.dart';
@@ -32,6 +33,12 @@ class PlayingNotifier extends Notifier<bool> {
 
     _playingSubscription = handler.playerPlayingStream.listen((playing) {
       state = playing;
+    });
+
+    ref.listen<RawContent>(trackProvider, (prev, next) {
+      if (prev?.id != next.id) {
+        getLyrics();
+      }
     });
 
     ref.onDispose(() {
