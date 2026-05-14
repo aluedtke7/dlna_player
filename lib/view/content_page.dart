@@ -164,10 +164,13 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       if (lastInfoString != infoString) debugPrint(infoString);
       lastInfoString = infoString;
 
-      // Only scroll to index when index has changed and items don't fit on one page
-      if (lastIdx != idx && idx >= visibleRows) {
-        // scrollController.jumpTo(idx * mainAxisExtend);
-        scrollController.animateTo(idx * mainAxisExtend, duration: Duration(milliseconds: 1000), curve: Curves.easeInOut);
+      // Only scroll to index when index has changed
+      if (lastIdx != idx) {
+        if (idx >= visibleRows) {
+          scrollController.animateTo(idx * mainAxisExtend, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+        } else if (scrollController.offset > 0) {
+          scrollController.animateTo(0, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+        }
       }
       lastIdx = idx;
     }

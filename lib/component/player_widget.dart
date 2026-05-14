@@ -209,12 +209,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                               tooltip: i18n(context).pw_hint_previous,
                             ),
                             IconButton(
-                              onPressed:
-                                  playlistRef.length > 1
-                                      ? () {
-                                        ref.read(playingProvider.notifier).playNextTrack();
-                                      }
-                                      : null,
+                              onPressed: playlistRef.length > 1 ? () => ref.read(playingProvider.notifier).playNextTrack() : null,
                               icon: const Icon(Icons.skip_next, size: iconSize),
                               tooltip: i18n(context).pw_hint_next,
                             ),

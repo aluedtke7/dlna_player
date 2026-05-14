@@ -52,14 +52,12 @@ class _StartPageState extends ConsumerState<StartPage> {
       try {
         dc = upnp.DiscoveredClient();
         dc.location = serverUrl;
-        final device = await dc.getDevice();
+        final device = await dc.getDevice().timeout(const Duration(seconds: 3));
         if (device == null) {
           return;
         }
         Uri location = Uri.parse(dc.location!);
-        // debugPrint('Location: ${location.host}');
         final devType = device.deviceType ?? '';
-        // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
           final deviceExists = lastDevices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
@@ -67,12 +65,6 @@ class _StartPageState extends ConsumerState<StartPage> {
             setState(() {
               lastDevices.add(device);
             });
-            // final service = await device.getService(device.services.first.id ?? '');
-            // if (service != null) {
-            //   for (var element in service.actions) {
-            //     debugPrint(element.name);
-            //   }
-            // }
           }
         }
       } catch (e, stack) {
@@ -104,14 +96,12 @@ class _StartPageState extends ConsumerState<StartPage> {
     );
     deviceDiscoverer.quickDiscoverClients(timeout: const Duration(seconds: 15)).listen((client) async {
       try {
-        final device = await client.getDevice();
+        final device = await client.getDevice().timeout(const Duration(seconds: 3));
         if (device == null) {
           return;
         }
         final Uri location = Uri.parse(client.location!);
-        // debugPrint('Location: ${location.host}');
         final devType = device.deviceType ?? '';
-        // debugPrint('Device type: $devType');
         if (devType.toLowerCase().contains('mediaserver')) {
           final deviceExists = devices.any((dev) => dev.urlBase == device.urlBase);
           if (!deviceExists) {
@@ -119,12 +109,6 @@ class _StartPageState extends ConsumerState<StartPage> {
             setState(() {
               devices.add(device);
             });
-            // final service = await device.getService(device.services.first.id ?? '');
-            // if (service != null) {
-            //   for (var element in service.actions) {
-            //     debugPrint(element.name);
-            //   }
-            // }
           }
         }
       } catch (e) {
