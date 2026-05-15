@@ -257,10 +257,29 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   }
 
   Future<void> playIndex(int index) async {
-    if (index >= 0 && index < (queue.value.length)) {
+    if (index < 0 || index >= queue.value.length) return;
+
+    // After the playlist has finished, the player sits in
+    // ProcessingState.completed. seek+play resumes audio but just_audio's
+    // position/duration streams don't reliably restart their periodic
+    // emissions — slider and time stay at 00:00. Re-setting the audio
+    // sources gives a fresh stream state.
+    if (_player.processingState == ProcessingState.completed) {
+      final audioSources = queue.value.map((item) {
+        return AudioSource.uri(
+          Uri.parse(item.extras!['trackUrl'] as String),
+          tag: item,
+        );
+      }).toList();
+      await _player.setAudioSources(
+        audioSources,
+        initialIndex: index,
+        initialPosition: Duration.zero,
+      );
+    } else {
       await _player.seek(Duration.zero, index: index);
-      await _player.play();
     }
+    await _player.play();
   }
 
   @override
