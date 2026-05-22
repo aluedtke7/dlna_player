@@ -3,7 +3,7 @@ description: A DLNA Audio Player made with Flutter.
 
 publish_to: 'none'
 
-version: 1.0.0+33
+version: 1.0.0+34
 
 environment:
   sdk: '^3.7.0'
