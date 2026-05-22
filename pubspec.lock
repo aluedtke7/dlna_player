@@ -113,6 +113,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+  cnativeapi:
+    dependency: transitive
+    description:
+      name: cnativeapi
+      sha256: "2d7f04868e9b9d66407b29633fabec6390709a23a4fcb45ba192959d3d8d7815"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   code_assets:
     dependency: transitive
     description:
@@ -306,7 +314,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3f3847d4e14f114b20385149f6a17f3ab7c2593a"
+      resolved-ref: d691b222b2a8479d0026bede561272a22de881c7
       url: "https://github.com/aluedtke7/hid_listener_fork.git"
     source: git
     version: "2.0.1"
@@ -406,14 +414,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.2"
-  json_annotation:
-    dependency: transitive
-    description:
-      name: json_annotation
-      sha256: "2a743920d81b7910627f68ee2c9ac1fc0bfee32b9fc3403587d7c6791ca12f80"
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.12.0"
   just_audio:
     dependency: "direct main"
     description:
@@ -542,6 +542,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.17.6"
+  nativeapi:
+    dependency: "direct main"
+    description:
+      name: nativeapi
+      sha256: "609b9ab8ee166654dea59bc281bff46042c58f32fbe2c0d9ca5cc47be4f13d54"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.1"
   node_preamble:
     dependency: transitive
     description:
@@ -718,46 +726,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
-  screen_retriever:
-    dependency: transitive
-    description:
-      name: screen_retriever
-      sha256: "570dbc8e4f70bac451e0efc9c9bb19fa2d6799a11e6ef04f946d7886d2e23d0c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  screen_retriever_linux:
-    dependency: transitive
-    description:
-      name: screen_retriever_linux
-      sha256: f7f8120c92ef0784e58491ab664d01efda79a922b025ff286e29aa123ea3dd18
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  screen_retriever_macos:
-    dependency: transitive
-    description:
-      name: screen_retriever_macos
-      sha256: "71f956e65c97315dd661d71f828708bd97b6d358e776f1a30d5aa7d22d78a149"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  screen_retriever_platform_interface:
-    dependency: transitive
-    description:
-      name: screen_retriever_platform_interface
-      sha256: ee197f4581ff0d5608587819af40490748e1e39e648d7680ecf95c05197240c0
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
-  screen_retriever_windows:
-    dependency: transitive
-    description:
-      name: screen_retriever_windows
-      sha256: "449ee257f03ca98a57288ee526a301a430a344a161f9202b4fcc38576716fe13"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1171,14 +1139,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.2.0"
-  window_manager:
-    dependency: "direct main"
-    description:
-      name: window_manager
-      sha256: "7eb6d6c4164ec08e1bf978d6e733f3cebe792e2a23fb07cbca25c2872bfdbdcd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.1"
   xdg_directories:
     dependency: transitive
     description:

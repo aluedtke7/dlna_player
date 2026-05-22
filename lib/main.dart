@@ -3,18 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter/scheduler.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hid_listener/hid_listener.dart';
-import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:theme_provider/theme_provider.dart';
-import 'package:window_manager/window_manager.dart';
-
 import 'package:dlna_player/application.dart';
 import 'package:dlna_player/component/custom_themes.dart';
 import 'package:dlna_player/model/pref_keys.dart';
@@ -23,10 +11,20 @@ import 'package:dlna_player/provider/player_provider.dart';
 import 'package:dlna_player/service/mpris_service.dart';
 import 'package:dlna_player/specific_localization_delegate.dart';
 import 'package:dlna_player/view/content_page.dart';
-import 'package:dlna_player/view/start_page.dart';
 import 'package:dlna_player/view/server_page.dart';
-
+import 'package:dlna_player/view/start_page.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:hid_listener/hid_listener.dart';
+import 'package:intl/intl.dart';
 import 'package:just_audio_media_kit/just_audio_media_kit.dart';
+import 'package:nativeapi/nativeapi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:theme_provider/theme_provider.dart';
 
 const appName = 'DLNA Player';
 Timer? saveSettingsTimer;
@@ -64,25 +62,23 @@ Future<void> _runApp() async {
   );
 
   if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-    await windowManager.ensureInitialized();
     final prefs = await SharedPreferences.getInstance();
     final maximized =
         prefs.getBool(PrefKeys.windowSettingsMaximizedPrefsKey) ?? false;
     final ws = prefs.getString(PrefKeys.windowSettingsPrefsKey) ?? '{}';
-    var windowSettings = WindowSettings.fromJson(jsonDecode(ws));
-    windowManager.waitUntilReadyToShow(null, () async {
-      await windowManager.show();
-      await windowManager.focus();
+    final windowSettings = WindowSettings.fromJson(jsonDecode(ws));
+    final window = WindowManager.instance.getCurrent();
+    if (window != null) {
+      window.show();
+      window.focus();
       if (windowSettings.sizeX > 0 && windowSettings.sizeY > 0) {
-        windowManager.setPosition(
-          Offset(windowSettings.posX, windowSettings.posY),
-        );
-        windowManager.setSize(Size(windowSettings.sizeX, windowSettings.sizeY));
+        window.setPosition(windowSettings.posX, windowSettings.posY);
+        window.setSize(windowSettings.sizeX, windowSettings.sizeY);
       }
       if (maximized) {
-        windowManager.maximize();
+        window.maximize();
       }
-    });
+    }
   }
   runApp(const ProviderScope(child: PlayerApp()));
 }
@@ -94,16 +90,20 @@ class PlayerApp extends ConsumerStatefulWidget {
   ConsumerState<PlayerApp> createState() => _PlayerAppState();
 }
 
-class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
+class _PlayerAppState extends ConsumerState<PlayerApp> {
   late SpecificLocalizationDelegate _localeOverrideDelegate;
   MPRISService? _mprisService;
+  Timer? _windowPollTimer;
+  Offset? _lastWindowPosition;
+  Size? _lastWindowSize;
+  bool? _lastWindowMaximized;
 
   @override
   void initState() {
     super.initState();
     timeDilation = 1.5;
     if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-      windowManager.addListener(this);
+      _startWindowPolling();
 
       // Initialize hid_listener for X11/macOS/Windows (but not Linux)
       if (!Platform.isLinux) {
@@ -154,38 +154,59 @@ class _PlayerAppState extends ConsumerState<PlayerApp> with WindowListener {
     await _mprisService!.initialize('DLNAPlayer');
   }
 
-  @override
-  void dispose() {
-    if (Platform.isMacOS || Platform.isWindows) {
-      windowManager.removeListener(this);
-    }
-    _mprisService?.dispose();
-    super.dispose();
+  void _startWindowPolling() {
+    // nativeapi 0.1.1 has stubbed event dispatch on macOS (WindowMovedEvent /
+    // WindowResizedEvent never fire — the OnWindowEvent calls in the Objective-C
+    // delegate are commented out). The synchronous window properties work fine
+    // on all platforms, so we poll them and debounce the save through
+    // _scheduleSaveWindowSettings().
+    _windowPollTimer = Timer.periodic(const Duration(milliseconds: 750), (_) {
+      final window = WindowManager.instance.getCurrent();
+      if (window == null) return;
+      final pos = window.position;
+      final size = window.size;
+      final maxed = window.isMaximized;
+      final changed = _lastWindowPosition != null &&
+          (pos != _lastWindowPosition ||
+              size != _lastWindowSize ||
+              maxed != _lastWindowMaximized);
+      _lastWindowPosition = pos;
+      _lastWindowSize = size;
+      _lastWindowMaximized = maxed;
+      if (changed) {
+        _scheduleSaveWindowSettings();
+      }
+    });
+  }
+
+  void _scheduleSaveWindowSettings() {
+    saveSettingsTimer?.cancel();
+    saveSettingsTimer = Timer(const Duration(seconds: 5), () async {
+      final window = WindowManager.instance.getCurrent();
+      if (window == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final maximized = window.isMaximized;
+      prefs.setBool(PrefKeys.windowSettingsMaximizedPrefsKey, maximized);
+      if (!maximized) {
+        final position = window.position;
+        final size = window.size;
+        final ws = WindowSettings(
+          position.dx,
+          position.dy,
+          size.width,
+          size.height,
+        );
+        prefs.setString(PrefKeys.windowSettingsPrefsKey, jsonEncode(ws.toJson()));
+      }
+      debugPrint('saveSettingsTimer');
+    });
   }
 
   @override
-  void onWindowEvent(String eventName) {
-    if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-      saveSettingsTimer?.cancel();
-      saveSettingsTimer = Timer(const Duration(seconds: 5), () async {
-        final prefs = await SharedPreferences.getInstance();
-        final maximized = await windowManager.isMaximized();
-        prefs.setBool(PrefKeys.windowSettingsMaximizedPrefsKey, maximized);
-        if (!maximized) {
-          final position = await windowManager.getPosition();
-          final size = await windowManager.getSize();
-          final ws = WindowSettings(
-            position.dx,
-            position.dy,
-            size.width,
-            size.height,
-          );
-          final s = jsonEncode(ws.toJson());
-          prefs.setString(PrefKeys.windowSettingsPrefsKey, s);
-        }
-        debugPrint('saveSettingsTimer');
-      });
-    }
+  void dispose() {
+    _windowPollTimer?.cancel();
+    _mprisService?.dispose();
+    super.dispose();
   }
 
   void listener(KeyEvent event) {
