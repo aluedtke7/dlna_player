@@ -29,7 +29,7 @@ class PlayerWidget extends ConsumerStatefulWidget {
   ConsumerState<PlayerWidget> createState() => _PlayerWidgetState();
 }
 
-class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
+class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerProviderStateMixin {
   var sliderPos = 0.0;
   var sliderIsMoving = false;
   var showArtist = false;
@@ -40,6 +40,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   var showVolume = true;
   late Timer toggleTimer;
   late RestartableTimer volumeHideTimer;
+  late AnimationController playPauseController;
 
   @override
   void initState() {
@@ -52,6 +53,10 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
         setState(() => showVolume = false);
       }
     });
+    playPauseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 240),
+    );
     _loadPrefs();
     eventBus.on<VolumeChangedEvent>().listen((volume) {
       if (mounted) {
@@ -65,6 +70,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
   void dispose() {
     toggleTimer.cancel();
     volumeHideTimer.cancel();
+    playPauseController.dispose();
     super.dispose();
   }
 
@@ -117,10 +123,19 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
         sliderPos = min(1.0, playTimeRef.inMilliseconds.toDouble() / endTimeRef.inMilliseconds.toDouble());
       }
     }
+    // Drive the play/pause AnimatedIcon from the playing state.
+    if (playingRef && playPauseController.status != AnimationStatus.completed) {
+      playPauseController.forward();
+    } else if (!playingRef && playPauseController.status != AnimationStatus.dismissed) {
+      playPauseController.reverse();
+    }
     SchedulerBinding.instance.addPostFrameCallback((_) {
       showError(context, ref.watch(errorProvider));
     });
 
+    final cs = Theme.of(context).colorScheme;
+    final widgetBg = ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor;
+    final gradientEnd = Color.lerp(widgetBg, cs.surface, 0.45) ?? widgetBg;
     return Stack(
       children: [
         AnimatedSize(
@@ -128,7 +143,13 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
           duration: const Duration(milliseconds: 500),
           child: Container(
             padding: Platform.isIOS ? const EdgeInsets.only(bottom: 8) : null,
-            decoration: BoxDecoration(color: ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [widgetBg, gradientEnd],
+              ),
+            ),
             child: Row(
               children: [
                 Flexible(
@@ -158,32 +179,53 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                            onPressed: trackRef.title.isNotEmpty ? () => ref.read(playingProvider.notifier).playPauseTrack() : null,
-                            icon: Icon(playingRef ? Icons.pause : Icons.play_arrow, size: iconSize),
-                            tooltip: i18n(context).pw_hint_play_pause,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: IconButton.filled(
+                              onPressed: trackRef.title.isNotEmpty ? () => ref.read(playingProvider.notifier).playPauseTrack() : null,
+                              icon: AnimatedIcon(
+                                icon: AnimatedIcons.play_pause,
+                                progress: playPauseController,
+                                size: iconSize,
+                                color: cs.onPrimary,
+                              ),
+                              tooltip: i18n(context).pw_hint_play_pause,
+                            ),
                           ),
                           Expanded(
-                            child: Slider(
-                              value: sliderPos,
-                              onChanged: (value) {
-                                setState(() {
-                                  sliderPos = min(1.0, value);
-                                });
-                              },
-                              onChangeStart: (value) {
-                                setState(() {
-                                  sliderIsMoving = true;
-                                });
-                              },
-                              onChangeEnd: (value) {
-                                final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
-                                ref.read(audioHandlerProvider).seek(newCurrent).then((_) {
+                            child: SliderTheme(
+                              data: SliderTheme.of(context).copyWith(
+                                activeTrackColor: cs.primary,
+                                inactiveTrackColor: cs.primary.withValues(alpha: 0.18),
+                                thumbColor: cs.primary,
+                                overlayColor: cs.primary.withValues(alpha: 0.16),
+                                thumbShape: const RoundSliderThumbShape(
+                                  enabledThumbRadius: 8,
+                                  elevation: 2,
+                                  pressedElevation: 8,
+                                ),
+                              ),
+                              child: Slider(
+                                value: sliderPos,
+                                onChanged: (value) {
                                   setState(() {
-                                    sliderIsMoving = false;
+                                    sliderPos = min(1.0, value);
                                   });
-                                });
-                              },
+                                },
+                                onChangeStart: (value) {
+                                  setState(() {
+                                    sliderIsMoving = true;
+                                  });
+                                },
+                                onChangeEnd: (value) {
+                                  final newCurrent = Duration(seconds: (value * endTimeRef.inSeconds).toInt());
+                                  ref.read(audioHandlerProvider).seek(newCurrent).then((_) {
+                                    setState(() {
+                                      sliderIsMoving = false;
+                                    });
+                                  });
+                                },
+                              ),
                             ),
                           ),
                         ],

@@ -160,16 +160,34 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       }
 
       var idx = (playListIndexRef.toDouble() ~/ numberOfColumns);
-      var infoString = 'Width - Grid Width - V. Rows - Columns: ${mq.size.width} - $gridWidth - $visibleRows - $numberOfColumns';
-      if (lastInfoString != infoString) debugPrint(infoString);
-      lastInfoString = infoString;
+      // var infoString = 'Width - Grid Width - V. Rows - Columns: ${mq.size.width} - $gridWidth - $visibleRows - $numberOfColumns';
+      // if (lastInfoString != infoString) debugPrint(infoString);
+      // lastInfoString = infoString;
 
       // Only scroll to index when index has changed
       if (lastIdx != idx) {
-        if (idx >= visibleRows) {
-          scrollController.animateTo(idx * mainAxisExtend, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
-        } else if (scrollController.offset > 0) {
-          scrollController.animateTo(0, duration: const Duration(milliseconds: 1000), curve: Curves.easeInOut);
+        final shouldScrollDown = idx >= visibleRows;
+        final shouldScrollUp = !shouldScrollDown && scrollController.offset > 0;
+        if (shouldScrollDown || shouldScrollUp) {
+          final targetOffset = shouldScrollDown ? idx * mainAxisExtend : 0.0;
+          final currentOffset = scrollController.offset;
+          final distance = (targetOffset - currentOffset).abs();
+          final viewport = scrollController.position.viewportDimension;
+          // For long jumps the GridView's lazy builder can't keep up with
+          // animateTo, leaving an empty area in transit. Snap close to the
+          // target first, then animate the final ~viewport-worth into place.
+          if (distance > viewport * 0.5) {
+            final maxOffset = scrollController.position.maxScrollExtent;
+            final pre = currentOffset < targetOffset
+                ? (targetOffset - viewport * 0.8).clamp(0.0, maxOffset)
+                : (targetOffset + viewport * 0.8).clamp(0.0, maxOffset);
+            scrollController.jumpTo(pre);
+          }
+          scrollController.animateTo(
+            targetOffset,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeOutCubic,
+          );
         }
       }
       lastIdx = idx;
@@ -349,62 +367,75 @@ class _ContentPageState extends ConsumerState<ContentPage> {
             childAspectRatio: 3,
           ),
           itemBuilder: (ctx, idx) {
-            return GestureDetector(
-              onTap: () async {
-                if (selItems[idx].classType != ContentClass.track) {
-                  if (!searching) {
-                    setState(() {
-                      searching = true;
-                      searchIdx = idx;
-                    });
-                    // open another page with content
-                    DlnaService.browseAll(selItems[idx].id).then((value) {
-                      if (value.isNotEmpty) {
-                        final args = ContentArguments(buildTitle(argument.title, typeName), value);
-                        if (context.mounted) {
-                          Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
-                        }
+            final staggerIdx = idx.clamp(0, 14);
+            final totalDur = 360 + staggerIdx * 35;
+            final startRatio = (staggerIdx * 35) / totalDur;
+            Future<void> handleTap() async {
+              if (selItems[idx].classType != ContentClass.track) {
+                if (!searching) {
+                  setState(() {
+                    searching = true;
+                    searchIdx = idx;
+                  });
+                  // open another page with content
+                  DlnaService.browseAll(selItems[idx].id).then((value) {
+                    if (value.isNotEmpty) {
+                      final args = ContentArguments(buildTitle(argument.title, typeName), value);
+                      if (context.mounted) {
+                        Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
                       }
-                      setState(() {
-                        searching = false;
-                        searchIdx = -1;
-                      });
-                    });
-                  }
-                } else {
-                  if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
-                    if (ref.read(trackProvider).id == selItems[idx].id && ref.read(playingProvider)) {
-                      // pause/stop track
-                      ref.read(playingProvider.notifier).playPauseTrack();
-                    } else {
-                      // play track
-                      final currentPlaylist = ref.read(playlistProvider);
-                      final isInCurrentPlaylist = currentPlaylist.any((track) => track.id == selItems[idx].id);
-                      if (!isInCurrentPlaylist) {
-                        SnackbarHelper.showInfoSnackbar(context, i18n(context).com_new_playlist);
-                      }
-                      ref.read(trackProvider.notifier).setTrack(selItems[idx]);
-                      // make current visible list the playlist and set index
-                      await ref
-                          .read(playlistProvider.notifier)
-                          .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
-                      ref.read(playlistIndexProvider.notifier).setIndex(idx);
-                      ref.read(playingProvider.notifier).getLyrics();
                     }
+                    setState(() {
+                      searching = false;
+                      searchIdx = -1;
+                    });
+                  });
+                }
+              } else {
+                if ((selItems[idx].trackUrl ?? '').isNotEmpty) {
+                  if (ref.read(trackProvider).id == selItems[idx].id) {
+                    // current track: toggle play/pause (resume from current position)
+                    ref.read(playingProvider.notifier).playPauseTrack();
+                  } else {
+                    // play track
+                    final currentPlaylist = ref.read(playlistProvider);
+                    final isInCurrentPlaylist = currentPlaylist.any((track) => track.id == selItems[idx].id);
+                    if (!isInCurrentPlaylist) {
+                      SnackbarHelper.showInfoSnackbar(context, i18n(context).com_new_playlist);
+                    }
+                    ref.read(trackProvider.notifier).setTrack(selItems[idx]);
+                    // make current visible list the playlist and set index
+                    await ref
+                        .read(playlistProvider.notifier)
+                        .setPlaylist(selItems.where((element) => element.classType == ContentClass.track).toList());
+                    ref.read(playlistIndexProvider.notifier).setIndex(idx);
+                    ref.read(playingProvider.notifier).getLyrics();
                   }
                 }
-              },
-              child: AnimatedSwitcher(
-                duration: const Duration(milliseconds: 250),
-                transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                child:
-                    searching && searchIdx == idx
-                        ? ProgressCard(title: selItems[idx].title)
-                        : selItems[idx].classType == ContentClass.album
-                        ? AlbumCard(container: selItems[idx], disabled: searching)
-                        : selItems[idx].classType == ContentClass.track
-                        ? TrackCard(track: selItems[idx], disabled: searching)
-                        : ContainerCard(container: selItems[idx], disabled: searching),
+              }
+            }
+            return TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: Duration(milliseconds: totalDur),
+              curve: Interval(startRatio, 1.0, curve: Curves.easeOutCubic),
+              builder: (context, t, child) => Opacity(
+                opacity: t,
+                child: Transform.translate(offset: Offset(0, (1 - t) * 6), child: child),
+              ),
+              child: GestureDetector(
+                onTap: handleTap,
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                  child:
+                      searching && searchIdx == idx
+                          ? ProgressCard(title: selItems[idx].title)
+                          : selItems[idx].classType == ContentClass.album
+                          ? AlbumCard(container: selItems[idx], disabled: searching)
+                          : selItems[idx].classType == ContentClass.track
+                          ? TrackCard(track: selItems[idx], disabled: searching, onTap: handleTap)
+                          : ContainerCard(container: selItems[idx], disabled: searching),
+                ),
               ),
             );
           },

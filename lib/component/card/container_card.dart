@@ -18,10 +18,8 @@ class ContainerCard extends StatelessWidget {
     final Uri albumUri = Uri.parse(container.albumArt ?? '');
 
     return Card(
-      elevation: 5,
-      child: Container(
-        width: double.maxFinite,
-        margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -40,52 +38,51 @@ class ContainerCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 5),
-                    if (container.artist.isNotEmpty)
-                      Text(
-                        container.artist,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: disabled ? Theme.of(context).disabledColor : null,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (container.artist.isNotEmpty)
+                        Text(
+                          container.artist,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: disabled ? Theme.of(context).disabledColor : null,
+                          ),
                         ),
-                      ),
-                    if (container.genre.isNotEmpty)
-                      Text(
-                        i18n(context).card_genre(container.genre),
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: disabled ? Theme.of(context).disabledColor : null,
+                      if (container.genre.isNotEmpty)
+                        Text(
+                          i18n(context).card_genre(container.genre),
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: disabled ? Theme.of(context).disabledColor : null,
+                          ),
                         ),
-                      ),
-                    if (container.numTracks > 0)
-                      Text(
-                        i18n(context).card_tracks(container.numTracks),
-                        style: TextStyle(
-                          color: disabled ? Theme.of(context).disabledColor : null,
+                      if (container.numTracks > 0)
+                        Text(
+                          i18n(context).card_tracks(container.numTracks),
+                          style: TextStyle(
+                            color: disabled ? Theme.of(context).disabledColor : null,
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
                 if (albumUri.hasScheme)
-                  SizedBox(
-                    width: 65,
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
                     child: Image.network(
                       albumUri.toString(),
-                      height: 60,
-                      width: 60,
-                      alignment: Alignment.centerRight,
-                      fit: BoxFit.contain,
+                      height: 54,
+                      width: 54,
+                      fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Image.asset(
                         'assets/images/error_album.png',
-                        height: 60,
-                        width: 60,
-                        alignment: Alignment.centerRight,
-                        fit: BoxFit.contain,
+                        height: 54,
+                        width: 54,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),

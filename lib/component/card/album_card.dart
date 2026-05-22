@@ -17,11 +17,35 @@ class AlbumCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final Uri albumUri = Uri.parse(container.albumArt ?? '');
 
+    Widget buildCover(double size) {
+      Widget image = albumUri.hasScheme
+          ? Image.network(
+              albumUri.toString(),
+              height: size,
+              width: size,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Image.asset(
+                'assets/images/error_album.png',
+                height: size,
+                width: size,
+                fit: BoxFit.cover,
+              ),
+            )
+          : Image.asset(
+              'assets/images/no_album.png',
+              height: size,
+              width: size,
+              fit: BoxFit.cover,
+            );
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(10),
+        child: image,
+      );
+    }
+
     return Card(
-      elevation: 5,
-      child: Container(
-        width: double.maxFinite,
-        margin: const EdgeInsets.all(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -64,31 +88,7 @@ class AlbumCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                SizedBox(
-                  width: 65,
-                  child: albumUri.hasScheme
-                      ? Image.network(
-                          albumUri.toString(),
-                          height: 60,
-                          width: 60,
-                          alignment: Alignment.centerRight,
-                          fit: BoxFit.contain,
-                          errorBuilder: (context, error, stackTrace) => Image.asset(
-                            'assets/images/error_album.png',
-                            height: 60,
-                            width: 60,
-                            alignment: Alignment.centerRight,
-                            fit: BoxFit.contain,
-                          ),
-                        )
-                      : Image.asset(
-                          'assets/images/no_album.png',
-                          height: 60,
-                          width: 60,
-                          alignment: Alignment.centerRight,
-                          fit: BoxFit.contain,
-                        ),
-                ),
+                buildCover(54),
               ],
             ),
           ],
