@@ -13,6 +13,14 @@ flutter clean
 echo "Getting dependencies..."
 flutter pub get
 
+# Patch nativeapi plugin for compatibility with older GLib versions (e.g. Ubuntu 22.04)
+# G_APPLICATION_DEFAULT_FLAGS was introduced in GLib 2.74
+PLUGIN_FILE="linux/flutter/ephemeral/.plugin_symlinks/cnativeapi/cxx_impl/src/platform/linux/application_linux.cpp"
+if [ -f "$PLUGIN_FILE" ]; then
+    echo "Patching $PLUGIN_FILE for GLib compatibility..."
+    sed -i 's/G_APPLICATION_DEFAULT_FLAGS/G_APPLICATION_FLAGS_NONE/g' "$PLUGIN_FILE"
+fi
+
 # Build Linux release
 echo "Building Linux release..."
 flutter build linux --release
