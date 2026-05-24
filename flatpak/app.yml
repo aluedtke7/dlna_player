@@ -67,6 +67,81 @@ modules:
       - type: archive
         url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.36.0.tar.gz
         sha256: 29abc44f8ebee013bb2f9fe14d80b30db19b534c679056e4851ceadf5a5e8bf6
+  - name: intltool
+    sources:
+      - type: archive
+        url: https://launchpad.net/intltool/trunk/0.51.0/+download/intltool-0.51.0.tar.gz
+        sha256: 67c74d94196b153b774ab9f89b2fa6c6ba79352407037c8c14d5aeb334e959cd
+  - name: libdbusmenu
+    config-opts:
+      - --disable-doxygen
+      - --disable-tests
+      - --with-gtk=3
+      - --disable-nls
+      - --disable-dumper
+      - --disable-introspection
+      - --disable-vala
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+      - /share/doc
+      - /share/gtk-doc
+    sources:
+      - type: archive
+        url: https://launchpad.net/libdbusmenu/16.04/16.04.0/+download/libdbusmenu-16.04.0.tar.gz
+        sha256: b9cc4a2acd74509435892823607d966d424bd9ad5d0b00938f27240a1bfa878a
+      - type: shell
+        commands:
+          - sed -i 's/as_fn_error $? "conditional/echo "conditional/g' configure
+          - find . -name "Makefile.in" -exec sed -i 's/\(^\|[[:space:]]\)-Werror\([[:space:]]\|$\)/ /g' {} +
+  - name: libayatana-ido
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DENABLE_WERROR=OFF
+      - -DENABLE_TESTS=OFF
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://github.com/AyatanaIndicators/ayatana-ido/archive/refs/tags/0.9.3.tar.gz
+        sha256: 4df0a21dde4f6e41d2738c7944d1169836d844e5b65364d1897e93766fa93d58
+      - type: shell
+        commands:
+          - sed -i 's/find_package(GObjectIntrospection REQUIRED QUIET)/#/' src/CMakeLists.txt
+          - sed -i 's/if (INTROSPECTION_FOUND)/if (FALSE)/' src/CMakeLists.txt
+  - name: libayatana-indicator
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DENABLE_WERROR=OFF
+      - -DFLAVOUR=GTK3
+      - -DENABLE_TESTS=OFF
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://github.com/AyatanaIndicators/libayatana-indicator/archive/refs/tags/0.9.1.tar.gz
+        sha256: 15a8844265067652c06242736ece682622d73cedcccdf1c171ce27fba70ba689
+  - name: libayatana-appindicator
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DENABLE_WERROR=OFF
+      - -DFLAVOUR=GTK3
+      - -DENABLE_BINDINGS_VALA=OFF
+      - -DENABLE_BINDINGS_MONO=OFF
+      - -DENABLE_TESTS=OFF
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+    sources:
+      - type: archive
+        url: https://github.com/AyatanaIndicators/libayatana-appindicator/archive/refs/tags/0.5.92.tar.gz
+        sha256: adedcf160dae7547971d475b42062cab278d54ec075537e6958ffdbf2d996857
+      - type: shell
+        commands:
+          - sed -i 's/find_package(GObjectIntrospection REQUIRED)/if(FALSE)/' src/CMakeLists.txt
+          - echo "endif()" >> src/CMakeLists.txt
   - name: dlna_player
     buildsystem: simple
     only-arches:
