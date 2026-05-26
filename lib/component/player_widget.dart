@@ -16,6 +16,7 @@ import 'package:dlna_player/provider/prefs_provider.dart';
 import 'package:dlna_player/service/events.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -41,6 +42,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
   late Timer toggleTimer;
   late RestartableTimer volumeHideTimer;
   late AnimationController playPauseController;
+  final focusNode = FocusNode();
 
   @override
   void initState() {
@@ -71,6 +73,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
     toggleTimer.cancel();
     volumeHideTimer.cancel();
     playPauseController.dispose();
+    focusNode.dispose();
     super.dispose();
   }
 
@@ -136,9 +139,39 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
     final cs = Theme.of(context).colorScheme;
     final widgetBg = ThemeProvider.optionsOf<ThemeOptions>(context).playerWidgetBackgroundColor;
     final gradientEnd = Color.lerp(widgetBg, cs.surface, 0.45) ?? widgetBg;
-    return Stack(
-      children: [
-        AnimatedSize(
+    return Focus(
+      focusNode: focusNode,
+      autofocus: true,
+      onKeyEvent: (node, event) {
+        if (event is KeyDownEvent) {
+          if (event.logicalKey == LogicalKeyboardKey.space) {
+            if (trackRef.title.isNotEmpty) {
+              ref.read(playingProvider.notifier).playPauseTrack();
+              return KeyEventResult.handled;
+            }
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+            ref.read(volumeProvider.notifier).increaseVolume();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
+            ref.read(volumeProvider.notifier).decreaseVolume();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
+            ref.read(playingProvider.notifier).skipForward();
+            return KeyEventResult.handled;
+          }
+          if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
+            ref.read(playingProvider.notifier).skipBackward();
+            return KeyEventResult.handled;
+          }
+        }
+        return KeyEventResult.ignored;
+      },
+      child: Stack(
+        children: [
+          AnimatedSize(
           curve: Curves.decelerate,
           duration: const Duration(milliseconds: 500),
           child: Container(
@@ -291,6 +324,6 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
         if (Platform.isWindows || Platform.isLinux || Platform.isMacOS)
           Positioned(left: 120, top: 8, child: AnimatedVolume(show: showVolume, volume: volumeRef)),
       ],
-    );
+    ),);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:async/async.dart';
-import 'package:dlna_player/component/keyboard_scaffold.dart';
+import 'package:dlna_player/component/app_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/card/progress_card.dart';
 import 'package:dlna_player/component/dialog.dart';
@@ -129,11 +129,7 @@ class _ServerPageState extends ConsumerState<ServerPage> {
       });
     }
 
-    return KeyboardScaffold(
-      focusNode: textNode,
-      trackRef: trackRef,
-      playingNotifier: ref.read(playingProvider.notifier),
-      volumeNotifier: ref.read(volumeProvider.notifier),
+    return AppScaffold(
       title: device.friendlyName ?? '',
       child: Container(
         decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,

@@ -8,7 +8,7 @@ import 'package:upnp2/upnp.dart' as upnp;
 
 import 'package:dlna_player/component/card/device_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
-import 'package:dlna_player/component/keyboard_scaffold.dart';
+import 'package:dlna_player/component/app_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/dialog.dart';
 import 'package:dlna_player/component/snackbar.dart';
@@ -143,11 +143,7 @@ class _StartPageState extends ConsumerState<StartPage> {
   Widget build(BuildContext context) {
     final trackRef = ref.watch(trackProvider);
 
-    return KeyboardScaffold(
-      focusNode: textNode,
-      trackRef: trackRef,
-      playingNotifier: ref.read(playingProvider.notifier),
-      volumeNotifier: ref.read(volumeProvider.notifier),
+    return AppScaffold(
       title: widget.title,
       drawer: AppDrawer(discoverFunc: _searchForServer),
       child: Container(

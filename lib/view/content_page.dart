@@ -5,7 +5,7 @@ import 'package:dlna_player/component/card/lyrics_card.dart';
 import 'package:dlna_player/component/card/progress_card.dart';
 import 'package:dlna_player/component/card/track_card.dart';
 import 'package:dlna_player/component/i18n_util.dart';
-import 'package:dlna_player/component/keyboard_scaffold.dart';
+import 'package:dlna_player/component/app_scaffold.dart';
 import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/dialog.dart';
 import 'package:dlna_player/component/snackbar.dart';
@@ -221,16 +221,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
           OpenSearchIntent: CallbackAction<OpenSearchIntent>(onInvoke: (intent) => openSearchDialog()),
           ClearSearchIntent: CallbackAction<ClearSearchIntent>(onInvoke: (intent) => clearSearch()),
         },
-        child: FocusScope(
-          autofocus: true,
-          child: KeyboardScaffold(
-            focusNode: textNode,
-            trackRef: trackRef,
-            playingNotifier: ref.read(playingProvider.notifier),
-            volumeNotifier: ref.read(volumeProvider.notifier),
-            title: buildTitle(argument.title, typeName),
-            textStyle: const TextStyle(overflow: TextOverflow.fade, fontSize: 16),
-            actions: [
+        child: AppScaffold(
+          title: buildTitle(argument.title, typeName),
+          textStyle: const TextStyle(overflow: TextOverflow.fade, fontSize: 16),
+          actions: [
               IconButton(onPressed: openSearchDialog, icon: const Icon(Icons.search), tooltip: i18n(context).com_f3),
               IconButton(
                 onPressed: searchTerm.isEmpty ? null : clearSearch,
@@ -343,7 +337,6 @@ class _ContentPageState extends ConsumerState<ContentPage> {
                 ],
               ),
             ),
-          ),
         ),
       ),
     );
