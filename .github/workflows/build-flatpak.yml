@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install system dependencies
         run: |
@@ -44,7 +44,7 @@ jobs:
           ./build-flutter-app.sh
 
       - name: Upload Flatpak artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dlna-player-flatpak
           path: flatpak/de.luedtke.dlna_player.flatpak
@@ -73,7 +73,7 @@ jobs:
           echo "VERSION=$new_version" >> $GITHUB_ENV
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ env.VERSION }}
           name: Flatpak Build ${{ github.sha }}
