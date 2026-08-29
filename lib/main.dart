@@ -72,8 +72,8 @@ Future<void> _runApp() async {
       window.show();
       window.focus();
       if (windowSettings.sizeX > 0 && windowSettings.sizeY > 0) {
-        window.setPosition(windowSettings.posX, windowSettings.posY);
-        window.setSize(windowSettings.sizeX, windowSettings.sizeY);
+        window.position = Offset(windowSettings.posX, windowSettings.posY);
+        window.setSize(Size(windowSettings.sizeX, windowSettings.sizeY), false);
       }
       if (maximized) {
         window.maximize();
@@ -155,11 +155,9 @@ class _PlayerAppState extends ConsumerState<PlayerApp> {
   }
 
   void _startWindowPolling() {
-    // nativeapi 0.1.1 has stubbed event dispatch on macOS (WindowMovedEvent /
-    // WindowResizedEvent never fire — the OnWindowEvent calls in the Objective-C
-    // delegate are commented out). The synchronous window properties work fine
-    // on all platforms, so we poll them and debounce the save through
-    // _scheduleSaveWindowSettings().
+    // Window move/resize events from nativeapi are unreliable on macOS, while
+    // the synchronous window properties work fine on all platforms, so we poll
+    // them and debounce the save through _scheduleSaveWindowSettings().
     _windowPollTimer = Timer.periodic(const Duration(milliseconds: 750), (_) {
       final window = WindowManager.instance.getCurrent();
       if (window == null) return;
