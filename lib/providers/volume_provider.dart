@@ -13,16 +13,15 @@ class VolumeNotifier extends Notifier<double> {
   @override
   double build() {
     final handler = ref.watch(audioHandlerProvider);
-    if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
-      SharedPreferences.getInstance().then((sp) {
-        final volume = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
-        state = volume;
-        handler.setVolume(volume);
-        debugPrint('VolumeNotifier ${volume.showPercent()}');
-      });
-    } else {
-      state = 1.0;
+    if (!(Platform.isWindows || Platform.isLinux || Platform.isMacOS)) {
+      return 1.0;
     }
+    SharedPreferences.getInstance().then((sp) {
+      final volume = sp.getDouble(PrefKeys.volumePrefsKey) ?? 0.5;
+      state = volume;
+      handler.setVolume(volume);
+      debugPrint('VolumeNotifier ${volume.showPercent()}');
+    });
     return 0.5;
   }
 

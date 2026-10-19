@@ -29,6 +29,8 @@
 		</dict>
 		<key>NSHumanReadableCopyright</key>
 		<string>$(PRODUCT_COPYRIGHT)</string>
+		<key>NSLocalNetworkUsageDescription</key>
+		<string>DLNA Player needs access to the local network to discover and stream from DLNA media servers.</string>
 		<key>NSMainNibFile</key>
 		<string>MainMenu</string>
 		<key>NSPrincipalClass</key>

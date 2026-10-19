@@ -8,38 +8,48 @@ class DlnaService {
   static Action? browseAction;
 
   static Future<XmlDocument> browse(String id, {int maxCount = 0, int startIdx = 0}) async {
-    final Map<String, String> browseMap;
-    if (browseAction != null) {
-      try {
-        browseMap = await browseAction!.invoke({
-                'ObjectID': id,
-                'BrowseFlag': 'BrowseDirectChildren',
-                'Filter': '*',
-                'StartingIndex': startIdx,
-                'RequestedCount': maxCount,
-                'SortCriteria': '',
-              });
-      } catch (e) {
-        throw Exception('Error browsing device: empty result');
-      }
-    } else {
-      browseMap = {};
-    }
+    final browseMap = await _browseRaw(id, maxCount: maxCount, startIdx: startIdx);
     return XmlDocument.parse(browseMap['Result'] ?? '');
+  }
+
+  static Future<Map<String, String>> _browseRaw(String id, {int maxCount = 0, int startIdx = 0}) async {
+    if (browseAction == null) {
+      return {};
+    }
+    try {
+      return await browseAction!.invoke({
+        'ObjectID': id,
+        'BrowseFlag': 'BrowseDirectChildren',
+        'Filter': '*',
+        'StartingIndex': startIdx,
+        'RequestedCount': maxCount,
+        'SortCriteria': '',
+      });
+    } catch (e) {
+      throw Exception('Error browsing device: empty result');
+    }
   }
 
   static Future<List<RawContent>> browseAll(String id) async {
     const chunkSize = 1000;
     var start = 0;
-    XmlDocument browseDoc;
     final List<RawContent> tracks = [];
-    do {
-      browseDoc = await browse(id, maxCount: chunkSize, startIdx: start);
+    while (true) {
+      final browseMap = await _browseRaw(id, maxCount: chunkSize, startIdx: start);
+      final browseDoc = XmlDocument.parse(browseMap['Result'] ?? '');
       tracks.addAll(parseContainer(browseDoc));
       tracks.addAll(parseTracks(browseDoc));
-      start += chunkSize;
-    } while (tracks.length == start);
-    return tracks;
+      // Paging is driven by the server's counts, not by the parsed items,
+      // because unsupported items are filtered out while parsing.
+      final returned = int.tryParse(browseMap['NumberReturned'] ?? '') ?? 0;
+      final total = int.tryParse(browseMap['TotalMatches'] ?? '') ?? 0;
+      start += returned;
+      // TotalMatches may be 0 when the server doesn't know it
+      final hasMore = total > 0 ? start < total : returned == chunkSize;
+      if (returned == 0 || !hasMore) {
+        return tracks;
+      }
+    }
   }
 
   static List<RawContent> parseContainer(XmlDocument doc) {

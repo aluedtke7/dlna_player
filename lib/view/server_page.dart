@@ -32,6 +32,23 @@ class _ServerPageState extends ConsumerState<ServerPage> {
   var index = -1;
   final textNode = FocusNode();
   RestartableTimer? timer;
+  var initialized = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (initialized) return;
+    initialized = true;
+    final device = ModalRoute.of(context)!.settings.arguments as Device;
+    ref.read(lastServerListProvider).add(device.url ?? '');
+    findContentContainer(device.services).then((value) {
+      if (mounted) {
+        setState(() {
+          cdcs = value;
+        });
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -118,17 +135,6 @@ class _ServerPageState extends ConsumerState<ServerPage> {
 
     // debugPrint('Device url: ${device.url}');
 
-    ref.read(lastServerListProvider).add(device.url ?? '');
-    if (cdcs.isEmpty) {
-      findContentContainer(device.services).then((value) {
-        if (mounted) {
-          setState(() {
-            cdcs = value;
-          });
-        }
-      });
-    }
-
     return AppScaffold(
       title: device.friendlyName ?? '',
       child: Container(
@@ -160,10 +166,17 @@ class _ServerPageState extends ConsumerState<ServerPage> {
                               if (context.mounted) {
                                 Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
                               }
-                              setState(() {
-                                loading = false;
-                                index = -1;
-                              });
+                            }).catchError((Object e) {
+                              if (context.mounted) {
+                                SnackbarHelper.showErrorSnackbar(context, e);
+                              }
+                            }).whenComplete(() {
+                              if (mounted) {
+                                setState(() {
+                                  loading = false;
+                                  index = -1;
+                                });
+                              }
                             });
                           }
                         },

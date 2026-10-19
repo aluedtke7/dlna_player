@@ -54,7 +54,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         dc.location = serverUrl;
         final device = await dc.getDevice().timeout(const Duration(seconds: 3));
         if (device == null) {
-          return;
+          continue;
         }
         Uri location = Uri.parse(dc.location!);
         final devType = device.deviceType ?? '';
@@ -80,6 +80,7 @@ class _StartPageState extends ConsumerState<StartPage> {
   }
 
   Future<void> _searchForServer() async {
+    if (searching) return;
     setState(() {
       searching = true;
       devices = [];
@@ -120,6 +121,7 @@ class _StartPageState extends ConsumerState<StartPage> {
         }
       }
     }).onDone(() {
+      if (!mounted) return;
       setState(() {
         searching = false;
       });

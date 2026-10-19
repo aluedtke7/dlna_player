@@ -7,6 +7,9 @@ import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:http/http.dart' as http;
 
 class GeniusHelper {
+  GeniusHelper({http.Client? client}) : _client = client ?? http.Client();
+
+  final http.Client _client;
   var token = '';
   final patternRound = RegExp(r'\(.*\)');
   final patternSquare = RegExp(r'\[.*\]');
@@ -30,9 +33,9 @@ class GeniusHelper {
         .replaceAll(patternSquare, '')
         .replaceAll(patternSlash, '');
 
-    var request = http.Request('GET', Uri.parse('https://api.genius.com/search?q=$searchTerm'));
+    var request = http.Request('GET', Uri.https('api.genius.com', '/search', {'q': searchTerm}));
     request.headers.addAll(headers);
-    http.StreamedResponse response = await request.send();
+    http.StreamedResponse response = await _client.send(request);
     if (response.statusCode == 200) {
       var body = await response.stream.bytesToString();
       var decoded = jsonDecode(body) as Map<String, dynamic>;
@@ -65,7 +68,7 @@ class GeniusHelper {
       if (foundResult == null) {
         return const Lyrics(LyricsState.empty);
       }
-      final String responseBody = (await http.get(Uri.parse(Uri.encodeFull(foundResult?['url'])))).body;
+      final String responseBody = (await _client.get(Uri.parse(Uri.encodeFull(foundResult?['url'])))).body;
       final BeautifulSoup bs = BeautifulSoup(responseBody.replaceAll('<br/>', '\n'));
       var lyrics = bs
           .findAll('div', attrs: {'data-lyrics-container': 'true'})
@@ -74,8 +77,7 @@ class GeniusHelper {
       if (lyrics.isEmpty) {
         return const Lyrics(LyricsState.empty);
       }
-      final firstBreak = lyrics.indexOf('\n');
-      debugPrint('Lyrics: ${lyrics.substring(0, firstBreak)}');
+      debugPrint('Lyrics: ${lyrics.split('\n').first}');
       return Lyrics(LyricsState.success, _cleanHeader(lyrics));
     }
     return const Lyrics(LyricsState.error);

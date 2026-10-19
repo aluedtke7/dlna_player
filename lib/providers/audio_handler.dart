@@ -107,7 +107,8 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
               final updated = item.copyWith(artUri: uri);
               // Update the queue item so UI and notification show the art
               final updatedQueue = List<MediaItem>.from(queue.value);
-              if (index < updatedQueue.length) {
+              // the queue may have been replaced while the art was loading
+              if (index < updatedQueue.length && updatedQueue[index].id == item.id) {
                 updatedQueue[index] = updated;
                 queue.add(updatedQueue);
               }

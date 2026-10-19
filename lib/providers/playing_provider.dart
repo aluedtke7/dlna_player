@@ -74,7 +74,19 @@ class PlayingNotifier extends Notifier<bool> {
     if (ref.read(showLyricsProvider)) {
       ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.loading));
       final track = ref.read(trackProvider);
-      final lyrics = await geniusHelper.searchLyrics(track.artist, track.title);
+      final Lyrics lyrics;
+      try {
+        lyrics = await geniusHelper.searchLyrics(track.artist, track.title);
+      } catch (e) {
+        if (ref.read(trackProvider).id == track.id) {
+          ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.error));
+        }
+        return;
+      }
+      // the track may have changed while the lyrics were loading
+      if (ref.read(trackProvider).id != track.id) {
+        return;
+      }
       if (lyrics.text.isEmpty) {
         ref.read(lyricsProvider.notifier).setLyrics(const Lyrics(LyricsState.empty));
       } else {

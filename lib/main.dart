@@ -72,8 +72,11 @@ Future<void> _runApp() async {
       window.show();
       window.focus();
       if (windowSettings.sizeX > 0 && windowSettings.sizeY > 0) {
-        window.position = Offset(windowSettings.posX, windowSettings.posY);
-        window.setSize(Size(windowSettings.sizeX, windowSettings.sizeY), false);
+        window.position = Point(x: windowSettings.posX, y: windowSettings.posY);
+        window.setSize(
+          Size(width: windowSettings.sizeX, height: windowSettings.sizeY),
+          false,
+        );
       }
       if (maximized) {
         window.maximize();
@@ -94,7 +97,7 @@ class _PlayerAppState extends ConsumerState<PlayerApp> {
   late SpecificLocalizationDelegate _localeOverrideDelegate;
   MPRISService? _mprisService;
   Timer? _windowPollTimer;
-  Offset? _lastWindowPosition;
+  Point? _lastWindowPosition;
   Size? _lastWindowSize;
   bool? _lastWindowMaximized;
 
@@ -189,8 +192,8 @@ class _PlayerAppState extends ConsumerState<PlayerApp> {
         final position = window.position;
         final size = window.size;
         final ws = WindowSettings(
-          position.dx,
-          position.dy,
+          position.x,
+          position.y,
           size.width,
           size.height,
         );

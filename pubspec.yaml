@@ -3,7 +3,7 @@ description: A DLNA Audio Player made with Flutter.
 
 publish_to: 'none'
 
-version: 1.0.0+37
+version: 1.0.0+38
 
 environment:
   sdk: '^3.7.0'
@@ -14,7 +14,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
-  cupertino_icons: ^1.0.2
+  cupertino_icons: ^2.0.0
   xml: ^6.2.2
   upnp2: ^3.0.10
   just_audio: ^0.10.5
@@ -27,7 +27,7 @@ dependencies:
   intl: ^0.20.2
   theme_provider: ^0.6.0
   package_info_plus: ^10.1.0
-  nativeapi: ^0.2.0
+  nativeapi: ^0.5.2
   beautiful_soup_dart: ^0.3.0
   http: ^1.2.0
   path_provider: ^2.1.5
@@ -35,7 +35,7 @@ dependencies:
   hid_listener:
     git:
       url: https://github.com/aluedtke7/hid_listener_fork.git
-  dbus: ^0.7.10
+  dbus: ^0.8.0
   event_bus: ^2.0.1
   fuzzywuzzy: ^1.2.0
   form_validator: ^2.1.1
