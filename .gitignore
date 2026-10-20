@@ -49,6 +49,7 @@ app.*.map.json
 /doc/
 Todo.md
 build*.sh
+install*.sh
 
 # Flatpak
 /.flatpak-builder/

@@ -7,6 +7,17 @@ import 'package:dlna_player/component/tile_style.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 
+/// Formats a DLNA duration ("0:12:34.000" or Jellyfin's "00:12:34.000")
+/// as "12:34", keeping the hours only when they are non-zero.
+String formatTrackDuration(String raw) {
+  if (raw.isEmpty) return '';
+  final parts = raw.split('.').first.split(':');
+  if (parts.length == 3 && int.tryParse(parts.first) == 0) {
+    parts.removeAt(0);
+  }
+  return parts.join(':');
+}
+
 class TrackCard extends ConsumerWidget {
   const TrackCard({super.key, required this.track, required this.disabled, this.onTap});
 
@@ -23,16 +34,7 @@ class TrackCard extends ConsumerWidget {
     final textTheme = Theme.of(context).textTheme;
 
     final Uri albumUri = Uri.parse(track.albumArt ?? '');
-    var duration = '';
-    if (track.duration.isNotEmpty) {
-      duration = track.duration.replaceFirst(RegExp('0:'), '');
-      duration = duration.replaceFirst(RegExp(r'\.(\d+)'), '');
-      // Jellyfin omits the first colon...
-      final doubleZero = duration.contains(RegExp(r'00\d:'));
-      if (doubleZero) {
-        duration = duration.substring(1);
-      }
-    }
+    final duration = formatTrackDuration(track.duration);
 
     return Opacity(
       opacity: disabled ? 0.5 : 1,
