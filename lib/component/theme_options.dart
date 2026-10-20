@@ -9,7 +9,6 @@ class ThemeOptions implements AppThemeOptions {
   final ColorGetter slideBtnBackgroundColor;
   final double cardTextScaleFactor;
   final FontWeight cardTextFontWeight;
-  final BoxDecoration pageDecoration;
   final ThemedBoxDecoration drawerDecoration;
   final ThemedBoxDecoration drawerHeaderDecoration;
 
@@ -18,7 +17,6 @@ class ThemeOptions implements AppThemeOptions {
     this.slideBtnBackgroundColor,
     this.cardTextScaleFactor,
     this.cardTextFontWeight,
-    this.pageDecoration,
     this.drawerDecoration,
     this.drawerHeaderDecoration,
   );

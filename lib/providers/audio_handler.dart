@@ -16,6 +16,14 @@ final audioHandlerProvider = Provider<DlnaAudioHandler>((ref) => audioHandler);
 
 class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
   final AudioPlayer _player = AudioPlayer();
+
+  /// Index requested while a new source list is loading. Until the player
+  /// reports it, other indices (e.g. the platform's initial 0 after app start)
+  /// are stale and must not change the current track.
+  int? _loadingIndex;
+
+  Stream<int?> get _currentIndexStream =>
+      _player.currentIndexStream.where((index) => _loadingIndex == null || index == _loadingIndex);
   List<RawContent> _currentPlaylist = [];
 
   DlnaAudioHandler() {
@@ -66,6 +74,7 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
       try {
         final idx = _player.currentIndex;
         if (idx == null || idx < 0 || idx >= queue.value.length) return;
+        if (_loadingIndex != null && idx != _loadingIndex) return;
         playbackState.add(
           playbackState.value.copyWith(
             controls: _getControls(),
@@ -88,7 +97,7 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     });
 
     // Update mediaItem when current index changes, and load album art on demand
-    _player.currentIndexStream.listen((index) {
+    _currentIndexStream.listen((index) {
       if (index != null &&
           index >= 0 &&
           queue.value.isNotEmpty &&
@@ -213,8 +222,8 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
     return null;
   }
 
-  // Set playlist (list of tracks)
-  Future<void> setPlaylist(List<RawContent> tracks) async {
+  // Set playlist (list of tracks), starting at [initialIndex]
+  Future<void> setPlaylist(List<RawContent> tracks, {int initialIndex = 0}) async {
     _currentPlaylist = List.from(tracks);
     // Build MediaItems quickly (no blocking album art download)
     final List<MediaItem> mediaItems =
@@ -246,11 +255,20 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
           );
         }).toList();
 
-    await _player.setAudioSources(
-      audioSources,
-      initialIndex: 0,
-      initialPosition: Duration.zero,
-    );
+    await _setAudioSources(audioSources, initialIndex);
+  }
+
+  Future<void> _setAudioSources(List<AudioSource> audioSources, int initialIndex) async {
+    _loadingIndex = initialIndex;
+    try {
+      await _player.setAudioSources(
+        audioSources,
+        initialIndex: initialIndex,
+        initialPosition: Duration.zero,
+      );
+    } finally {
+      _loadingIndex = null;
+    }
   }
 
   void setShuffle(bool shuffle) {
@@ -272,11 +290,7 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
           tag: item,
         );
       }).toList();
-      await _player.setAudioSources(
-        audioSources,
-        initialIndex: index,
-        initialPosition: Duration.zero,
-      );
+      await _setAudioSources(audioSources, index);
     } else {
       await _player.seek(Duration.zero, index: index);
     }
@@ -343,7 +357,7 @@ class DlnaAudioHandler extends BaseAudioHandler with QueueHandler, SeekHandler {
 
   Stream<Duration?> get durationStream => _player.durationStream;
 
-  Stream<int?> get currentIndexStream => _player.currentIndexStream;
+  Stream<int?> get currentIndexStream => _currentIndexStream;
 
   Stream<bool> get playerPlayingStream => _player.playingStream;
 }

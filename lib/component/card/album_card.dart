@@ -3,96 +3,78 @@ import 'package:flutter/material.dart';
 import 'package:dlna_player/component/i18n_util.dart';
 import 'package:dlna_player/model/raw_content.dart';
 
+/// Cover first album tile: square cover with title, artist and track count below.
 class AlbumCard extends StatelessWidget {
-  const AlbumCard({
-    super.key,
-    required this.container,
-    required this.disabled,
-  });
+  const AlbumCard({super.key, required this.container, required this.disabled, this.isPlaying = false});
 
   final RawContent container;
   final bool disabled;
 
+  /// True when the current track belongs to this album.
+  final bool isPlaying;
+
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
     final Uri albumUri = Uri.parse(container.albumArt ?? '');
 
-    Widget buildCover(double size) {
-      Widget image = albumUri.hasScheme
-          ? Image.network(
+    final Widget image =
+        albumUri.hasScheme
+            ? Image.network(
               albumUri.toString(),
-              height: size,
-              width: size,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Image.asset(
-                'assets/images/error_album.png',
-                height: size,
-                width: size,
-                fit: BoxFit.cover,
-              ),
+              errorBuilder: (context, error, stackTrace) => Image.asset('assets/images/error_album.png', fit: BoxFit.cover),
             )
-          : Image.asset(
-              'assets/images/no_album.png',
-              height: size,
-              width: size,
-              fit: BoxFit.cover,
-            );
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(10),
-        child: image,
-      );
-    }
+            : Image.asset('assets/images/no_album.png', fit: BoxFit.cover);
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (container.title.isNotEmpty)
-              Text(
-                container.title,
-                textScaler: const TextScaler.linear(1.1),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: disabled ? Theme.of(context).disabledColor : null,
-                ),
+    return Opacity(
+      opacity: disabled ? 0.5 : 1,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                border: isPlaying ? Border.all(color: cs.primary, width: 3) : null,
               ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (container.artist.isNotEmpty)
-                        Text(
-                          container.artist,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: disabled ? Theme.of(context).disabledColor : null,
-                          ),
-                        ),
-                      if (container.numTracks > 0)
-                        Text(
-                          i18n(context).card_tracks(container.numTracks),
-                          style: TextStyle(
-                            color: disabled ? Theme.of(context).disabledColor : null,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                buildCover(54),
-              ],
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(borderRadius: BorderRadius.circular(isPlaying ? 11 : 14), child: image),
+                  if (isPlaying)
+                    Positioned(
+                      right: 8,
+                      bottom: 8,
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: cs.primary,
+                        child: Icon(Icons.equalizer, size: 18, color: cs.onPrimary),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            container.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700),
+          ),
+          if (container.artist.isNotEmpty)
+            Text(
+              container.artist,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: textTheme.bodyMedium!.copyWith(color: cs.onSurfaceVariant),
+            ),
+          if (container.numTracks > 0)
+            Text(i18n(context).card_tracks(container.numTracks), style: textTheme.bodySmall!.copyWith(color: cs.onSurfaceVariant)),
+        ],
       ),
     );
   }

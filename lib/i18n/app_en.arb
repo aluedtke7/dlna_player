@@ -17,9 +17,8 @@
   "com_search": "Search term",
   "com_new_playlist": "Displayed tracks will be used as playlist",
   "com_drawer_version": "Version {v}",
-  "com_f3": "Ctrl + F\nSearch in list",
+  "com_f3": "Ctrl + F\nFilter the list",
   "com_ctrl_x": "Ctrl + X\nClear search term",
-
   "card_genre": "Genre: {val}",
   "@card_genre": {
     "placeholders": {
@@ -28,19 +27,11 @@
       }
     }
   },
-  "card_tracks": "Tracks: {num}",
+  "card_tracks": "{num} tracks",
   "@card_tracks": {
     "placeholders": {
       "num": {
         "type": "int"
-      }
-    }
-  },
-  "card_duration": "Duration: {duration}",
-  "@card_duration": {
-    "placeholders": {
-      "duration": {
-        "type": "String"
       }
     }
   },
@@ -52,8 +43,7 @@
       }
     }
   },
-
-  "content_search_for": "Search for",
+  "content_search_for": "Filter by",
   "content_selected": "Selected {sel} of {total} {additional}",
   "@content_selected": {
     "placeholders": {
@@ -68,26 +58,8 @@
       }
     }
   },
-
   "server_search": "Searching for DLNA server...",
   "server_not_found": "No DLNA server found. Make sure the UPNP protocol is enabled in your network. Does Multicast work?",
-  "server_found": "Server found: {num}",
-  "@server_found": {
-    "placeholders": {
-      "num": {
-        "type": "int"
-      }
-    }
-  },
-  "server_visited": "Server visited: {num}",
-  "@server_visited": {
-    "placeholders": {
-      "num": {
-        "type": "int"
-      }
-    }
-  },
-
   "content_class": "{cl, select, other{---} album{Album} albums{Albums} genre{Genre} artist{Artist} artists{Artists} track{Track} folder{Folder} playlist{Playlist}}",
   "@content_class": {
     "placeholders": {
@@ -124,7 +96,28 @@
   "pw_hint_next": "Skip to next track",
   "pw_hint_repeat": "Set repeat mode",
   "pw_hint_lyrics": "Show / hide lyrics (genius.com)",
+  "pw_shuffle": "Shuffle",
+  "pw_repeat": "Repeat",
+  "pw_lyrics": "Lyrics",
   "dlg_api_token": "Genius API token",
   "dlg_api_token_info": "Please enter your private Genius API token",
-  "dlg_api_token_label": "API token"
+  "dlg_api_token_label": "API token",
+  "start_recent": "Recently used",
+  "start_found": "Found in network",
+  "start_search_again": "Search again",
+  "content_search": "Search",
+  "card_entries": "{num} entries",
+  "@card_entries": {
+    "placeholders": {
+      "num": {
+        "type": "int"
+      }
+    }
+  },
+  "content_filter": "Filter",
+  "com_ctrl_g": "Ctrl + G\nSearch in list",
+  "content_find_none": "No matches",
+  "content_find_next": "Next match (↓)",
+  "content_find_previous": "Previous match (↑)",
+  "content_find_close": "Close search (Esc)"
 }

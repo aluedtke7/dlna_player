@@ -18,10 +18,6 @@ class Statics {
 
   static Future<void> showInfoSnackbar(BuildContext ctx, dynamic e) => SnackbarHelper.showInfoSnackbar(ctx, e);
 
-  static BoxDecoration getSimplePageDecoration() => DecorationBuilder.getSimplePageDecoration();
-
-  static BoxDecoration getGradientPageDecoration() => DecorationBuilder.getGradientPageDecoration();
-
   static Color getSlideBtnBackgroundLight(BuildContext ctx) => Theme.of(ctx).colorScheme.primary.withAlpha(200);
 
   static Color getSlideBtnBackgroundDark(BuildContext ctx) => Theme.of(ctx).colorScheme.secondary.withAlpha(200);

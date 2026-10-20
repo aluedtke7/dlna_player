@@ -18,28 +18,19 @@
   "com_search": "Suchbegriff",
   "com_new_playlist": "Angezeigte Titel werden als Playlist verwendet",
   "com_drawer_version": "Version {v}",
-  "com_f3": "Strg + F\nSuchen in der angezeigten Liste",
+  "com_f3": "Strg + F\nFiltert die angezeigte Liste",
   "com_ctrl_x": "Strg + X\nLöscht den Suchbegriff",
-
   "card_genre": "Genre: {val}",
-  "card_tracks": "Titel: {num}",
-  "card_duration": "Dauer: {duration}",
+  "card_tracks": "{num} Titel",
   "card_tracknum": "Titel: {num} ",
-
-  "content_search_for": "Suchen nach",
+  "content_search_for": "Filtern nach",
   "content_selected": "{sel} von {total} ausgewählt {additional}",
-
   "server_search": "Suche nach DLNA Server...",
   "server_not_found": "Es wurden keine DLNA Server gefunden. Stellen Sie sicher, dass das UPNP Protokoll aktiviert ist und das Multicast funktioniert.",
-  "server_found": "Gefundene Server: {num}",
-  "server_visited": "Besuchte Server: {num}",
-
   "content_class": "{cl, select, other{---} album{Album} albums{Alben} genre{Genre} artist{Interpret} artists{Interpreten} track{Titel} folder{Ordner} playlist{Playlist}}",
-
   "player_shuffle_mode": "Zufallsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
   "player_repeat_mode": "Wiederholungsmodus {bool, select, other{} false{aus} true{ein}}geschaltet",
   "player_volume": "Volume {str}",
-
   "lyrics_state": "{ls, select, other{---} unknown{} loading{Lade den Liedtext...} notFound{Lied nicht gefunden} empty{Kein Liedtext vorhanden} error{Fehler beim Laden des Liedtextes} success{}}",
   "pw_hint_shuffle": "Setzt den Shuffle Modus",
   "pw_hint_play_pause": "Play / Pause Lied",
@@ -47,7 +38,21 @@
   "pw_hint_next": "Springt zum nächsten Lied",
   "pw_hint_repeat": "Setzt den Wiederholungsmodus",
   "pw_hint_lyrics": "Zeigt / versteckt Liedtext (genius.com)",
+  "pw_shuffle": "Zufall",
+  "pw_repeat": "Wiederholen",
+  "pw_lyrics": "Songtext",
   "dlg_api_token": "Genius API token",
   "dlg_api_token_info": "Bitte geben Sie Ihren privaten Genius API token ein",
-  "dlg_api_token_label": "API token"
+  "dlg_api_token_label": "API token",
+  "start_recent": "Zuletzt verwendet",
+  "start_found": "Im Netzwerk gefunden",
+  "start_search_again": "Erneut suchen",
+  "content_search": "Suchen",
+  "card_entries": "{num} Einträge",
+  "content_filter": "Filtern",
+  "com_ctrl_g": "Strg + G\nSucht in der angezeigten Liste",
+  "content_find_none": "Keine Treffer",
+  "content_find_next": "Nächster Treffer (↓)",
+  "content_find_previous": "Vorheriger Treffer (↑)",
+  "content_find_close": "Suche schließen (Esc)"
 }

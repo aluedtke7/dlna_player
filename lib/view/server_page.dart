@@ -4,7 +4,6 @@ import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/component/card/progress_card.dart';
 import 'package:dlna_player/component/dialog.dart';
 import 'package:dlna_player/component/snackbar.dart';
-import 'package:dlna_player/component/theme_options.dart';
 import 'package:dlna_player/component/card/topic_card.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_container.dart';
@@ -14,7 +13,6 @@ import 'package:dlna_player/service/dlna_service.dart';
 import 'package:dlna_player/view/content_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:theme_provider/theme_provider.dart';
 import 'package:upnp2/upnp.dart';
 
 class ServerPage extends ConsumerStatefulWidget {
@@ -135,69 +133,67 @@ class _ServerPageState extends ConsumerState<ServerPage> {
 
     // debugPrint('Device url: ${device.url}');
 
+    final wide = MediaQuery.sizeOf(context).width >= 600;
+
+    void openTopic(int idx) {
+      if (loading) return;
+      setState(() {
+        loading = true;
+        index = idx;
+      });
+      DlnaService.browseAll(cdcs[idx].id)
+          .then((value) {
+            final args = ContentArguments('', value);
+            if (context.mounted) {
+              Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
+            }
+          })
+          .catchError((Object e) {
+            if (context.mounted) {
+              SnackbarHelper.showErrorSnackbar(context, e);
+            }
+          })
+          .whenComplete(() {
+            if (mounted) {
+              setState(() {
+                loading = false;
+                index = -1;
+              });
+            }
+          });
+    }
+
     return AppScaffold(
       title: device.friendlyName ?? '',
-      child: Container(
-        decoration: ThemeProvider.optionsOf<ThemeOptions>(context).pageDecoration,
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 350,
-                    mainAxisExtent: 120,
-                    childAspectRatio: 3,
-                  ),
-                  itemBuilder: (context, idx) {
-                    return Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          // debugPrint('Server_page: Loading... $idx');
-                          if (!loading) {
-                            setState(() {
-                              loading = true;
-                              index = idx;
-                            });
-                            DlnaService.browseAll(cdcs[idx].id).then((value) {
-                              final args = ContentArguments('', value);
-                              if (context.mounted) {
-                                Navigator.of(context).push(DialogHelper.createAnimPageRoute(const ContentPage(), argument: args));
-                              }
-                            }).catchError((Object e) {
-                              if (context.mounted) {
-                                SnackbarHelper.showErrorSnackbar(context, e);
-                              }
-                            }).whenComplete(() {
-                              if (mounted) {
-                                setState(() {
-                                  loading = false;
-                                  index = -1;
-                                });
-                              }
-                            });
-                          }
-                        },
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 250),
-                          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
-                          child:
-                              loading && index == idx
-                                  ? ProgressCard(title: cdcs[idx].title)
-                                  : SizedBox(width: 300, child: TopicCard(topic: cdcs[idx])),
-                        ),
-                      ),
-                    );
-                  },
-                  itemCount: cdcs.length,
-                ),
+      subtitle: Uri.parse(device.urlBase ?? '').origin,
+      child: Column(
+        children: [
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.symmetric(horizontal: wide ? 40 : 16, vertical: wide ? 24 : 12),
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 260,
+                mainAxisExtent: wide ? 148 : 128,
+                crossAxisSpacing: wide ? 16 : 12,
+                mainAxisSpacing: wide ? 16 : 12,
               ),
+              itemBuilder: (context, idx) {
+                return AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 250),
+                  transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                  // Fill the grid cell so all tiles get the same size.
+                  layoutBuilder: (current, previous) => Stack(fit: StackFit.expand, children: [...previous, if (current != null) current]),
+                  child:
+                      loading && index == idx
+                          ? ProgressCard(title: cdcs[idx].title)
+                          : TopicCard(topic: cdcs[idx], onTap: () => openTopic(idx)),
+                );
+              },
+              itemCount: cdcs.length,
             ),
-            if (trackRef.title.isNotEmpty) PlayerWidget(trackRef.title),
-          ],
-        ),
+          ),
+          if (trackRef.title.isNotEmpty) PlayerWidget(trackRef.title),
+        ],
       ),
     );
   }

@@ -2,26 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 class DecorationBuilder {
-  static BoxDecoration getSimplePageDecoration() {
-    return BoxDecoration(
-      color: const Color.fromARGB(255, 200, 200, 200).withValues(alpha: 0.9),
-    );
-  }
-
-  static BoxDecoration getGradientPageDecoration() {
-    return BoxDecoration(
-      gradient: LinearGradient(
-        colors: [
-          const Color.fromARGB(255, 230, 230, 230).withValues(alpha: 0.5),
-          const Color.fromARGB(255, 152, 152, 152).withValues(alpha: 0.9),
-        ],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-        stops: const [0, 1],
-      ),
-    );
-  }
-
   static BoxDecoration getGradientDrawerDecoration(BuildContext ctx) {
     return BoxDecoration(
       gradient: LinearGradient(

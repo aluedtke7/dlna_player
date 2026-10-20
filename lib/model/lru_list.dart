@@ -14,10 +14,9 @@ class LRUList<T> {
       // saving empty Strings make no sense
       return;
     }
-    if (list.contains(item)) {
-      // we always remove an existing item, this enables a skip back (prev) in shuffle mode
-      list.remove(item);
-    }
+    // we always remove an existing item (and duplicates of older versions),
+    // this enables a skip back (prev) in shuffle mode
+    list.removeWhere((element) => element == item);
     list.add(item);
     // ensure that list doesn't grow over the limit
     if (list.length > maxLength) {
@@ -39,6 +38,13 @@ class LRUList<T> {
 
   void clear() {
     list.clear();
+  }
+
+  /// Replaces the content with [items], each item only once.
+  void setAll(Iterable<T> items) {
+    list
+      ..clear()
+      ..addAll(items.toSet());
   }
 
   void removeList(List<T> rem) {

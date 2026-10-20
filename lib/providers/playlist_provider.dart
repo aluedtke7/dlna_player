@@ -41,7 +41,9 @@ class PlaylistNotifier extends Notifier<List<RawContent>> {
     return state;
   }
 
-  Future<void> setPlaylist(List<RawContent> newPlaylist) async {
+  /// Sets the playlist; the player starts at [initialIndex] so it doesn't
+  /// briefly load and show the first track when another one was chosen.
+  Future<void> setPlaylist(List<RawContent> newPlaylist, {int initialIndex = 0}) async {
     state = newPlaylist;
     final handler = ref.read(audioHandlerProvider);
     final currentQueue = handler.queue.value;
@@ -60,7 +62,7 @@ class PlaylistNotifier extends Notifier<List<RawContent>> {
         return;
       }
     }
-    await handler.setPlaylist(newPlaylist);
+    await handler.setPlaylist(newPlaylist, initialIndex: initialIndex);
   }
 }
 

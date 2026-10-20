@@ -3,17 +3,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:dlna_player/component/i18n_util.dart';
+import 'package:dlna_player/component/tile_style.dart';
 import 'package:dlna_player/model/raw_content.dart';
 import 'package:dlna_player/provider/player_provider.dart';
 
 class TrackCard extends ConsumerWidget {
-  const TrackCard({
-    super.key,
-    required this.track,
-    required this.disabled,
-    this.onTap,
-  });
+  const TrackCard({super.key, required this.track, required this.disabled, this.onTap});
 
   final RawContent track;
   final bool disabled;
@@ -25,6 +20,7 @@ class TrackCard extends ConsumerWidget {
     final isTrackActive = ref.watch(trackProvider).id == track.id;
     final isPlayingThis = isTrackActive && playing;
     final cs = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
 
     final Uri albumUri = Uri.parse(track.albumArt ?? '');
     var duration = '';
@@ -37,70 +33,51 @@ class TrackCard extends ConsumerWidget {
         duration = duration.substring(1);
       }
     }
-    final trDuration = duration.isNotEmpty ? i18n(context).card_duration(duration) : '';
 
-    return Card(
-      child: InkWell(
-        onTap: disabled ? null : onTap,
-        child: Container(
-          width: double.maxFinite,
-          decoration: isTrackActive
-              ? BoxDecoration(
-                  color: cs.primaryContainer.withValues(alpha: 0.45),
-                  border: Border(left: BorderSide(color: cs.primary, width: 3)),
-                )
-              : null,
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                track.title,
-                textScaler: const TextScaler.linear(1.1),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: disabled ? Theme.of(context).disabledColor : null,
-                ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  Flexible(
-                    fit: FlexFit.tight,
-                    flex: 5,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (track.artist.isNotEmpty)
-                          Text(
-                            track.artist,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: disabled ? Theme.of(context).disabledColor : null,
-                            ),
-                          ),
-                        if (track.duration.isNotEmpty)
-                          Text(
-                            trDuration,
-                            style: TextStyle(
-                              color: disabled ? Theme.of(context).disabledColor : null,
-                            ),
-                          ),
-                      ],
-                    ),
+    return Opacity(
+      opacity: disabled ? 0.5 : 1,
+      child: Material(
+        color: isTrackActive ? TileStyle.accentSoft(cs) : Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: disabled ? null : onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 14, 10),
+            child: Row(
+              children: [
+                _TrackCover(albumUri: albumUri, showEqualizer: isPlayingThis, cs: cs),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        track.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.titleSmall!.copyWith(fontWeight: FontWeight.w700, color: isTrackActive ? cs.primary : null),
+                      ),
+                      if (track.artist.isNotEmpty)
+                        Text(
+                          track.artist,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: textTheme.bodySmall!.copyWith(color: cs.onSurfaceVariant),
+                        ),
+                    ],
                   ),
-                  _TrackCover(
-                    albumUri: albumUri,
-                    showEqualizer: isPlayingThis,
-                    cs: cs,
+                ),
+                if (duration.isNotEmpty) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    duration,
+                    style: textTheme.bodySmall!.copyWith(color: cs.onSurfaceVariant, fontFeatures: const [FontFeature.tabularFigures()]),
                   ),
                 ],
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -121,7 +98,7 @@ class _TrackCover extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const size = 50.0;
+    const size = 48.0;
     Widget cover;
     if (albumUri.hasScheme) {
       cover = Image.network(
@@ -146,7 +123,7 @@ class _TrackCover extends StatelessWidget {
       );
     }
     return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(10),
       child: SizedBox(
         width: size,
         height: size,
