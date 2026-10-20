@@ -266,7 +266,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: d691b222b2a8479d0026bede561272a22de881c7
+      resolved-ref: "728b9af0cb95fdff4734142683fa91a7a7a60998"
       url: "https://github.com/aluedtke7/hid_listener_fork.git"
     source: git
     version: "2.0.1"

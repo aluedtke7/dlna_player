@@ -72,6 +72,10 @@ class _ContentPageState extends ConsumerState<ContentPage> {
   /// The search term the hits are computed from, set [findDebounce] after typing stops.
   var findTerm = '';
   final findFocus = FocusNode();
+
+  /// Gets the focus back when the find bar closes, so the page shortcuts keep working.
+  final pageFocus = FocusNode();
+  FocusNode? focusBeforeFind;
   var isAlbumGrid = false;
   var gridMainAxisExtent = 0.0;
 
@@ -93,6 +97,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
     findController.dispose();
     findDebounceTimer?.cancel();
     findFocus.dispose();
+    pageFocus.dispose();
     super.dispose();
   }
 
@@ -113,6 +118,7 @@ class _ContentPageState extends ConsumerState<ContentPage> {
         );
 
   void openFind() {
+    if (!findActive) focusBeforeFind = FocusManager.instance.primaryFocus;
     setState(() => findActive = true);
     findFocus.requestFocus();
   }
@@ -125,6 +131,13 @@ class _ContentPageState extends ConsumerState<ContentPage> {
       findTerm = '';
       findController.clear();
     });
+    // Otherwise the focus falls back to the route's scope, which is above the page shortcuts.
+    final previous = focusBeforeFind;
+    if (previous != null && previous is! FocusScopeNode && previous.context != null) {
+      previous.requestFocus();
+    } else {
+      pageFocus.requestFocus();
+    }
   }
 
   void onFindChanged(String _) {
@@ -307,161 +320,164 @@ class _ContentPageState extends ConsumerState<ContentPage> {
           ClearSearchIntent: CallbackAction<ClearSearchIntent>(onInvoke: (intent) => clearSearch()),
           OpenFindIntent: CallbackAction<OpenFindIntent>(onInvoke: (intent) => openFind()),
         },
-        child: AppScaffold(
-          title: typeName,
-          breadcrumb: argument.title.replaceAll(' - ', ' / '),
-          actions: [
-              if (mq.size.width >= landscapeWidth) ...[
-                Tooltip(
-                  message: i18n(context).com_ctrl_g,
-                  child: OutlinedButton.icon(
-                    onPressed: openFind,
-                    icon: const Icon(Icons.search),
-                    label: Text(i18n(context).content_search),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Tooltip(
-                  message: i18n(context).com_f3,
-                  child: OutlinedButton.icon(
-                    onPressed: openSearchDialog,
-                    icon: const Icon(Icons.filter_list),
-                    label: Text(searchTerm.isEmpty ? i18n(context).content_filter : searchTerm),
-                  ),
-                ),
-              ] else ...[
-                IconButton(onPressed: openFind, icon: const Icon(Icons.search), tooltip: i18n(context).com_ctrl_g),
-                IconButton(onPressed: openSearchDialog, icon: const Icon(Icons.filter_list), tooltip: i18n(context).com_f3),
-              ],
-              IconButton(
-                onPressed: searchTerm.isEmpty ? null : clearSearch,
-                icon: const Icon(Icons.filter_list_off),
-                tooltip: i18n(context).com_ctrl_x,
-              ),
-              PopupMenuButton(
-                itemBuilder: (BuildContext context) {
-                  return [
-                    PopupMenuItem<int>(
-                      value: 0,
-                      child: ListTile(leading: const Icon(Icons.color_lens), title: Text(i18n(context).com_change_theme)),
-                    ),
-                    PopupMenuItem<int>(
-                      value: 1,
-                      child: ListTile(leading: const Icon(Icons.language), title: Text(i18n(context).com_change_language)),
-                    ),
-                    PopupMenuItem<int>(
-                      enabled: trackRef.artist.isNotEmpty,
-                      value: 2,
-                      child: ListTile(leading: const Icon(Icons.search), title: Text('Discogs ${trackRef.artist}')),
-                    ),
-                    PopupMenuItem<int>(
-                      enabled: trackRef.artist.isNotEmpty,
-                      value: 3,
-                      child: ListTile(leading: const Icon(Icons.search), title: Text('Musicbrainz ${trackRef.artist}')),
-                    ),
-                    PopupMenuItem<int>(
-                      enabled: trackRef.artist.isNotEmpty,
-                      value: 4,
-                      child: ListTile(leading: const Icon(Icons.search), title: Text('Wikipedia ${trackRef.artist}')),
-                    ),
-                    PopupMenuItem<int>(
-                      value: 5,
-                      child: ListTile(leading: const Icon(Icons.settings), title: Text(i18n(context).dlg_api_token)),
-                    ),
-                  ];
-                },
-                onSelected: (value) {
-                  switch (value) {
-                    case 0:
-                      ThemeProvider.controllerOf(context).nextTheme();
-                      break;
-                    case 1:
-                      if ((Intl.defaultLocale ?? '').contains('de')) {
-                        Intl.defaultLocale = 'en';
-                        APPLIC().onLocaleChanged(const Locale('en', ''));
-                      } else {
-                        Intl.defaultLocale = 'de';
-                        APPLIC().onLocaleChanged(const Locale('de', ''));
-                      }
-                      break;
-                    case 2:
-                      OpenLink.openSite(Website.discogs, trackRef.artist);
-                      break;
-                    case 3:
-                      OpenLink.openSite(Website.musicbrainz, trackRef.artist);
-                      break;
-                    case 4:
-                      OpenLink.openSite(Website.wikipedia, trackRef.artist);
-                      break;
-                    case 5:
-                      DialogHelper.showGeniusTokenDialog(
-                        context,
-                        i18n(context).dlg_api_token,
-                        i18n(context).dlg_api_token_info,
-                        prefs.getString(PrefKeys.geniusApiTokenPrefsKey) ?? '',
-                      ).then((token) {
-                        if (token?.isNotEmpty ?? false) {
-                          prefs.setString(PrefKeys.geniusApiTokenPrefsKey, token ?? '');
-                          ref.read(playingProvider.notifier).updateGeniusToken(token ?? '');
-                        }
-                      });
-                      break;
-                  }
-                },
-              ),
-            ],
-            //height: mq.size.height-130,
-            child: Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(mq.size.width >= landscapeWidth ? 40 : 16, 4, 16, 8),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        i18n(context).content_selected(selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : ''),
-                        style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
-                      ),
+        child: Focus(
+          focusNode: pageFocus,
+          child: AppScaffold(
+            title: typeName,
+            breadcrumb: argument.title.replaceAll(' - ', ' / '),
+            actions: [
+                if (mq.size.width >= landscapeWidth) ...[
+                  Tooltip(
+                    message: i18n(context).com_ctrl_g,
+                    child: OutlinedButton.icon(
+                      onPressed: openFind,
+                      icon: const Icon(Icons.search),
+                      label: Text(i18n(context).content_search),
                     ),
                   ),
-                  if (findActive)
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(mq.size.width >= landscapeWidth ? 30 : 8, 0, 8, 8),
-                      child: FindBar(
-                        controller: findController,
-                        focusNode: findFocus,
-                        term: findTerm,
-                        hitPosition: findPos,
-                        hitCount: findHits.length,
-                        onChanged: onFindChanged,
-                        onNext: () => moveFind(1),
-                        onPrevious: () => moveFind(-1),
-                        onSubmit: () => submitFind(selItems, argument, typeName),
-                        onClose: closeFind,
-                      ),
+                  const SizedBox(width: 8),
+                  Tooltip(
+                    message: i18n(context).com_f3,
+                    child: OutlinedButton.icon(
+                      onPressed: openSearchDialog,
+                      icon: const Icon(Icons.filter_list),
+                      label: Text(searchTerm.isEmpty ? i18n(context).content_filter : searchTerm),
                     ),
-                  if (mq.size.width < landscapeWidth)
-                    Expanded(
-                      child: Column(
-                        children: [
-                          Expanded(child: trackGrid),
-                          if (ref.watch(showLyricsProvider))
-                            LyricsCard(lyrics: ref.watch(lyricsProvider), height: mq.size.height / 4, width: double.maxFinite),
-                        ],
-                      ),
-                    )
-                  else
-                    Expanded(
-                      child: Row(
-                        children: [
-                          Expanded(child: trackGrid),
-                          if (ref.watch(showLyricsProvider))
-                            LyricsCard(lyrics: ref.watch(lyricsProvider), height: double.maxFinite, width: mq.size.width / 3),
-                        ],
-                      ),
-                    ),
-                  PlayerWidget(trackRef.title),
+                  ),
+                ] else ...[
+                  IconButton(onPressed: openFind, icon: const Icon(Icons.search), tooltip: i18n(context).com_ctrl_g),
+                  IconButton(onPressed: openSearchDialog, icon: const Icon(Icons.filter_list), tooltip: i18n(context).com_f3),
                 ],
-              ),
+                IconButton(
+                  onPressed: searchTerm.isEmpty ? null : clearSearch,
+                  icon: const Icon(Icons.filter_list_off),
+                  tooltip: i18n(context).com_ctrl_x,
+                ),
+                PopupMenuButton(
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      PopupMenuItem<int>(
+                        value: 0,
+                        child: ListTile(leading: const Icon(Icons.color_lens), title: Text(i18n(context).com_change_theme)),
+                      ),
+                      PopupMenuItem<int>(
+                        value: 1,
+                        child: ListTile(leading: const Icon(Icons.language), title: Text(i18n(context).com_change_language)),
+                      ),
+                      PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 2,
+                        child: ListTile(leading: const Icon(Icons.search), title: Text('Discogs ${trackRef.artist}')),
+                      ),
+                      PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 3,
+                        child: ListTile(leading: const Icon(Icons.search), title: Text('Musicbrainz ${trackRef.artist}')),
+                      ),
+                      PopupMenuItem<int>(
+                        enabled: trackRef.artist.isNotEmpty,
+                        value: 4,
+                        child: ListTile(leading: const Icon(Icons.search), title: Text('Wikipedia ${trackRef.artist}')),
+                      ),
+                      PopupMenuItem<int>(
+                        value: 5,
+                        child: ListTile(leading: const Icon(Icons.settings), title: Text(i18n(context).dlg_api_token)),
+                      ),
+                    ];
+                  },
+                  onSelected: (value) {
+                    switch (value) {
+                      case 0:
+                        ThemeProvider.controllerOf(context).nextTheme();
+                        break;
+                      case 1:
+                        if ((Intl.defaultLocale ?? '').contains('de')) {
+                          Intl.defaultLocale = 'en';
+                          APPLIC().onLocaleChanged(const Locale('en', ''));
+                        } else {
+                          Intl.defaultLocale = 'de';
+                          APPLIC().onLocaleChanged(const Locale('de', ''));
+                        }
+                        break;
+                      case 2:
+                        OpenLink.openSite(Website.discogs, trackRef.artist);
+                        break;
+                      case 3:
+                        OpenLink.openSite(Website.musicbrainz, trackRef.artist);
+                        break;
+                      case 4:
+                        OpenLink.openSite(Website.wikipedia, trackRef.artist);
+                        break;
+                      case 5:
+                        DialogHelper.showGeniusTokenDialog(
+                          context,
+                          i18n(context).dlg_api_token,
+                          i18n(context).dlg_api_token_info,
+                          prefs.getString(PrefKeys.geniusApiTokenPrefsKey) ?? '',
+                        ).then((token) {
+                          if (token?.isNotEmpty ?? false) {
+                            prefs.setString(PrefKeys.geniusApiTokenPrefsKey, token ?? '');
+                            ref.read(playingProvider.notifier).updateGeniusToken(token ?? '');
+                          }
+                        });
+                        break;
+                    }
+                  },
+                ),
+              ],
+              //height: mq.size.height-130,
+              child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(mq.size.width >= landscapeWidth ? 40 : 16, 4, 16, 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          i18n(context).content_selected(selItems.length, argument.content.length, searchTerm.isNotEmpty ? ' - $searchTerm' : ''),
+                          style: Theme.of(context).textTheme.bodySmall!.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                        ),
+                      ),
+                    ),
+                    if (findActive)
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(mq.size.width >= landscapeWidth ? 30 : 8, 0, 8, 8),
+                        child: FindBar(
+                          controller: findController,
+                          focusNode: findFocus,
+                          term: findTerm,
+                          hitPosition: findPos,
+                          hitCount: findHits.length,
+                          onChanged: onFindChanged,
+                          onNext: () => moveFind(1),
+                          onPrevious: () => moveFind(-1),
+                          onSubmit: () => submitFind(selItems, argument, typeName),
+                          onClose: closeFind,
+                        ),
+                      ),
+                    if (mq.size.width < landscapeWidth)
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Expanded(child: trackGrid),
+                            if (ref.watch(showLyricsProvider))
+                              LyricsCard(lyrics: ref.watch(lyricsProvider), height: mq.size.height / 4, width: double.maxFinite),
+                          ],
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: Row(
+                          children: [
+                            Expanded(child: trackGrid),
+                            if (ref.watch(showLyricsProvider))
+                              LyricsCard(lyrics: ref.watch(lyricsProvider), height: double.maxFinite, width: mq.size.width / 3),
+                          ],
+                        ),
+                      ),
+                    PlayerWidget(trackRef.title),
+                  ],
+                ),
+          ),
         ),
       ),
     );

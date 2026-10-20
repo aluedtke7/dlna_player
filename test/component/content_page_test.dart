@@ -100,6 +100,54 @@ void main() {
     await disposePlayerWidget(tester);
   });
 
+  testWidgets('Ctrl+G still opens the search after it was closed with Escape', (tester) async {
+    final tracks = [RawContent(id: 't0', title: 'Track 0', artist: 'Artist', classType: ContentClass.track)];
+    await pumpPage(tester, const ContentPage(), size: wide, arguments: ContentArguments('Music', tracks));
+
+    Future<void> pressCtrlG() async {
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyG);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pump();
+    }
+
+    await pressCtrlG();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(find.byType(TextField), findsNothing);
+
+    await pressCtrlG();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await disposePlayerWidget(tester);
+  });
+
+  testWidgets('Ctrl+G still opens the search after Escape, when nothing had the focus before', (tester) async {
+    final tracks = [RawContent(id: 't0', title: 'Track 0', artist: 'Artist', classType: ContentClass.track)];
+    await pumpPage(tester, const ContentPage(), size: wide, arguments: ContentArguments('Music', tracks));
+    // E.g. after a click, the focus rests on the route's scope above the page's shortcuts.
+    FocusManager.instance.primaryFocus!.unfocus();
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Strg + G\nSucht in der angezeigten Liste'));
+    await tester.pump();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+    expect(find.byType(TextField), findsNothing);
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyG);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await tester.pump();
+    expect(find.byType(TextField), findsOneWidget);
+
+    await disposePlayerWidget(tester);
+  });
+
   testWidgets('Enter plays the current hit, also while the debounce is pending', (tester) async {
     final tracks = [
       for (var i = 0; i < 80; i++)
