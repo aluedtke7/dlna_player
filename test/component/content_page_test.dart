@@ -1,6 +1,7 @@
 import 'package:dlna_player/component/card/album_card.dart';
 import 'package:dlna_player/component/card/container_card.dart';
 import 'package:dlna_player/component/card/track_card.dart';
+import 'package:dlna_player/component/player_widget.dart';
 import 'package:dlna_player/model/content_arguments.dart';
 import 'package:dlna_player/model/content_class.dart';
 import 'package:dlna_player/model/raw_content.dart';
@@ -144,6 +145,23 @@ void main() {
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
     await tester.pump();
     expect(find.byType(TextField), findsOneWidget);
+
+    await disposePlayerWidget(tester);
+  });
+
+  testWidgets('the player gets the focus back after Escape, so the arrow keys reach it', (tester) async {
+    final tracks = [RawContent(id: 't0', title: 'Track 0', artist: 'Artist', classType: ContentClass.track)];
+    await pumpPage(tester, const ContentPage(), size: wide, arguments: ContentArguments('Music', tracks));
+    FocusManager.instance.primaryFocus!.unfocus();
+    await tester.pump();
+
+    await tester.tap(find.byTooltip('Strg + G\nSucht in der angezeigten Liste'));
+    await tester.pump();
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pump();
+
+    final focused = FocusManager.instance.primaryFocus!.context!;
+    expect(focused.findAncestorWidgetOfExactType<PlayerWidget>(), isNotNull);
 
     await disposePlayerWidget(tester);
   });

@@ -53,6 +53,7 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
       }
     });
     playPauseController = AnimationController(vsync: this, duration: const Duration(milliseconds: 240));
+    FocusManager.instance.addListener(reclaimFocus);
     _loadPrefs();
     eventBus.on<VolumeChangedEvent>().listen((volume) {
       if (mounted) {
@@ -62,8 +63,18 @@ class _PlayerWidgetState extends ConsumerState<PlayerWidget> with SingleTickerPr
     });
   }
 
+  /// Takes the focus back when it rests on an ancestor like the route's scope,
+  /// otherwise the arrow keys move the focus between the tiles.
+  void reclaimFocus() {
+    final primary = FocusManager.instance.primaryFocus;
+    if (primary != null && primary != focusNode && focusNode.ancestors.contains(primary)) {
+      focusNode.requestFocus();
+    }
+  }
+
   @override
   void dispose() {
+    FocusManager.instance.removeListener(reclaimFocus);
     volumeHideTimer.cancel();
     playPauseController.dispose();
     focusNode.dispose();
